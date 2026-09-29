@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LawTracker — мониторинг изменений законодательства</title>
+<meta name="description" content="LawTracker — платформа юридического анализа изменений в законодательстве: персональные дайджесты для вашей компании в кабинете и Telegram.">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=Inter:wght@400;500;600;700&display=swap&subset=cyrillic" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F4F0;--bg-raised:#FFFFFF;--sidebar:#EBEEE8;--panel:#17352C;
+  --ink:#16201B;--ink-soft:#4A554E;--ink-faint:#67726A;--line:#DBDFD7;
+  --accent:#22574A;--accent-ink:#F4F7F4;--accent-soft:#E4EBE6;--amber:#8A5A20;--amber-soft:#F2E7D5;
+  --red:#A23B2E;--red-soft:#F5E4E0;--blue:#2F5573;--blue-soft:#E1EAF1;--radius:10px;
+  --shadow:0 1px 2px rgba(0,0,0,.05);--focus:#1B6FD8;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12160F;--bg-raised:#1A211B;--sidebar:#171E17;--panel:#0F1D18;
+  --ink:#E9EDE8;--ink-soft:#A9B3A9;--ink-faint:#8A958C;--line:#2A322B;
+  --accent:#6FAE97;--accent-ink:#0E1A15;--accent-soft:#223028;--amber:#D8AE72;--amber-soft:#2E2618;
+  --red:#E39A8D;--red-soft:#33211E;--blue:#8DB6D6;--blue-soft:#1C2A36;--focus:#7DB2FF;}}
+:root[data-theme="dark"]{
+  --bg:#12160F;--bg-raised:#1A211B;--sidebar:#171E17;--panel:#0F1D18;
+  --ink:#E9EDE8;--ink-soft:#A9B3A9;--ink-faint:#8A958C;--line:#2A322B;
+  --accent:#6FAE97;--accent-ink:#0E1A15;--accent-soft:#223028;--amber:#D8AE72;--amber-soft:#2E2618;
+  --red:#E39A8D;--red-soft:#33211E;--blue:#8DB6D6;--blue-soft:#1C2A36;--focus:#7DB2FF;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:1rem;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:"PT Serif",Georgia,serif;font-weight:700;margin:0;color:var(--ink);line-height:1.25}
+p{margin:0}a{color:inherit;text-decoration:none}
+button,select,input,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+img,svg{max-width:100%}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:8px;z-index:1000}
+.skip:focus{left:8px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.muted{color:var(--ink-soft)}.faint{color:var(--ink-faint)}
+.link{color:var(--accent);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-decoration-color:transparent}
+.link:hover{text-decoration-color:currentColor}
+.ico{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:15px;height:15px}.ico.lg{width:24px;height:24px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 22px;border-radius:8px;font-size:.95rem;font-weight:600;border:1px solid transparent;white-space:nowrap;transition:background .15s,opacity .15s}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}.btn-primary:hover{opacity:.9}
+.btn-ghost{background:var(--bg-raised);color:var(--ink);border-color:var(--line)}.btn-ghost:hover{background:var(--accent-soft)}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{opacity:.9}
+.btn-danger-ghost{background:transparent;color:var(--red);border-color:var(--red)}.btn-danger-ghost:hover{background:var(--red-soft)}
+.btn-text{background:none;border:none;color:var(--ink-soft);padding:10px 8px;min-height:44px;font-weight:500}.btn-text:hover{color:var(--ink);text-decoration:underline}
+.btn-sm{min-height:36px;padding:6px 14px;font-size:.88rem}
+.btn-block{width:100%}
+.btn[disabled],.btn[aria-disabled=true]{opacity:.5;cursor:not-allowed}
+.icon-btn{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg-raised);font-size:.87rem;color:var(--ink-soft)}
+.icon-btn:hover{background:var(--accent-soft);color:var(--ink)}
+.icon-btn.on{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.icon-btn.danger:hover{background:var(--red-soft);color:var(--red)}
+.icon-only{width:44px;height:44px;padding:0;justify-content:center}
+
+/* tags / badges */
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600;line-height:1.5}
+.tag.amber{background:var(--amber-soft);color:var(--amber)}
+.tag.red{background:var(--red-soft);color:var(--red)}
+.tag.blue{background:var(--blue-soft);color:var(--blue)}
+.tag.neutral{background:var(--sidebar);color:var(--ink-soft)}
+.tag .ico{width:13px;height:13px}
+.meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.bars{display:inline-flex;gap:2px;align-items:flex-end;height:11px}
+.bars i{width:3px;background:currentColor;opacity:.3;border-radius:1px}
+.bars i:nth-child(1){height:5px}.bars i:nth-child(2){height:8px}.bars i:nth-child(3){height:11px}
+.bars i.on{opacity:1}
+
+/* forms */
+.field{margin-bottom:22px}
+.field>label,.field .field-label{display:flex;align-items:center;gap:6px;font-size:.92rem;font-weight:600;margin-bottom:6px}
+.req{color:var(--amber);font-weight:700}
+.opt-mark{font-weight:400;color:var(--ink-faint);font-size:.82rem}
+.hint{font-size:.84rem;color:var(--ink-soft);margin-bottom:10px;max-width:62ch}
+.input,.field select,.field input[type=text],.field input[type=email],.field input[type=password],.field input[type=tel],.field textarea,select.input{width:100%;min-height:44px;padding:10px 14px;border-radius:8px;border:1px solid #8b968e;background:var(--bg-raised);color:var(--ink)}
+[data-theme=dark] .input,[data-theme=dark] .field select,[data-theme=dark] .field input,[data-theme=dark] .field textarea{border-color:#4b574e}
+.field textarea{resize:vertical;min-height:84px}
+.field [aria-invalid=true]{border-color:var(--red);box-shadow:0 0 0 1px var(--red)}
+.err{display:flex;gap:6px;align-items:center;color:var(--red);font-size:.84rem;margin-top:6px;font-weight:500}
+.note{font-size:.8rem;color:var(--ink-faint);margin-top:5px}
+.chip-group{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:40px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);font-size:.88rem;color:var(--ink-soft);background:var(--bg-raised);display:inline-flex;align-items:center;gap:6px}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip[aria-pressed=true]::before{content:"✓";font-weight:700}
+.radio-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.radio-card{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg-raised);cursor:pointer;font-size:.9rem}
+.radio-card:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.radio-card:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:2px}
+.radio-card input{margin-top:4px;accent-color:var(--accent)}
+.radio-card small{display:block;color:var(--ink-soft)}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;cursor:pointer}
+.check input{width:20px;height:20px;margin-top:2px;accent-color:var(--accent);flex-shrink:0}
+.switch{position:relative;width:46px;height:26px;flex-shrink:0;display:inline-block}
+.switch input{position:absolute;inset:0;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:1}
+.switch .track{position:absolute;inset:0;background:#8b968e;border-radius:999px;transition:background .15s}
+.switch .track::before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.switch input:checked+.track{background:var(--accent)}
+.switch input:checked+.track::before{transform:translateX(20px)}
+.switch input:focus-visible+.track{outline:3px solid var(--focus);outline-offset:2px}
+.switch input:disabled{cursor:not-allowed}.switch input:disabled+.track{opacity:.5}
+.segmented{display:inline-flex;background:var(--sidebar);border-radius:8px;padding:3px;flex-wrap:wrap}
+.segmented button{min-height:38px;padding:6px 14px;border-radius:6px;border:none;background:none;font-size:.86rem;color:var(--ink-soft)}
+.segmented button[aria-pressed=true],.segmented button[aria-selected=true]{background:var(--bg-raised);color:var(--ink);font-weight:600;box-shadow:var(--shadow)}
+.day-row{display:flex;gap:6px;flex-wrap:wrap}
+.day-pill{width:44px;height:44px;border-radius:8px;border:1px solid var(--line);background:var(--bg-raised);font-size:.85rem;color:var(--ink-soft)}
+.day-pill[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pw-meter{display:flex;gap:4px;margin-top:8px}.pw-meter i{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.pw-meter i.on{background:var(--accent)}
+
+/* cards & misc */
+.card{background:var(--bg-raised);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card.tight{padding:16px 18px}
+.banner{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:10px;background:var(--accent-soft);font-size:.9rem}
+.banner.amber{background:var(--amber-soft)}.banner.red{background:var(--red-soft)}.banner.blue{background:var(--blue-soft)}
+.banner .ico{margin-top:2px}
+.banner .b-body{flex:1}.banner strong{display:block}
+.progress{height:8px;border-radius:999px;background:var(--sidebar);overflow:hidden}
+.progress>div{height:100%;background:var(--accent);transition:width .3s}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg-raised)}
+table.tbl{width:100%;border-collapse:collapse;font-size:.9rem}
+.tbl th{text-align:left;font-size:.78rem;color:var(--ink-soft);background:var(--sidebar);padding:10px 16px;font-weight:600}
+.tbl td{padding:12px 16px;border-top:1px solid var(--line);vertical-align:middle}
+.breadcrumbs{display:flex;gap:8px;align-items:center;font-size:.86rem;color:var(--ink-soft);margin-bottom:14px;flex-wrap:wrap}
+.breadcrumbs a{color:var(--accent);font-weight:500}.breadcrumbs a:hover{text-decoration:underline}
+.tabs{display:flex;gap:4px;background:var(--sidebar);border-radius:10px;padding:4px}
+.tabs [role=tab]{flex:1;text-align:center;min-height:42px;padding:8px 12px;border-radius:8px;border:none;background:none;font-weight:600;font-size:.9rem;color:var(--ink-soft)}
+.tabs [role=tab][aria-selected=true]{background:var(--bg-raised);color:var(--ink);box-shadow:var(--shadow)}
+.empty{text-align:center;padding:48px 24px;background:var(--bg-raised);border:1px dashed var(--line);border-radius:14px}
+.empty .ico{width:34px;height:34px;color:var(--ink-faint);margin-bottom:12px}
+.empty h3{font-size:1.1rem;margin-bottom:8px}.empty p{color:var(--ink-soft);max-width:46ch;margin:0 auto 18px;font-size:.93rem}
+.skeleton{background:linear-gradient(90deg,var(--sidebar),var(--line),var(--sidebar));background-size:200% 100%;animation:sk 1.3s infinite;border-radius:8px}
+@keyframes sk{to{background-position:-200% 0}}
+.sk-card{background:var(--bg-raised);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin-bottom:12px}
+.sk-line{height:12px;margin:10px 0}
+
+/* toast & modal */
+#toasts{position:fixed;right:16px;bottom:16px;z-index:900;display:flex;flex-direction:column;gap:8px;max-width:min(380px,calc(100vw - 32px))}
+.toast{background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25);font-size:.9rem;display:flex;gap:10px;align-items:flex-start;animation:tin .2s}
+.toast.err{background:var(--red);color:#fff;display:flex;margin:0;font-weight:400}
+@keyframes tin{from{transform:translateY(8px);opacity:0}}
+.overlay{position:fixed;inset:0;background:rgba(10,16,12,.55);z-index:800;display:flex;align-items:center;justify-content:center;padding:16px;animation:fin .15s}
+@keyframes fin{from{opacity:0}}
+.modal{background:var(--bg-raised);border-radius:14px;padding:26px;max-width:480px;width:100%;max-height:90vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.modal h2{font-size:1.25rem;margin-bottom:8px}.modal .m-body{margin:12px 0 20px;color:var(--ink-soft);font-size:.94rem}
+.modal .m-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.drawer-ov{align-items:stretch;justify-content:flex-end;padding:0}
+.drawer{background:var(--bg-raised);width:min(360px,100%);height:100%;padding:22px;overflow:auto;animation:din .2s}
+@keyframes din{from{transform:translateX(30px);opacity:0}}
+
+/* ---------- PUBLIC ---------- */
+header.site{border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:50}
+.nav-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 24px;max-width:1080px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:10px;font-family:"PT Serif",serif;font-weight:700;font-size:1.1rem;color:var(--ink)}
+.logo svg{color:var(--accent)}
+nav.links{display:flex;gap:6px;font-size:.92rem;color:var(--ink-soft)}
+nav.links a{padding:10px 12px;border-radius:8px}nav.links a:hover,nav.links a[aria-current=page]{color:var(--ink);background:var(--accent-soft)}
+.nav-actions{display:flex;gap:10px;align-items:center}
+.menu-btn{display:none}
+@media (max-width:860px){nav.links{display:none}.menu-btn{display:inline-flex}.nav-actions .hide-m{display:none}}
+.mobile-menu{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.mobile-menu a{padding:14px 12px;border-radius:8px;font-weight:500;border-bottom:1px solid var(--line)}
+section.pub{padding:76px 0;border-bottom:1px solid var(--line)}
+@media (max-width:640px){section.pub{padding:52px 0}}
+.section-head{max-width:640px;margin-bottom:38px}
+.section-head h2{font-size:clamp(1.5rem,3.4vw,1.9rem);margin-bottom:12px}
+.section-head p{color:var(--ink-soft);font-size:1.03rem}
+.eyebrow{font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.hero{padding:64px 0 80px;border-bottom:1px solid var(--line)}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center}
+@media (max-width:900px){.hero-grid{grid-template-columns:1fr;gap:36px}.hero{padding:40px 0 56px}}
+.hero h1{font-size:clamp(1.9rem,4.4vw,2.8rem);max-width:17ch}
+.lede{margin-top:18px;font-size:1.12rem;color:var(--ink-soft);max-width:48ch}
+.hero-cta{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
+.hero-note{margin-top:16px;font-size:.85rem;color:var(--ink-faint)}
+.problem-grid,.trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media (max-width:860px){.problem-grid,.trust-grid{grid-template-columns:1fr}}
+.problem{padding:20px 22px;border-radius:12px;background:var(--bg-raised);border:1px solid var(--line)}
+.problem .n{font-family:"PT Serif",serif;font-size:1.6rem;color:var(--accent)}
+.problem h3{font-size:1.02rem;margin:8px 0 6px}.problem p{font-size:.92rem;color:var(--ink-soft)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}
+@media (max-width:860px){.steps{grid-template-columns:repeat(2,1fr)}}@media (max-width:560px){.steps{grid-template-columns:1fr}}
+.step{border-top:2px solid var(--accent);padding-top:14px}
+.step .num{font-family:"PT Serif",serif;font-size:1.5rem;color:var(--accent)}
+.step h3{font-size:1.02rem;margin:8px 0 6px}.step p{color:var(--ink-soft);font-size:.92rem}
+.sample-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:36px;align-items:start}
+@media (max-width:900px){.sample-grid{grid-template-columns:1fr}}
+.capgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px 32px}
+@media (max-width:860px){.capgrid{grid-template-columns:repeat(2,1fr)}}@media (max-width:560px){.capgrid{grid-template-columns:1fr}}
+.cap .ico{width:28px;height:28px;color:var(--accent);margin-bottom:12px}
+.cap h3{font-size:1.02rem;margin-bottom:6px}.cap p{color:var(--ink-soft);font-size:.92rem}
+.aud-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media (max-width:860px){.aud-grid{grid-template-columns:repeat(2,1fr)}}@media (max-width:520px){.aud-grid{grid-template-columns:1fr}}
+.aud{padding:18px;border:1px solid var(--line);border-radius:12px;background:var(--bg-raised)}
+.aud h3{font-size:.98rem;margin-bottom:4px}.aud p{font-size:.88rem;color:var(--ink-soft)}
+.trust{padding:22px;border-radius:12px;border:1px solid var(--line);background:var(--bg-raised)}
+.trust .ico{color:var(--accent);width:24px;height:24px;margin-bottom:10px}.trust h3{font-size:1rem;margin-bottom:6px}.trust p{font-size:.9rem;color:var(--ink-soft)}
+details{border-bottom:1px solid var(--line)}
+details summary{cursor:pointer;font-weight:600;font-size:1.02rem;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:18px 0;min-height:44px}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";font-size:1.4rem;color:var(--accent);line-height:1}
+details[open] summary::after{content:"–"}
+details p{padding:0 0 18px;color:var(--ink-soft);font-size:.96rem;max-width:66ch}
+.final-cta{background:var(--panel);color:#EFF3EF;border-radius:18px;padding:52px 44px}
+@media (max-width:640px){.final-cta{padding:34px 22px}}
+.final-cta h2{color:#F4F7F4;font-size:clamp(1.4rem,3vw,1.8rem);max-width:24ch}
+.final-cta p{color:#C7D2CB;margin-top:12px;max-width:52ch}
+.final-cta .btn-primary{background:#F4F7F4;color:#17352C;margin-top:22px}
+footer.site{padding:48px 0 40px;border-top:1px solid var(--line)}
+.foot-cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px;font-size:.9rem}
+@media (max-width:760px){.foot-cols{grid-template-columns:1fr 1fr}}
+.foot-cols h4{font-family:Inter,sans-serif;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);margin-bottom:10px}
+.foot-cols a{display:block;padding:5px 0;color:var(--ink-soft)}.foot-cols a:hover{color:var(--accent)}
+.footer-disclaimer{font-size:.82rem;color:var(--ink-soft);max-width:78ch;margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
+.page-hero{padding:56px 0 30px}.page-hero h1{font-size:clamp(1.7rem,4vw,2.3rem);margin-bottom:12px}
+.prose{max-width:70ch}.prose h2{font-size:1.25rem;margin:30px 0 10px}.prose p,.prose li{color:var(--ink-soft);margin-bottom:10px}
+.price-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media (max-width:1000px){.price-grid{grid-template-columns:repeat(2,1fr)}}@media (max-width:560px){.price-grid{grid-template-columns:1fr}}
+.plan{display:flex;flex-direction:column;padding:24px;border:1px solid var(--line);border-radius:14px;background:var(--bg-raised)}
+.plan.featured{border:2px solid var(--accent)}
+.plan h3{font-size:1.15rem}.plan .for{color:var(--ink-soft);font-size:.88rem;margin:4px 0 16px}
+.plan ul{list-style:none;padding:0;margin:0 0 22px;display:grid;gap:9px;font-size:.92rem;flex:1}
+.plan li{display:flex;gap:8px}.plan li .ico{color:var(--accent);margin-top:3px}
+.plan .price{font-family:"PT Serif",serif;font-size:1.05rem;margin-bottom:14px;color:var(--ink-soft)}
+
+/* digest card sample */
+.digest-card{background:var(--bg-raised);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:0 8px 30px rgba(20,40,30,.08)}
+.digest-card h3{font-size:1.12rem;margin-bottom:8px}
+.demo-label{display:inline-block;font-size:.75rem;color:var(--ink-faint);border:1px dashed var(--line);border-radius:6px;padding:2px 8px;margin-bottom:12px}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 20px;margin:14px 0}
+@media (max-width:520px){.kv{grid-template-columns:1fr}}
+.kv .k{font-size:.78rem;color:var(--ink-faint);margin-bottom:2px}.kv .v{font-size:.92rem}
+.why{background:var(--accent-soft);border-radius:10px;padding:12px 14px;font-size:.88rem}
+.why b{display:block;color:var(--accent);font-size:.8rem;margin-bottom:6px}.why ul{margin:0;padding-left:18px;display:grid;gap:4px}
+
+/* ---------- AUTH ---------- */
+.auth-screen{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+@media (max-width:900px){.auth-screen{grid-template-columns:1fr}}
+.brand-panel{background:var(--panel);color:#EFF3EF;padding:48px;display:flex;flex-direction:column;justify-content:space-between;gap:32px}
+@media (max-width:900px){.brand-panel{padding:24px 20px}.brand-panel .card-preview,.brand-panel .benefit-list{display:none}}
+.brand-panel .logo{color:#EFF3EF}.brand-panel .logo svg{color:#6FAE97}
+.brand-copy h2{font-size:1.7rem;color:#F4F7F4;max-width:20ch;margin-bottom:20px}
+.benefit-list{display:flex;flex-direction:column;gap:14px}
+.benefit{display:flex;gap:12px;color:#C7D2CB;font-size:.93rem}.benefit .ico{color:#6FAE97;margin-top:3px}
+.card-preview{background:#1E4137;border:1px solid #2C5347;border-radius:12px;padding:18px 20px}
+.card-preview .tag{background:#2C5347;color:#9FDBC3}.card-preview h3{color:#F4F7F4;font-size:.98rem;margin:8px 0}.card-preview p{color:#B7C4BB;font-size:.85rem}
+.form-side{display:flex;align-items:center;justify-content:center;padding:40px 24px}
+.form-wrap{width:100%;max-width:400px}
+.form-wrap h1{font-size:1.5rem;margin-bottom:8px}.form-sub{color:var(--ink-soft);font-size:.93rem;margin-bottom:24px}
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--ink-faint);font-size:.82rem}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.switch-note{text-align:center;font-size:.9rem;color:var(--ink-soft);margin-top:22px}
+.code-inputs{display:flex;gap:8px}.code-inputs input{width:100%;min-width:0;height:54px;text-align:center;font-size:1.4rem;border-radius:8px;border:1px solid #8b968e;background:var(--bg-raised)}
+.ob-steps{display:flex;gap:6px;margin-bottom:26px}.ob-steps i{flex:1;height:4px;border-radius:2px;background:var(--line)}.ob-steps i.on{background:var(--accent)}
+
+/* ---------- APP ---------- */
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+@media (max-width:980px){.app{grid-template-columns:1fr}}
+.sidebar{background:var(--sidebar);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow-y:auto}
+@media (max-width:980px){.sidebar{display:none}}
+.brand{padding:4px 10px 20px}
+.navlist{display:flex;flex-direction:column;gap:2px}
+.navlink{display:flex;align-items:center;gap:11px;min-height:44px;padding:9px 10px;border-radius:8px;color:var(--ink-soft);font-size:.92rem;font-weight:500}
+.navlink:hover{background:var(--accent-soft);color:var(--ink)}
+.navlink[aria-current=page]{background:var(--bg-raised);color:var(--accent);box-shadow:var(--shadow);font-weight:600}
+.navlink .count{margin-left:auto;font-size:.75rem;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:1px 8px;font-weight:600}
+.navlink .soon{margin-left:auto;font-size:.68rem;color:var(--ink-faint);border:1px solid var(--line);border-radius:999px;padding:0 7px}
+.nav-divider{height:1px;background:var(--line);margin:12px 6px}
+.company-pick{margin-top:auto;position:relative}
+.company-btn{width:100%;display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--bg-raised);font-size:.86rem;text-align:left;min-height:48px}
+.company-btn .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.company-btn span.t{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pop{position:absolute;bottom:calc(100% + 6px);left:0;right:0;background:var(--bg-raised);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:6px;z-index:60}
+.pop button{display:flex;width:100%;gap:8px;align-items:center;padding:10px;border:none;background:none;border-radius:6px;font-size:.86rem;text-align:left;min-height:44px}
+.pop button:hover{background:var(--accent-soft)}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 32px;border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:30;min-height:74px}
+@media (max-width:640px){.topbar{padding:12px 16px}}
+.topbar h1{font-size:1.35rem}
+.topbar .sub{color:var(--ink-soft);font-size:.88rem;margin-top:2px}
+.top-actions{display:flex;gap:8px;align-items:center}
+.bell{position:relative}.bell .dot{position:absolute;top:8px;right:9px;width:9px;height:9px;border-radius:50%;background:var(--amber);border:2px solid var(--bg)}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.85rem;flex-shrink:0;border:none}
+.content{padding:26px 32px 90px;max-width:1240px}
+@media (max-width:640px){.content{padding:18px 16px 96px}}
+.bottom-nav{display:none;position:fixed;left:0;right:0;bottom:0;background:var(--bg-raised);border-top:1px solid var(--line);z-index:70;padding-bottom:env(safe-area-inset-bottom,0)}
+@media (max-width:980px){.bottom-nav{display:grid;grid-template-columns:repeat(5,1fr)}}
+.bottom-nav a,.bottom-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:60px;font-size:.7rem;color:var(--ink-soft);background:none;border:none;position:relative;padding:6px 2px}
+.bottom-nav [aria-current=page]{color:var(--accent);font-weight:600}
+.bottom-nav .count{position:absolute;top:6px;left:55%;background:var(--accent);color:var(--accent-ink);font-size:.65rem;border-radius:999px;padding:0 6px;font-weight:700}
+.demo-strip{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.8rem;color:var(--ink-soft);background:var(--blue-soft);border-radius:8px;padding:8px 12px;margin-bottom:20px}
+.demo-strip .ico{color:var(--blue)}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
+@media (max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--bg-raised);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;display:block}
+a.stat:hover{border-color:var(--accent)}
+.stat .num{font-family:"PT Serif",serif;font-size:1.7rem;line-height:1.2}.stat .label{color:var(--ink-soft);font-size:.85rem;margin-top:4px}
+.layout-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:26px;align-items:start}
+@media (max-width:1050px){.layout-grid{grid-template-columns:1fr}}
+.col-heading{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;gap:10px}
+.col-heading h2{font-size:1.08rem}
+.col-heading a{font-size:.86rem;color:var(--accent);font-weight:600}
+.stack{display:grid;gap:14px}.stack-lg{display:grid;gap:26px}
+.widget{background:var(--bg-raised);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+.widget h3{font-size:.98rem;margin-bottom:12px}
+.checklist{display:grid;gap:4px;margin-top:12px}
+.checklist a,.checklist div{display:flex;align-items:center;gap:10px;min-height:36px;font-size:.88rem;color:var(--ink-soft);border-radius:6px}
+.checklist a:hover{color:var(--ink)}
+.checklist .box{width:18px;height:18px;border-radius:5px;border:1.5px solid #8b968e;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.checklist .done .box{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.checklist .done{text-decoration:line-through;text-decoration-color:var(--ink-faint)}
+.tg-status{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-weight:600;font-size:.92rem}
+.sdot{width:10px;height:10px;border-radius:50%;background:var(--ink-faint);flex-shrink:0}
+.sdot.ok{background:var(--accent)}.sdot.wait{background:var(--amber)}.sdot.bad{background:var(--red)}
+.list-card{background:var(--bg-raised);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.list-row{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;gap:14px;min-height:52px}
+a.list-row:hover{background:var(--accent-soft)}
+.list-row+.list-row{border-top:1px solid var(--line)}
+.list-row .name{font-size:.92rem;font-weight:500}.list-row .date{font-size:.82rem;color:var(--ink-soft);white-space:nowrap;text-align:right}
+.days-left{font-weight:600;color:var(--amber);display:block}
+
+/* change item */
+.change-card,.change-item{background:var(--bg-raised);border:1px solid var(--line);border-radius:14px}
+.change-item{padding:18px 20px;display:flex;gap:18px;align-items:flex-start;position:relative}
+@media (max-width:640px){.change-item{flex-direction:column;gap:12px;padding:16px}}
+.change-item.unread{border-left:4px solid var(--accent)}
+.change-item.read{background:transparent}
+.ci-main{flex:1;min-width:0}
+.change-item h3{font-size:1.04rem;margin-bottom:6px}
+.change-item h3 a:hover{color:var(--accent);text-decoration:underline}
+.change-item .src{font-size:.82rem;color:var(--ink-soft);margin-bottom:8px}
+.change-item .concl{font-size:.92rem;color:var(--ink-soft);max-width:70ch}
+.ci-why{margin-top:10px;font-size:.82rem;color:var(--accent);display:flex;gap:6px;align-items:center;font-weight:500}
+.ci-side{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex-shrink:0}
+@media (max-width:640px){.ci-side{flex-direction:row;width:100%;justify-content:space-between;align-items:center}}
+.ic-sq{width:44px;height:44px;border-radius:8px;border:1px solid var(--line);background:var(--bg-raised);display:flex;align-items:center;justify-content:center;color:var(--ink-soft)}
+.ic-sq:hover{background:var(--accent-soft)}.ic-sq[aria-pressed=true]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.ic-sq[aria-pressed=true] .ico{fill:currentColor}
+.filters-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.search-box{flex:1 1 260px;position:relative;min-width:200px}
+.search-box .ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--ink-faint);pointer-events:none}
+.search-box input{width:100%;min-height:44px;padding:10px 14px 10px 40px;border-radius:8px;border:1px solid #8b968e;background:var(--bg-raised)}
+select.fs{min-height:44px;padding:8px 12px;border-radius:8px;border:1px solid #8b968e;background:var(--bg-raised);font-size:.9rem;max-width:100%}
+.desktop-filters{display:flex;gap:10px;flex-wrap:wrap}
+.only-m{display:none}
+@media (max-width:760px){.desktop-filters{display:none}.only-m{display:inline-flex}}
+.status-tabs{display:flex;gap:4px;background:var(--sidebar);border-radius:10px;padding:4px;margin:16px 0 16px;width:fit-content;max-width:100%;overflow-x:auto}
+.status-tabs button{min-height:40px;padding:7px 14px;border-radius:7px;border:none;background:none;font-size:.88rem;color:var(--ink-soft);white-space:nowrap;display:flex;gap:6px;align-items:center}
+.status-tabs button[aria-selected=true]{background:var(--bg-raised);color:var(--ink);font-weight:600;box-shadow:var(--shadow)}
+.status-tabs .n{font-size:.72rem;color:var(--ink-faint)}
+.list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px}
+.sort-row{display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--ink-soft)}
+.load-more{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:22px;color:var(--ink-soft);font-size:.86rem}
+.active-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.active-filters button{display:inline-flex;gap:6px;align-items:center;min-height:32px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--bg-raised);font-size:.82rem}
+
+/* change detail */
+.detail{max-width:860px}
+.detail h1{font-size:clamp(1.4rem,3vw,1.8rem);margin-bottom:12px}
+.d-block{background:var(--bg-raised);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:16px}
+@media (max-width:640px){.d-block{padding:18px}}
+.d-block>h2{font-size:1.06rem;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.layer{font-family:Inter,sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:6px;background:var(--sidebar);color:var(--ink-soft)}
+.d-summary{border-left:4px solid var(--accent);font-size:1.08rem;font-family:"PT Serif",serif;line-height:1.5}
+.quote{margin:0;padding:14px 18px;background:var(--sidebar);border-radius:10px;font-family:"PT Serif",serif;font-size:.95rem;color:var(--ink-soft);border-left:3px solid var(--ink-faint)}
+.analytic{background:var(--blue-soft);border-color:transparent}
+.act-list{display:grid;gap:10px}
+.act{display:grid;grid-template-columns:auto 1.6fr 1fr 1fr 150px;gap:14px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:.9rem}
+@media (max-width:820px){.act{grid-template-columns:auto 1fr;}.act>div:nth-child(n+3){grid-column:2}}
+.act.done .txt{text-decoration:line-through;color:var(--ink-faint)}
+.act .k{display:block;font-size:.72rem;color:var(--ink-faint)}
+.act select{min-height:40px;padding:6px 8px;border-radius:8px;border:1px solid #8b968e;background:var(--bg-raised);font-size:.86rem}
+.source-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;flex-wrap:wrap}
+.source-row .name{font-weight:600;font-size:.94rem}.source-row .ref{color:var(--ink-soft);font-size:.84rem}
+.card-actions{display:flex;gap:10px;flex-wrap:wrap}
+.conf{display:flex;gap:10px;align-items:flex-start;font-size:.86rem;color:var(--ink-soft);background:var(--sidebar);border-radius:10px;padding:12px 14px}
+.timeline{display:flex;gap:0;margin:8px 0 4px}
+.timeline div{flex:1;text-align:center;font-size:.76rem;color:var(--ink-faint);position:relative;padding-top:20px}
+.timeline div::before{content:"";position:absolute;top:6px;left:0;right:0;height:2px;background:var(--line)}
+.timeline div::after{content:"";position:absolute;top:0;left:50%;margin-left:-7px;width:14px;height:14px;border-radius:50%;background:var(--bg-raised);border:2px solid var(--line)}
+.timeline .on{color:var(--ink);font-weight:600}.timeline .on::after{background:var(--accent);border-color:var(--accent)}.timeline .on::before{background:var(--accent)}
+
+/* profile */
+.content-split{display:grid;grid-template-columns:270px 1fr;gap:28px;align-items:start}
+@media (max-width:980px){.content-split{grid-template-columns:1fr}}
+.steplist{display:flex;flex-direction:column;gap:2px;position:sticky;top:96px}
+@media (max-width:980px){.steplist{flex-direction:row;overflow-x:auto;gap:8px;padding-bottom:8px;position:static}}
+.step-row{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:8px;border:none;background:none;text-align:left;min-height:46px;width:100%}
+@media (max-width:980px){.step-row{flex-direction:column;align-items:flex-start;min-width:150px;background:var(--bg-raised);border:1px solid var(--line);width:auto}}
+.step-row:hover{background:var(--accent-soft)}
+.step-row[aria-current=step]{background:var(--accent-soft)}
+.step-marker{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.76rem;font-weight:700;flex-shrink:0;border:1.5px solid #8b968e;color:var(--ink-soft)}
+.step-row.done .step-marker{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.step-row[aria-current=step] .step-marker{border-color:var(--accent);color:var(--accent)}
+.step-row.done[aria-current=step] .step-marker{color:var(--accent-ink)}
+.step-row .nm{font-size:.88rem;color:var(--ink-soft)}.step-row[aria-current=step] .nm{color:var(--ink);font-weight:600}
+.step-row .op{font-size:.72rem;color:var(--ink-faint);display:block}
+.form-panel{background:var(--bg-raised);border:1px solid var(--line);border-radius:14px;padding:30px 34px}
+@media (max-width:640px){.form-panel{padding:20px}}
+.form-panel .eyebrow{color:var(--ink-faint);text-transform:none;letter-spacing:0;font-size:.85rem;font-weight:500}
+.form-panel h2{font-size:1.4rem;margin-bottom:8px}
+.step-desc{color:var(--ink-soft);font-size:.95rem;max-width:62ch;margin-bottom:26px}
+.infl{display:inline-flex;gap:5px;align-items:center;font-size:.74rem;font-weight:500;color:var(--accent);background:var(--accent-soft);padding:1px 8px;border-radius:999px}
+.step-actions{display:flex;align-items:center;justify-content:space-between;margin-top:28px;padding-top:20px;border-top:1px solid var(--line);flex-wrap:wrap;gap:12px}
+.step-actions .l{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tog-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;border-top:1px solid var(--line)}
+.tog-row:first-child{border-top:none}.tog-row .t{font-size:.92rem;font-weight:500}.tog-row .s{font-size:.82rem;color:var(--ink-soft)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
+@media (max-width:640px){.grid2{grid-template-columns:1fr}}
+
+/* notifications */
+.narrow{max-width:780px}
+.group{margin-bottom:30px}.group-head{margin-bottom:12px}.group-head h2{font-size:1.1rem;margin-bottom:4px}.group-head p{color:var(--ink-soft);font-size:.9rem}
+.channel-card{background:var(--bg-raised);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+.channel-row{display:flex;align-items:center;gap:14px;padding:16px 18px}
+.channel-icon{width:38px;height:38px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.channel-body{flex:1;min-width:0}.channel-body .name{font-size:.96rem;font-weight:600}.channel-body .sub{font-size:.84rem;color:var(--ink-soft);margin-top:2px}
+.channel-sub{border-top:1px solid var(--line);padding:14px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:.9rem;color:var(--ink-soft)}
+@media (max-width:520px){.channel-row{flex-wrap:wrap}.channel-row .tag{order:3}}
+.settings-card{background:var(--bg-raised);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px}
+.tg-hero{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+@media (max-width:640px){.tg-hero{grid-template-columns:1fr}}
+.tg-steps{counter-reset:s;display:grid;gap:10px;padding:0;margin:14px 0;list-style:none}
+.tg-steps li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;font-size:.94rem}
+.tg-steps li::before{content:counter(s);width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.code-box{font-family:ui-monospace,Menlo,monospace;font-size:1.6rem;letter-spacing:.2em;padding:14px 20px;border:2px dashed var(--accent);border-radius:10px;text-align:center;background:var(--accent-soft);color:var(--accent);font-weight:700}
+.tg-msg{background:var(--sidebar);border-radius:12px 12px 12px 2px;padding:14px 16px;font-size:.88rem;max-width:340px}
+.tg-msg b{display:block;margin-bottom:4px}
+.plan-step{display:flex;gap:14px;padding:14px 0;border-top:1px solid var(--line)}
+.plan-step:first-child{border-top:none}
+.locked{position:relative;opacity:.65;filter:grayscale(.3);pointer-events:none;user-select:none}
+.danger-zone{border:1px solid var(--red);border-radius:14px;padding:22px 24px;background:var(--red-soft)}
+.sess{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);font-size:.9rem;flex-wrap:wrap}
+.sess:first-of-type{border-top:none}
+.notif-item{display:flex;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);font-size:.9rem}
+.demo-fab{position:fixed;left:14px;bottom:14px;z-index:850}
+@media (max-width:980px){.demo-fab{bottom:74px}}
+.demo-fab>button{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border-radius:999px;border:none;background:var(--ink);color:var(--bg);font-size:.82rem;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.demo-panel{position:absolute;bottom:52px;left:0;width:290px;max-height:70vh;overflow:auto;background:var(--bg-raised);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.28);padding:14px;font-size:.84rem}
+.demo-panel h4{font-family:Inter,sans-serif;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);margin:12px 0 6px}
+.demo-panel h4:first-child{margin-top:0}
+.demo-panel button{display:block;width:100%;text-align:left;padding:8px 10px;min-height:38px;border-radius:6px;border:none;background:none;font-size:.84rem}
+.demo-panel button:hover{background:var(--accent-soft)}
+.demo-panel button[aria-pressed=true]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.print-only{display:none}
+.content-split>*,.layout-grid>*,.sample-grid>*,.hero-grid>*,.app>div{min-width:0}
+.content{overflow-x:clip}
+html,body{overflow-x:clip}
+.stack>*,.stack-lg>*{min-width:0}
+.topbar{flex-wrap:wrap}
+.top-actions{flex-wrap:wrap;margin-left:auto}
+@media (max-width:640px){.nav-row{padding:10px 16px;gap:8px}.nav-actions .icon-only:not(.menu-btn){display:none}.logo{font-size:1rem}}
+.table-wrap{position:relative}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toasts" role="status" aria-live="polite"></div>
+<div id="modal-root"></div>
+<div id="demo-root"></div>
+<noscript>Для работы сайта необходим JavaScript.</noscript>
+<script>
+'use strict';
+/* =====================  CORE  ===================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const plural = (n, f) => { n = Math.abs(n); const a = n % 10, b = n % 100; return f[b > 10 && b < 20 ? 2 : a === 1 ? 0 : a > 1 && a < 5 ? 1 : 2]; };
+const uid = () => Math.random().toString(36).slice(2, 9);
+
+const ICONS = {
+  logo: '<circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3.5 6-7.5"/>',
+  grid: '<rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="4.5" rx="1.5"/><rect x="13.5" y="10.5" width="7.5" height="10.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/>',
+  list: '<path d="M4 6h16M4 12h16M4 18h10"/>',
+  bookmark: '<path d="M6 3.5h12V21l-6-3.8L6 21V3.5z"/>',
+  building: '<path d="M3 21V10l9-6.5 9 6.5v11"/><path d="M9 21v-7h6v7"/>',
+  bell: '<path d="M6 16V11a6 6 0 0112 0v5l1.5 2h-15L6 16z"/><path d="M10 21h4"/>',
+  send: '<path d="M21 4L3 11l6 2.5L11 20l2.8-4.6L21 4z"/><path d="M9 13.5l12-9.5"/>',
+  user: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20.5c1.2-3.8 4-5.5 7-5.5s5.8 1.700 7 5.500"/>',
+  users: '<circle cx="9" cy="8" r="3"/><path d="M3 20c.8-3.300 3-5 6-5s5.200 1.700 6 5"/><path d="M16 5.500a3 3 0 010 5.500M18 15c1.800.7 2.800 2.300 3.200 5"/>',
+  help: '<circle cx="12" cy="12" r="9.500"/><path d="M9.500 9.500a2.500 2.500 0 114 2c-.9.700-1.500 1.200-1.500 2.300M12 17.200v.1"/>',
+  check: '<path d="M5 12.500l4.200 4.200L19 7"/>',
+  info: '<circle cx="12" cy="12" r="9.500"/><path d="M12 11v5.500M12 7.700v.1"/>',
+  alert: '<path d="M12 3.500L2.500 20h19L12 3.500z"/><path d="M12 10v4.500M12 17.500v.1"/>',
+  clock: '<circle cx="12" cy="12" r="9.500"/><path d="M12 7v5l3.200 2"/>',
+  calendar: '<rect x="3.500" y="5" width="17" height="15.500" rx="2"/><path d="M3.500 10h17M8 3v4M16 3v4"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  filter: '<path d="M4 6h16M7 12h10M10 18h4"/>',
+  share: '<circle cx="6" cy="12" r="2.500"/><circle cx="18" cy="6" r="2.500"/><circle cx="18" cy="18" r="2.500"/><path d="M8.300 10.800l7.400-3.600M8.300 13.200l7.400 3.600"/>',
+  flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.500 7l8.500 6.500L20.500 7"/>',
+  lock: '<rect x="5" y="10.500" width="14" height="10" rx="2"/><path d="M8 10.500V7.500a4 4 0 018 0v3"/>',
+  route: '<circle cx="6" cy="18" r="2.500"/><circle cx="18" cy="6" r="2.500"/><path d="M8.500 18H15a3 3 0 000-6H9a3 3 0 010-6h6.500"/>',
+  menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.600 5.600L7 7M17 17l1.400 1.400M5.600 18.400L7 17M17 7l1.400-1.400"/>',
+  moon: '<path d="M20 14.500A8 8 0 019.500 4 8 8 0 1020 14.500z"/>',
+  ext: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/>',
+  right: '<path d="M9 5l7 7-7 7"/>',
+  left: '<path d="M15 5l-7 7 7 7"/>',
+  trash: '<path d="M4 7h16M9 7V4h6v3M6.500 7l1 13h9l1-13"/>',
+  spark: '<path d="M12 3l1.900 5.100L19 10l-5.100 1.900L12 17l-1.900-5.100L5 10l5.100-1.900L12 3z"/>',
+  shield: '<path d="M12 3l8 3v6c0 4.500-3.300 8-8 9-4.700-1-8-4.500-8-9V6l8-3z"/><path d="M8.500 12l2.500 2.500 4.500-5"/>',
+  eye: '<path d="M2.500 12S6 5.500 12 5.500 21.500 12 21.500 12 18 18.500 12 18.500 2.500 12 2.500 12z"/><circle cx="12" cy="12" r="3"/>',
+  doc: '<path d="M6 3h8l4 4v14H6V3z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.500"/><path d="M12 12v.1"/>',
+  refresh: '<path d="M20 12a8 8 0 10-2.500 5.800M20 5v5h-5"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  book: '<path d="M4 5.500A2.500 2.500 0 016.500 3H20v15H6.500A2.500 2.500 0 004 20.500v-15zM4 20.500A2.500 2.500 0 006.500 23H20"/>',
+  chat: '<path d="M4 5h16v11H9l-5 4V5z"/>',
+  dl: '<path d="M12 4v11M7.500 10.500L12 15l4.500-4.500M5 20h14"/>',
+  more: '<circle cx="5" cy="12" r="1.200"/><circle cx="12" cy="12" r="1.200"/><circle cx="19" cy="12" r="1.200"/>',
+  layers: '<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/>'
+};
+const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n] || ''}</svg>`;
+
+/* dates (demo data is generated relative to today so it never goes stale) */
+const TODAY = (() => { const d = new Date(); d.setHours(12, 0, 0, 0); return d; })();
+const dayOff = n => { const d = new Date(TODAY); d.setDate(d.getDate() + n); return d; };
+const dToISO = d => d.toISOString().slice(0, 10);
+const fmtD = d => d ? new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+const fmtS = d => d ? new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) : '—';
+const daysTo = d => Math.round((new Date(d) - TODAY) / 864e5);
+
+/* =====================  DATA  ===================== */
+const TOPICS = { pd: 'Персональные данные', tax: 'Налоги и отчётность', labor: 'Трудовое право', ecom: 'Интернет-торговля', ads: 'Маркетинг и реклама', it: 'IT и технологии', lic: 'Лицензирование', log: 'Логистика', ved: 'Внешнеэкономическая деятельность' };
+const INDUSTRIES = ['Транспорт и логистика', 'Розничная торговля', 'Интернет-торговля', 'IT и технологии', 'Производство', 'Строительство', 'Медицина', 'Образование', 'Услуги и консалтинг', 'Другое'];
+const ACTIVITIES = ['Грузоперевозки', 'Складская логистика', 'Интернет-магазин', 'Оптовая торговля', 'Разработка ПО', 'Маркетинг и реклама', 'Производство продукции', 'Строительство', 'Медицинские услуги', 'Консалтинг', 'Общественное питание'];
+const REGIONS = ['Москва и МО', 'Санкт-Петербург и ЛО', 'Центральный ФО', 'Северо-Запад', 'Юг', 'Приволжье', 'Урал', 'Сибирь', 'Дальний Восток', 'Вся Россия'];
+const LICENSES = ['Медицинская деятельность', 'Образовательная деятельность', 'Перевозка пассажиров', 'Алкогольная продукция', 'Связь', 'Частная охрана'];
+const DIGITAL = ['Интернет-магазин', 'Маркетплейсы', 'CRM', 'Онлайн-оплата', 'Мобильное приложение', 'ИИ-сервисы', 'Облачные хранилища', 'E-mail и SMS-рассылки'];
+const SIZES = [['micro', 'Микро', 'до 15 человек'], ['small', 'Малое', '16–100 человек'], ['medium', 'Среднее', '101–250 человек'], ['large', 'Крупное', 'более 250']];
+const HEADCOUNTS = ['1–15', '16–100', '101–250', 'более 250'];
+const ROLES = { owner: 'Владелец', admin: 'Администратор', member: 'Участник', viewer: 'Просмотр' };
+const ROLE_DESC = { owner: 'Полный доступ, управление тарифом и удаление компании', admin: 'Профиль, уведомления, команда', member: 'Дайджесты, задачи, сохранённое', viewer: 'Только просмотр дайджестов' };
+const IMP = { high: ['Высокий уровень влияния', 'amber', 3], med: ['Средний уровень влияния', '', 2], low: ['Низкий уровень влияния', 'neutral', 1] };
+const IMP_SHORT = { high: 'Высокий', med: 'Средний', low: 'Низкий' };
+const IMP_RANK = { high: 3, med: 2, low: 1 };
+
+const CHANGES = [
+  { id: 'pd-local', topic: 'pd', impact: 'high', pub: -27, eff: 95, agency: 'Роскомнадзор', doc: 'Федеральный закон № 218-ФЗ (демо)', docRef: 'Опубликован ' + fmtD(dayOff(-27)), conf: 'high', reviewed: true,
+    title: 'Новые требования к хранению персональных данных сотрудников',
+    summary: 'Копии персональных данных сотрудников придётся хранить на серверах внутри страны. Это касается и данных, которые обрабатывают ваши подрядчики.',
+    what: 'Вводится обязательная локализация хранения баз с данными работников. Меняются требования к договорам с операторами (кадровые сервисы, облака).', who: 'Работодатели, которые ведут кадровый учёт с помощью внешних сервисов или облачных хранилищ.',
+    comment: 'Если кадровый учёт ведётся во внешнем облачном сервисе, проверьте, где физически хранятся данные. Основной риск — договоры с подрядчиками, а не внутренние документы.',
+    quote: '«Оператор обязан обеспечить запись, систематизацию, накопление, хранение… персональных данных работников с использованием баз данных, находящихся на территории Российской Федерации…»',
+    reasons: [[p => p.pdEmployees, 'В профиле указано: компания обрабатывает персональные данные сотрудников'], [p => p.pdExternal, 'Используется внешний сервис обработки данных (кадры, CRM, облако)'], [p => p.pdCross, 'Указана передача данных за границу'], [p => (p.digital || []).includes('Облачные хранилища'), 'Компания использует облачные хранилища']],
+    actions: [['Проверить договоры с операторами, обрабатывающими данные', 60, 'Юрист, HR'], ['Составить перечень мест хранения персональных данных', 75, 'ИТ-руководитель'], ['Обновить локальную политику обработки данных', 88, 'Юрист']], related: ['consent', 'hr-docs'] },
+  { id: 'consent', topic: 'pd', impact: 'high', pub: -20, eff: 14, agency: 'Официальный портал правовой информации', doc: 'Федеральный закон № 156-ФЗ (демо)', docRef: 'Опубликован ' + fmtD(dayOff(-20)), conf: 'high', reviewed: true,
+    title: 'Согласие на обработку персональных данных — только отдельным документом',
+    summary: 'Согласие на обработку данных клиента больше нельзя «прятать» внутри оферты или пользовательского соглашения — оно должно быть отдельным документом.',
+    what: 'Согласие оформляется отдельным документом с определённым составом сведений; галочка внутри общего соглашения перестаёт считаться достаточной.', who: 'Все, кто собирает данные клиентов: интернет-магазины, сервисы, компании с формами заявок на сайте.',
+    comment: 'Самый быстрый шаг — вынести согласие в отдельный текст и отдельную галочку на формах заказа и обратной связи. Проверьте, что формулировки соответствуют новому составу сведений.',
+    quote: '«Согласие на обработку персональных данных оформляется отдельно от иных информации и (или) документов, которые подтверждает и (или) подписывает субъект персональных данных…»',
+    reasons: [[p => p.pdCustomers, 'В профиле указано: компания собирает персональные данные клиентов'], [p => (p.digital || []).includes('Интернет-магазин'), 'У компании есть интернет-магазин'], [p => p.industry === 'Интернет-торговля', 'Отрасль: интернет-торговля'], [p => (p.digital || []).includes('E-mail и SMS-рассылки'), 'Ведутся e-mail и SMS-рассылки']],
+    actions: [['Оформить согласие отдельно от оферты', 10, 'Юрист, руководитель маркетинга'], ['Обновить формы сбора данных на сайте', 12, 'Маркетинг, разработка']], related: ['pd-local', 'ads-mark'] },
+  { id: 'foreign-report', topic: 'tax', impact: 'med', pub: -14, eff: 62, agency: 'Министерство финансов', doc: 'Приказ Минфина № 47н (демо)', docRef: 'Опубликован ' + fmtD(dayOff(-14)), conf: 'mid', reviewed: false,
+    title: 'Дополнительная форма отчётности для компаний с иностранным участием',
+    summary: 'Компаниям с долей иностранного капитала нужно подавать дополнительную форму отчётности.',
+    what: 'Утверждена новая форма и сроки её представления вместе с годовой отчётностью.', who: 'Организации, в капитале которых есть иностранные участники.',
+    comment: 'Если иностранное участие косвенное (через другое юрлицо), применимость нужно уточнить у юриста или бухгалтера.',
+    quote: '«Организации с иностранным участием представляют дополнительные сведения по форме согласно приложению…»',
+    reasons: [[p => p.foreignShare, 'В структуре компании указано иностранное участие'], [p => +p.entities > 1, 'В группе несколько юридических лиц']],
+    actions: [['Определить, входит ли компания в круг плательщиков формы', 20, 'Главный бухгалтер'], ['Подготовить данные для новой формы', 55, 'Бухгалтерия']], related: ['small-tax'] },
+  { id: 'cargo', topic: 'log', impact: 'low', pub: -9, eff: 41, agency: 'Министерство транспорта', doc: 'Приказ Минтранса № 302 (демо)', docRef: 'Опубликован ' + fmtD(dayOff(-9)), conf: 'high', reviewed: true,
+    title: 'Обновление правил маркировки грузов при перевозке между регионами',
+    summary: 'Уточнён формат маркировки для грузов, перевозимых между регионами. Меняются реквизиты, которые нужно указывать на упаковке и в документах.',
+    what: 'Уточнён перечень обязательных реквизитов маркировки и порядок их размещения.', who: 'Грузоперевозчики и склады, оформляющие межрегиональные отправки.',
+    comment: 'Для большинства компаний достаточно обновить шаблоны накладных и инструкции для склада.',
+    quote: '«Маркировка груза наносится на каждое грузовое место и содержит…»',
+    reasons: [[p => p.industry === 'Транспорт и логистика', 'Отрасль: транспорт и логистика'], [p => (p.activities || []).includes('Грузоперевозки'), 'Направление деятельности: грузоперевозки'], [p => (p.activities || []).includes('Складская логистика'), 'Направление деятельности: складская логистика']],
+    actions: [['Обновить шаблоны транспортных накладных', 30, 'Диспетчерская служба'], ['Провести инструктаж для склада', 38, 'Руководитель склада']], related: [] },
+  { id: 'remote-work', topic: 'labor', impact: 'med', pub: -6, eff: 30, agency: 'Министерство труда', doc: 'Федеральный закон № 201-ФЗ (демо)', docRef: 'Опубликован ' + fmtD(dayOff(-6)), conf: 'mid', reviewed: false,
+    title: 'Новые правила оформления дистанционной работы',
+    summary: 'Меняется порядок заключения допсоглашений с удалёнными сотрудниками и учёта их рабочего времени.',
+    what: 'Уточнены обязательные условия трудового договора о дистанционной работе и порядок обмена документами.', who: 'Работодатели, у которых есть сотрудники на удалёнке или в гибридном режиме.',
+    comment: 'Проверьте типовые формы допсоглашений и локальный акт об удалённой работе. Применимость к «гибриду» зависит от формулировок договора.',
+    quote: '«Условие о дистанционной работе может быть включено в трудовой договор либо оформлено дополнительным соглашением…»',
+    reasons: [[p => p.remote, 'В профиле указано: есть сотрудники на дистанционной работе'], [p => p.foreignStaff, 'Есть иностранные сотрудники']],
+    actions: [['Обновить форму допсоглашения о дистанционной работе', 20, 'HR'], ['Проверить локальный акт об удалённой работе', 26, 'Юрист, HR']], related: ['hr-docs'] },
+  { id: 'hr-docs', topic: 'labor', impact: 'low', pub: -3, eff: 33, agency: 'Министерство труда', doc: 'Приказ Минтруда № 119 (демо)', docRef: 'Опубликован ' + fmtD(dayOff(-3)), conf: 'high', reviewed: true,
+    title: 'Изменения в порядке ведения электронных кадровых документов',
+    summary: 'Уточнены форматы и сроки хранения электронных кадровых документов.',
+    what: 'Обновлён перечень документов, которые можно вести только в электронном виде, и сроки хранения.', who: 'Работодатели с электронным кадровым документооборотом.',
+    comment: 'Достаточно сверить перечень документов и сроки хранения с вашей номенклатурой дел.',
+    quote: '«Хранение электронных документов, связанных с трудовыми отношениями, осуществляется в течение…»',
+    reasons: [[p => !!p.headcount, p => 'Указана численность сотрудников: ' + p.headcount], [p => p.pdEmployees, 'Компания обрабатывает данные сотрудников']],
+    actions: [['Сверить номенклатуру кадровых документов', 25, 'HR']], related: ['pd-local', 'remote-work'] },
+  { id: 'ads-mark', topic: 'ads', impact: 'med', pub: -12, eff: 48, agency: 'Федеральная антимонопольная служба', doc: 'Федеральный закон № 189-ФЗ (демо)', docRef: 'Опубликован ' + fmtD(dayOff(-12)), conf: 'mid', reviewed: false,
+    title: 'Расширены требования к маркировке интернет-рекламы',
+    summary: 'Расширен круг случаев, когда рекламу в интернете нужно маркировать и передавать сведения о ней оператору.',
+    what: 'Уточнены обязанности рекламодателей и распространителей, порядок передачи сведений о креативах.', who: 'Компании, которые размещают рекламу в интернете, включая рассылки и соцсети.',
+    comment: 'Если реклама размещается силами агентства, проверьте, кто отвечает за передачу сведений по договору.',
+    quote: '«Рекламодатель обязан обеспечить наличие пометки «реклама» и указание на рекламодателя…»',
+    reasons: [[p => (p.activities || []).includes('Маркетинг и реклама'), 'Направление деятельности: маркетинг и реклама'], [p => (p.digital || []).includes('E-mail и SMS-рассылки'), 'Ведутся e-mail и SMS-рассылки'], [p => (p.digital || []).includes('Маркетплейсы'), 'Продажи через маркетплейсы']],
+    actions: [['Проверить договоры с рекламными агентствами', 30, 'Руководитель маркетинга'], ['Настроить процесс передачи сведений о рекламе', 44, 'Маркетинг']], related: ['consent'] },
+  { id: 'ved', topic: 'ved', impact: 'med', pub: -18, eff: 75, agency: 'Федеральная таможенная служба', doc: 'Приказ ФТС № 88 (демо)', docRef: 'Опубликован ' + fmtD(dayOff(-18)), conf: 'mid', reviewed: false,
+    title: 'Новый порядок подачи таможенных деклараций в электронном виде',
+    summary: 'Декларации нужно будет подавать через обновлённый электронный сервис, старый формат перестанет приниматься.',
+    what: 'Вводится единый формат электронной подачи и обновлённые требования к подтверждающим документам.', who: 'Участники внешнеэкономической деятельности: экспортёры и импортёры.',
+    comment: 'Уточните у таможенного брокера, когда он перейдёт на новый формат, и проверьте, какие документы понадобятся дополнительно.',
+    quote: '«Декларирование товаров осуществляется в электронной форме с использованием…»',
+    reasons: [[p => p.vedExport, 'Компания экспортирует товары или услуги'], [p => p.vedImport, 'Компания импортирует товары']],
+    actions: [['Согласовать переход на новый формат с таможенным брокером', 45, 'Руководитель ВЭД']], related: [] },
+  { id: 'med-lic', topic: 'lic', impact: 'high', pub: -30, eff: 120, agency: 'Министерство здравоохранения', doc: 'Постановление Правительства № 1250 (демо)', docRef: 'Опубликовано ' + fmtD(dayOff(-30)), conf: 'high', reviewed: true,
+    title: 'Ужесточены лицензионные требования к медицинской деятельности',
+    summary: 'Меняется перечень обязательных требований к помещениям и оборудованию для лицензии на медицинскую деятельность.',
+    what: 'Обновлены лицензионные требования и порядок подтверждения их выполнения.', who: 'Организации и ИП с лицензией на медицинскую деятельность.',
+    comment: 'Сверьте паспорта помещений и оборудования с обновлённым перечнем заранее — плановые проверки могут учитывать новые требования.',
+    quote: '«Лицензионными требованиями при осуществлении медицинской деятельности являются…»',
+    reasons: [[p => (p.licenses || []).includes('Медицинская деятельность'), 'В профиле указана лицензия на медицинскую деятельность'], [p => p.industry === 'Медицина', 'Отрасль: медицина']],
+    actions: [['Сверить помещения и оборудование с новым перечнем', 90, 'Главный врач'], ['Обновить внутренние регламенты', 110, 'Юрист']], related: [] },
+  { id: 'small-tax', topic: 'tax', impact: 'med', pub: -5, eff: 88, agency: 'Федеральная налоговая служба', doc: 'Федеральный закон № 214-ФЗ (демо)', docRef: 'Опубликован ' + fmtD(dayOff(-5)), conf: 'mid', reviewed: false,
+    title: 'Изменены пороги дохода для упрощённой системы налогообложения',
+    summary: 'Изменены лимиты дохода и численности, при которых можно применять упрощёнку.',
+    what: 'Обновлены предельные значения дохода и порядок перехода на другой режим при их превышении.', who: 'Малый бизнес и ИП на упрощённой системе налогообложения.',
+    comment: 'Сравните текущую выручку с новыми порогами и заранее оцените запас — превышение приводит к смене режима.',
+    quote: '«Налогоплательщик утрачивает право на применение упрощённой системы налогообложения, если…»',
+    reasons: [[p => p.size === 'micro' || p.size === 'small', p => 'Размер компании: ' + (p.size === 'micro' ? 'микро' : 'малое') + ' предприятие'], [p => p.form === 'ИП', 'Форма: индивидуальный предприниматель']],
+    actions: [['Сравнить выручку с новыми порогами', 30, 'Главный бухгалтер']], related: ['foreign-report'] },
+  { id: 'ai-draft', topic: 'it', impact: 'low', pub: -2, eff: null, draft: true, agency: 'Минцифры', doc: 'Проект федерального закона (демо)', docRef: 'Опубликован для обсуждения ' + fmtD(dayOff(-2)), conf: 'low', reviewed: false,
+    title: 'Проект: требования к маркировке контента, созданного с помощью ИИ',
+    summary: 'Обсуждается законопроект о маркировке материалов, созданных нейросетями. Пока это проект — сроки и итоговые требования могут измениться.',
+    what: 'Предлагается обязать отмечать контент, созданный ИИ, в публичных материалах.', who: 'Компании, использующие ИИ-сервисы для контента и коммуникаций с клиентами.',
+    comment: 'Пока достаточно следить за развитием проекта. Норма не вступила в силу, поэтому действий не требуется, но полезно оценить, где вы используете ИИ.',
+    quote: '«Материалы, созданные с использованием систем искусственного интеллекта, должны сопровождаться…»',
+    reasons: [[p => (p.digital || []).includes('ИИ-сервисы'), 'Компания использует ИИ-сервисы'], [p => p.industry === 'IT и технологии', 'Отрасль: IT и технологии']],
+    actions: [], related: ['ads-mark'] }
+];
+const CH = Object.fromEntries(CHANGES.map(c => [c.id, c]));
+
+/* =====================  STATE  ===================== */
+const KEY = 'lawtracker.demo.v1';
+const emptyCompany = () => ({ name: '', inn: '', form: '', size: '', industry: '', activities: [], desc: '', regions: [], branches: '', foreignShare: false, entities: '1', headcount: '', remote: false, foreignStaff: false, licenses: [], pdCustomers: false, pdEmployees: false, pdExternal: false, pdCross: false, vedExport: false, vedImport: false, digital: [], contactName: '', contactEmail: '', contactRole: '', recipients: '', topics: [], saved: {}, skipped: {} });
+const defState = () => ({
+  user: null, onboarded: false, company: emptyCompany(), read: [], saved: [], acts: {}, welcomed: false, theme: '', profileStep: 1, shareProfile: true, joined: false,
+  notif: { cabinet: true, email: true, emailFreq: 'daily', tg: true, topics: [], minImpact: 'med', days: [1, 2, 3, 4, 5], time: '09:00', pause: false, pauseUntil: '' },
+  tg: { status: 'none', code: '', username: '' }, team: []
+});
+let S = defState();
+try { const r = localStorage.getItem(KEY); if (r) S = Object.assign(defState(), JSON.parse(r)); } catch (e) { }
+const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } };
+const D = { loading: false, error: false, empty: false };   // demo-only flags, not persisted
+const applyTheme = () => { if (S.theme) document.documentElement.dataset.theme = S.theme; else delete document.documentElement.dataset.theme; };
+applyTheme();
+
+/* profile helpers */
+const STEPS = [
+  { id: 'basics', t: 'Основные сведения', d: 'Название, форма и размер компании — базовые параметры для подбора изменений.', inf: 'Налоги и отчётность, Трудовое право' },
+  { id: 'industry', t: 'Отрасль и направления', d: 'Эти сведения определяют, какие тематики изменений будут показаны вашей компании в первую очередь.', inf: 'Все тематики' },
+  { id: 'regions', t: 'Регионы работы', d: 'Часть норм действует только в отдельных регионах — так мы не покажем лишнего.', inf: 'Региональные нормы' },
+  { id: 'structure', t: 'Организационная структура', d: 'Филиалы, группа компаний и иностранное участие влияют на отчётность и налоги.', inf: 'Налоги и отчётность' },
+  { id: 'staff', t: 'Сотрудники и кадровые процессы', d: 'Численность и формат работы сотрудников определяют применимость трудовых норм.', inf: 'Трудовое право' },
+  { id: 'licenses', t: 'Лицензии и разрешения', d: 'Укажите виды деятельности, для которых у компании есть лицензия.', inf: 'Лицензирование', opt: true },
+  { id: 'pd', t: 'Работа с персональными данными', d: 'Ответьте, чьи данные и как вы обрабатываете — это одна из самых частых причин изменений в ленте.', inf: 'Персональные данные' },
+  { id: 'ved', t: 'Внешнеэкономическая деятельность', d: 'Если компания работает с зарубежными контрагентами, укажите направление.', inf: 'ВЭД', opt: true },
+  { id: 'digital', t: 'Цифровые сервисы и технологии', d: 'Какие онлайн-инструменты вы используете в работе.', inf: 'IT, Персональные данные, Реклама', opt: true },
+  { id: 'contacts', t: 'Контакты и получатели уведомлений', d: 'Кому и на какие адреса отправлять дайджесты.', inf: 'Уведомления' }
+];
+const stepDone = s => !!(S.company.saved[s.id] || S.company.skipped[s.id]);
+const profilePct = () => Math.round(STEPS.filter(stepDone).length / STEPS.length * 100);
+const profileStarted = () => Object.keys(S.company.saved).length > 0;
+const matchesOf = c => profileStarted() ? c.reasons.filter(r => { try { return r[0](S.company); } catch (e) { return false; } }).map(r => typeof r[1] === 'function' ? r[1](S.company) : r[1]) : [];
+const isPersonal = c => matchesOf(c).length > 0;
+const isRead = c => S.read.includes(c.id);
+const isSaved = c => S.saved.includes(c.id);
+const actState = (c, i) => S.acts[c.id + ':' + i] || 'todo';
+const openActions = c => c.actions.filter((a, i) => actState(c, i) !== 'done').length;
+const attention = () => CHANGES.filter(c => isPersonal(c) && !c.draft && (c.impact === 'high' || (c.eff !== null && daysTo(dayOff(c.eff)) <= 30 && c.eff >= 0)) && openActions(c) > 0);
+const unreadCount = () => CHANGES.filter(c => !isRead(c)).length;
+const initials = n => (n || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+const validEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e || '');
+
+function loadDemoCompany() {
+  Object.assign(S.company, emptyCompany(), {
+    name: 'Нордвуд Логистика', inn: '7801234567', form: 'ООО', size: 'small', industry: 'Транспорт и логистика', activities: ['Грузоперевозки', 'Складская логистика'], desc: 'Организуем перевозки сборных грузов между регионами.',
+    regions: ['Санкт-Петербург и ЛО', 'Северо-Запад', 'Центральный ФО'], branches: 'yes', foreignShare: true, entities: '2', headcount: '16–100', remote: true, pdEmployees: true, pdCustomers: true, pdExternal: true,
+    digital: ['CRM', 'Облачные хранилища', 'E-mail и SMS-рассылки'], contactName: S.user ? S.user.name : 'Анна Ковалёва', contactEmail: S.user ? S.user.email : 'a.kovaleva@nordwood.ru', contactRole: 'Руководитель юридического отдела',
+    topics: ['pd', 'tax', 'labor', 'log'], saved: { basics: 1, industry: 1, regions: 1, structure: 1, staff: 1, pd: 1 }, skipped: {}
+  });
+  S.notif.topics = ['pd', 'tax', 'labor', 'log'];
+  persist();
+}
+
+/* =====================  UI HELPERS  ===================== */
+const impactTag = l => { const [t, cls, n] = IMP[l]; return `<span class="tag ${cls}"><span class="bars" aria-hidden="true">${[1, 2, 3].map(i => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}</span>${t}</span>`; };
+const topicTag = k => `<span class="tag">${esc(TOPICS[k])}</span>`;
+function statusTag(c) {
+  if (c.draft) return `<span class="tag blue">${ic('doc')}Проект, не вступил в силу</span>`;
+  const n = daysTo(dayOff(c.eff));
+  if (n <= 0) return `<span class="tag neutral">${ic('check')}Действует</span>`;
+  return `<span class="tag blue">${ic('clock')}Принят, вступает в силу</span>`;
+}
+const CONF = { high: ['Уверенность анализа: высокая', 'shield'], mid: ['Уверенность анализа: средняя', 'info'], low: ['Уверенность анализа: низкая — нужна проверка', 'alert'] };
+const confTag = c => `<span class="tag ${c.conf === 'low' ? 'amber' : 'neutral'}">${ic(CONF[c.conf][1])}${CONF[c.conf][0]}</span>`;
+const reviewTag = c => c.reviewed ? `<span class="tag">${ic('check')}Проверено юристом</span>` : `<span class="tag neutral">${ic('eye')}Юристом не проверялось</span>`;
+function effText(c) {
+  if (c.draft || c.eff === null) return 'Дата не определена (проект)';
+  const n = c.eff; return n <= 0 ? 'Действует с ' + fmtD(dayOff(c.eff)) : fmtD(dayOff(c.eff));
+}
+function countdown(c) {
+  if (c.draft || c.eff === null || c.eff < 0) return '';
+  const n = daysTo(dayOff(c.eff)); if (n <= 0) return 'Вступает в силу сегодня';
+  return n <= 60 ? `Осталось ${n} ${plural(n, ['день', 'дня', 'дней'])}` : '';
+}
+const DISCLAIMER = 'Материал подготовлен автоматизированным анализом и носит информационный характер. Он не заменяет индивидуальную юридическую консультацию. Формулировку утверждает юрист проекта.';
+
+function changeItem(c, ctx = 'list') {
+  const m = matchesOf(c), unread = !isRead(c), sv = isSaved(c), cd = countdown(c);
+  return `<article class="change-item ${unread ? 'unread' : 'read'}" aria-labelledby="t-${c.id}">
+    <div class="ci-main">
+      <div class="meta-row">${impactTag(c.impact)}${topicTag(c.topic)}${statusTag(c)}${unread ? '<span class="tag neutral">Новое</span>' : ''}</div>
+      <h3 id="t-${c.id}"><a href="#/app/change/${c.id}">${esc(c.title)}</a></h3>
+      <p class="src">${esc(c.agency)} · опубликовано ${fmtS(dayOff(c.pub))} · ${c.draft ? 'проект' : (c.eff <= 0 ? 'действует' : 'вступает ' + fmtS(dayOff(c.eff)))}${cd ? ` · <b>${cd}</b>` : ''}</p>
+      <p class="concl">${esc(c.summary)}</p>
+      <p class="ci-why">${ic(m.length ? 'target' : 'info', 'sm')}${m.length ? 'Показано из-за профиля: ' + esc(m[0]) + (m.length > 1 ? ` и ещё ${m.length - 1}` : '') : (profileStarted() ? 'Общий материал — прямых совпадений с профилем нет' : 'Заполните профиль, чтобы увидеть, относится ли это к вам')}</p>
+    </div>
+    <div class="ci-side">
+      <button class="ic-sq" data-act="save" data-id="${c.id}" aria-pressed="${sv}" aria-label="${sv ? 'Убрать из сохранённого' : 'Сохранить'}: ${esc(c.title)}" title="${sv ? 'Убрать из сохранённого' : 'Сохранить'}">${ic('bookmark')}</button>
+      <a class="btn btn-ghost btn-sm" href="#/app/change/${c.id}">Подробнее<span class="sr-only"> — ${esc(c.title)}</span></a>
+    </div></article>`;
+}
+
+/* toast + modal */
+function toast(msg, type = '') {
+  const t = document.createElement('div'); t.className = 'toast ' + type; t.innerHTML = `${ic(type === 'err' ? 'alert' : 'check')}<span>${esc(msg)}</span>`;
+  $('#toasts').appendChild(t); setTimeout(() => t.remove(), 4200);
+}
+let modalStack = [];
+function modal({ title, body = '', actions = [], dismiss = true, drawer = false, wide = false }) {
+  const prev = document.activeElement;
+  const ov = document.createElement('div'); ov.className = 'overlay' + (drawer ? ' drawer-ov' : '');
+  const id = 'm' + uid();
+  ov.innerHTML = `<div class="${drawer ? 'drawer' : 'modal'}" role="dialog" aria-modal="true" aria-labelledby="${id}" ${wide ? 'style="max-width:620px"' : ''}>
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start"><h2 id="${id}">${esc(title)}</h2>${dismiss ? `<button class="btn-text" data-close aria-label="Закрыть" style="padding:4px;min-height:36px">${ic('x')}</button>` : ''}</div>
+    <div class="m-body">${body}</div>
+    ${actions.length ? `<div class="m-actions">${actions.map((a, i) => `<button class="btn ${a.cls || 'btn-ghost'}" data-i="${i}">${esc(a.label)}</button>`).join('')}</div>` : ''}</div>`;
+  const close = () => { ov.remove(); modalStack = modalStack.filter(x => x !== close); prev && prev.focus && prev.focus(); };
+  close._d = dismiss;
+  ov.addEventListener('click', e => {
+    if (e.target === ov && dismiss) close();
+    if (drawer && e.target.closest('a')) close();
+    if (e.target.closest('[data-close]')) close();
+    const b = e.target.closest('[data-i]');
+    if (b) { const a = actions[+b.dataset.i]; if (!a.on || a.on(ov, close) !== false) close(); }
+  });
+  $('#modal-root').appendChild(ov); modalStack.push(close); ov._dismiss = dismiss;
+  (ov.querySelector('[autofocus]') || ov.querySelector('input,select,textarea,button:not([data-close])') || ov.querySelector('button'))?.focus();
+  return { close, el: ov };
+}
+const confirmBox = (title, body, label, cls, on) => modal({ title, body, actions: [{ label: 'Отмена' }, { label, cls, on }] });
+
+/* =====================  PUBLIC LAYOUT  ===================== */
+const logo = (href = '#/') => `<a class="logo" href="${href}" aria-label="LawTracker — на главную"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS.logo}</svg>LawTracker</a>`;
+const themeBtn = () => `<button class="btn btn-ghost icon-only" data-act="theme" aria-label="Переключить тему оформления" title="Сменить тему">${ic(document.documentElement.dataset.theme === 'dark' || (!S.theme && matchMedia('(prefers-color-scheme:dark)').matches) ? 'sun' : 'moon')}</button>`;
+const PUB_NAV = [['/#how', 'Как работает', 'how'], ['/#features', 'Возможности', 'features'], ['/pricing', 'Тарифы'], ['/about', 'О сервисе'], ['/faq', 'Вопросы'], ['/contacts', 'Контакты']];
+function pubNavLink([h, t, sc], cur) {
+  return sc ? `<a href="#/" data-scroll="${sc}">${t}</a>` : `<a href="#${h}" ${cur === h ? 'aria-current="page"' : ''}>${t}</a>`;
+}
+function pubShell(body, cur = '') {
+  return `<a class="skip" href="#main" data-skip>К содержимому</a>
+  <header class="site"><div class="nav-row">${logo()}
+    <nav class="links" aria-label="Основная навигация">${PUB_NAV.map(n => pubNavLink(n, cur)).join('')}</nav>
+    <div class="nav-actions">${themeBtn()}
+      ${S.user ? `<a class="btn btn-primary btn-sm" href="#/app">Личный кабинет</a>` : `<a class="btn btn-ghost btn-sm hide-m" href="#/login">Вход</a><a class="btn btn-primary btn-sm" href="#/register">Начать</a>`}
+      <button class="btn btn-ghost icon-only menu-btn" data-act="pubmenu" aria-label="Открыть меню">${ic('menu')}</button></div></div></header>
+  <main id="main" tabindex="-1">${body}</main>
+  <footer class="site"><div class="wrap"><div class="foot-cols">
+    <div>${logo()}<p class="muted" style="margin-top:12px;max-width:30ch;font-size:.88rem">Персональный мониторинг изменений законодательства для бизнеса.</p></div>
+    <div><h4>Сервис</h4><a href="#/" data-scroll="how">Как работает</a><a href="#/" data-scroll="features">Возможности</a><a href="#/pricing">Тарифы</a><a href="#/about">О сервисе</a></div>
+    <div><h4>Помощь</h4><a href="#/faq">Вопросы и ответы</a><a href="#/contacts">Контакты</a><a href="#/login">Вход</a><a href="#/register">Регистрация</a></div>
+    <div><h4>Документы</h4><a href="#/privacy">Политика конфиденциальности</a><a href="#/terms">Пользовательское соглашение</a><a href="mailto:hello@lawtracker.example">hello@lawtracker.example</a><a href="https://t.me/" target="_blank" rel="noopener">Telegram-канал<span class="sr-only"> (откроется в новой вкладке)</span></a></div></div>
+    <p class="footer-disclaimer">Материалы платформы носят информационный характер и не заменяют индивидуальную юридическую консультацию. Автоматизированный анализ может содержать неточности — проверяйте важные выводы по первоисточнику.</p></div></footer>`;
+}
+
+/* sample (demo) card */
+function sampleCard(full = false) {
+  return `<div class="digest-card"><span class="demo-label">Пример · без данных реального клиента</span>
+    <div class="meta-row">${impactTag('high')}<span class="tag">Персональные данные</span><span class="tag amber">${ic('clock')}Осталось 14 дней</span></div>
+    <h3>Согласие на обработку персональных данных — только отдельным документом</h3>
+    <p class="muted" style="font-size:.88rem;margin-bottom:12px">Официальный портал правовой информации · вступает в силу через 14 дней</p>
+    <p style="font-size:.95rem">Согласие клиента нельзя «прятать» внутри оферты — это должен быть отдельный документ.</p>
+    ${full ? `<div class="kv"><div><div class="k">Кого касается</div><div class="v">Всех, кто собирает данные клиентов</div></div><div><div class="k">Что сделать</div><div class="v">Оформить согласие отдельно от оферты</div></div><div><div class="k">Ответственный</div><div class="v">Юрист и руководитель маркетинга</div></div><div><div class="k">Источник</div><div class="v">Официальная публикация акта</div></div></div>` : ''}
+    <div class="why" style="margin-top:14px"><b>Почему это показано вашей компании</b><ul><li>В профиле: «Собираем данные клиентов»</li><li>У компании есть интернет-магазин</li></ul></div>
+    <div class="conf" style="margin-top:14px">${ic('info')}<span>Анализ автоматизированный, не является юридическим заключением. Уровень уверенности и ссылка на источник — в карточке.</span></div></div>`;
+}
+
+/* =====================  PUBLIC VIEWS  ===================== */
+function viewHome() {
+  const problems = [['Поток изменений', 'Законов и подзаконных актов меняется больше, чем можно уследить вручную.'], ['Легко пропустить главное', 'Норма, которая влияет именно на вашу компанию, теряется среди десятков неважных.'], ['Непонятно, ваше ли это', 'Юридический язык сложен, а применимость к конкретному бизнесу нужно ещё определить.']];
+  const steps = [['Профиль компании', 'Расскажите об отрасли, регионах и особенностях работы — постепенно, без длинной анкеты.'], ['Анализ изменений', 'Сервис сопоставляет новые акты и поправки с профилем вашей компании.'], ['Персональный дайджест', 'Вы получаете то, что относится к вам: суть, сроки и объяснение простыми словами.'], ['Действия и контроль', 'Видите, что сделать, кому поручить и к какому сроку.']];
+  const caps = [['target', 'Персонализация', 'Для каждого материала видно, почему он попал в вашу ленту и какие данные профиля к нему относятся.'], ['book', 'Понятные пояснения', 'Краткое резюме, подробное объяснение и первоисточник — отдельными блоками.'], ['calendar', 'Сроки вступления в силу', 'Каждая карточка показывает дату вступления и напоминает о приближающихся сроках.'], ['doc', 'Официальный источник', 'Ссылка на документ, реквизиты и статус — чтобы проверить вывод самостоятельно.'], ['send', 'Telegram и почта', 'Дайджесты там, где удобнее. Каждый канал включается и отключается отдельно.'], ['list', 'Рекомендации к действию', 'Предполагаемые шаги, ответственные и сроки — если такие сведения доступны.']];
+  const aud = [['Руководители', 'Быстро понять, что важно для бизнеса, без погружения в текст закона.'], ['Юристы', 'Экономия времени на мониторинг и подготовка первичной оценки с источниками.'], ['Комплаенс', 'Единая лента изменений по вашим направлениям и сроки адаптации.'], ['Бухгалтеры и финансисты', 'Изменения по налогам и отчётности с датами вступления.'], ['HR-специалисты', 'Кадровые и трудовые нормы, влияющие на договоры и документы.'], ['Руководители направлений', 'Только те изменения, что касаются вашей зоны ответственности.']];
+  const trust = [['doc', 'Ссылка на первоисточник', 'В каждой карточке — название документа, реквизиты и ссылка на официальную публикацию.'], ['shield', 'Уровень уверенности анализа', 'Мы отмечаем, насколько надёжен вывод, и показываем, проверял ли материал юрист.'], ['lock', 'Защита данных', 'Вы сами решаете, какие сведения о компании указывать, и можете управлять доступом к ним.']];
+  return pubShell(`
+  <section class="hero"><div class="wrap hero-grid"><div>
+    <p class="eyebrow">Мониторинг изменений законодательства</p>
+    <h1>Изменения в законах, которые касаются именно вашей компании</h1>
+    <p class="lede">LawTracker следит за законодательством и присылает только то, что относится к вашему бизнесу — простыми словами, со сроками и ссылкой на первоисточник.</p>
+    <div class="hero-cta"><a class="btn btn-primary" href="#/register">Начать</a><a class="btn btn-ghost" href="#/" data-scroll="how">Как это работает</a></div>
+    <p class="hero-note">Профиль компании можно заполнять постепенно. Бесплатный старт — без банковской карты.</p></div>
+    ${sampleCard()}</div></section>
+
+  <section class="pub" id="problem"><div class="wrap"><div class="section-head"><h2>Законов меняется больше, чем можно уследить</h2><p>Большинство компаний отслеживают изменения вручную — и рискуют пропустить важное.</p></div>
+    <div class="problem-grid">${problems.map((p, i) => `<div class="problem"><div class="n">0${i + 1}</div><h3>${p[0]}</h3><p>${p[1]}</p></div>`).join('')}</div></div></section>
+
+  <section class="pub" id="how"><div class="wrap"><div class="section-head"><h2>Как работает сервис</h2><p>От заполнения профиля до конкретных действий — четыре шага.</p></div>
+    <div class="steps">${steps.map((s, i) => `<div class="step"><div class="num">${i + 1}</div><h3>${s[0]}</h3><p>${s[1]}</p></div>`).join('')}</div></div></section>
+
+  <section class="pub" id="sample"><div class="wrap sample-grid"><div><div class="section-head" style="margin-bottom:24px"><h2>Так выглядит персональный дайджест</h2><p>Не новость, а понятный сценарий: что изменилось, касается ли вас, что делать и где проверить.</p></div>
+    <ol class="tg-steps"><li><span><b>Суть за 30 секунд.</b> Без юридического языка: что изменилось и с какого числа.</span></li><li><span><b>Почему это вам.</b> Видно, какие данные профиля привели к показу материала.</span></li><li><span><b>Конкретные шаги.</b> Что сделать, кому поручить и до какого срока.</span></li><li><span><b>Ссылка на закон.</b> Кликабельный переход к официальной публикации.</span></li></ol></div>${sampleCard(true)}</div></section>
+
+  <section class="pub" id="features"><div class="wrap"><div class="section-head"><h2>Что вы получаете</h2></div>
+    <div class="capgrid">${caps.map(c => `<div class="cap">${ic(c[0])}<h3>${c[1]}</h3><p>${c[2]}</p></div>`).join('')}</div></div></section>
+
+  <section class="pub" id="audience"><div class="wrap"><div class="section-head"><h2>Для кого этот сервис</h2><p>Интерфейс понятен не только юристам. Первые отрасли: интернет-торговля, IT, трудовое право и персональные данные, реклама, строительство, медицина, производство.</p></div>
+    <div class="aud-grid">${aud.map(a => `<div class="aud"><h3>${a[0]}</h3><p>${a[1]}</p></div>`).join('')}</div></div></section>
+
+  <section class="pub" id="trust"><div class="wrap"><div class="section-head"><h2>Доверие — в основе продукта</h2><p>LawTracker — инструмент мониторинга и предварительного анализа, а не замена юридической консультации.</p></div>
+    <div class="trust-grid">${trust.map(t => `<div class="trust">${ic(t[0])}<h3>${t[1]}</h3><p>${t[2]}</p></div>`).join('')}</div>
+    <p class="muted" style="margin-top:22px;font-size:.92rem">Вопросы по методологии и защите данных — <a class="link" href="#/contacts">напишите команде</a>.</p></div></section>
+
+  <section class="pub" id="faq"><div class="wrap"><div class="section-head"><h2>Частые вопросы</h2></div>${faqList(4)}<p style="margin-top:20px"><a class="link" href="#/faq">Все вопросы и ответы →</a></p></div></section>
+
+  <section class="pub" style="border-bottom:none"><div class="wrap"><div class="final-cta"><h2>Начните отслеживать изменения, важные для вашего бизнеса</h2><p>Создайте аккаунт и заполните профиль компании — можно начать сейчас и продолжить позже.</p><a class="btn btn-primary" href="#/register">Создать аккаунт</a></div></div></section>`, '/');
+}
+
+const FAQ = [
+  ['Это юридическая консультация?', 'Нет. Материалы носят информационный характер и не заменяют индивидуальную юридическую консультацию. Точная формулировка оговорки согласуется с юристом проекта.'],
+  ['Откуда берутся изменения?', 'Из официальных источников публикации нормативных актов. В каждой карточке есть название документа, реквизиты и ссылка на первоисточник.'],
+  ['Как определяется, что изменение относится к моей компании?', 'Сервис сопоставляет содержание изменения с данными профиля: отрасль, регионы, структуру, кадры и другие сведения. В карточке всегда указано, какие именно параметры профиля привели к показу.'],
+  ['Можно ли отключить уведомления?', 'Да. Кабинет, почта и Telegram настраиваются отдельно. Можно выбрать частоту, категории, порог значимости и временно приостановить все уведомления.'],
+  ['Нужно ли заполнять профиль целиком сразу?', 'Нет. Профиль заполняется по шагам, необязательные вопросы можно пропустить. Чем полнее профиль, тем точнее персонализация.'],
+  ['Какие данные о компании вы используете?', 'Только те, что вы указали в профиле. Для каждого поля показано, на что оно влияет, а доступ к профилю можно ограничить ролями внутри команды.'],
+  ['Как подключить Telegram?', 'В разделе «Telegram» нажмите «Подключить», перейдите к боту и отправьте одноразовый код. После подтверждения дайджесты будут приходить в мессенджер.'],
+  ['Можно ли работать командой?', 'Да, на тарифах для нескольких пользователей. Роли: владелец, администратор, участник и просмотр.']
+];
+const faqList = n => (n ? FAQ.slice(0, n) : FAQ).map((f, i) => `<details ${i === 0 ? 'open' : ''}><summary>${f[0]}</summary><p>${f[1]}</p></details>`).join('');
+const viewFaq = () => pubShell(`<div class="wrap"><div class="page-hero"><h1>Вопросы и ответы</h1><p class="lede" style="margin-top:0">Не нашли ответ? <a class="link" href="#/contacts">Напишите нам</a>.</p></div><div style="max-width:780px;padding-bottom:70px">${faqList()}</div></div>`, '/faq');
+
+function viewPricing() {
+  const feat = t => t.map(x => `<li>${ic('check', 'sm')}<span>${x}</span></li>`).join('');
+  const plans = [
+    ['Бесплатный старт', 'Знакомство с сервисом', ['Профиль компании', 'Общий дайджест раз в месяц'], 'Бесплатно', 'Начать', false],
+    ['Базовый', 'ИП и микробизнес', ['Персональный дайджест', 'Уведомления в Telegram', 'Напоминания о сроках', 'Ссылки на источники'], 'Стоимость уточняется', 'Запросить доступ', false],
+    ['Профессиональный', 'Малый и средний бизнес', ['Больше сфер мониторинга', 'Рекомендации к действию', 'Архив изменений', 'Несколько пользователей'], 'Стоимость уточняется', 'Запросить доступ', true],
+    ['Корпоративный', 'Группы компаний', ['Несколько юрлиц', 'Задачи, сроки, отчёты', 'API и интеграции', 'Персональный менеджер'], 'По запросу', 'Связаться', false]];
+  return pubShell(`<div class="wrap"><div class="page-hero"><p class="eyebrow">Тарифы</p><h1>Подписка, которая растёт вместе с бизнесом</h1><p class="lede" style="margin-top:0">Уровень зависит от размера компании и числа пользователей. Окончательные тарифы и цены утверждаются — оставьте заявку, и мы сообщим о запуске.</p></div>
+    <div class="price-grid" style="padding-bottom:30px">${plans.map(p => `<div class="plan ${p[5] ? 'featured' : ''}">${p[5] ? '<span class="tag" style="align-self:flex-start;margin-bottom:10px">Для большинства компаний</span>' : ''}<h3>${p[0]}</h3><p class="for">${p[1]}</p><div class="price">${p[3]}</div><ul>${feat(p[2])}</ul><a class="btn ${p[5] ? 'btn-primary' : 'btn-ghost'}" href="#/register">${p[4]}</a></div>`).join('')}</div>
+    <p class="muted" style="font-size:.88rem;padding-bottom:70px">Состав тарифов предварительный и может измениться до запуска платных подписок.</p></div>`, '/pricing');
+}
+
+const viewAbout = () => pubShell(`<div class="wrap"><div class="page-hero"><p class="eyebrow">О сервисе</p><h1>Мы применяем изменения к конкретному бизнесу</h1></div>
+  <div class="prose" style="padding-bottom:40px"><p>LawTracker не заменяет правовую систему с миллионами документов. Мы делаем другое: находим изменения, которые могут повлиять на конкретную компанию, объясняем их простым языком, оцениваем влияние и предлагаем следующий шаг.</p>
+  <h2>Наши принципы</h2><ul><li><b>Персонализация.</b> Вы видите, почему изменение попало именно в вашу ленту.</li><li><b>Понятный язык.</b> Резюме, объяснение и первоисточник — отдельно друг от друга.</li><li><b>Практическая польза.</b> Действия, ответственные и сроки — если они известны.</li><li><b>Честность.</b> Мы показываем уровень уверенности анализа и не выдаём автоматический вывод за юридическое заключение.</li><li><b>Контроль.</b> Вы управляете данными профиля, каналами и частотой уведомлений.</li></ul>
+  <h2>Как мы снижаем риски</h2><p>У каждого вывода есть ссылка на первоисточник. Важные изменения могут проходить проверку юриста, и об этом есть отметка в карточке. Мы не даём гарантий полного соблюдения законодательства — сервис помогает не пропустить важное и быстрее принять решение.</p></div>
+  <div style="padding-bottom:70px"><a class="btn btn-primary" href="#/register">Создать аккаунт</a></div></div>`, '/about');
+
+function viewContacts() {
+  return pubShell(`<div class="wrap"><div class="page-hero"><p class="eyebrow">Контакты</p><h1>Свяжитесь с командой</h1></div>
+  <div class="sample-grid" style="padding-bottom:70px;align-items:start"><form class="card" id="contactForm" novalidate>
+    <div class="field"><label for="c-name">Имя <span class="req" aria-hidden="true">*</span></label><input type="text" id="c-name" name="name" autocomplete="name" required></div>
+    <div class="field"><label for="c-mail">Рабочая почта <span class="req" aria-hidden="true">*</span></label><input type="email" id="c-mail" name="email" autocomplete="email" required></div>
+    <div class="field"><label for="c-topic">Тема</label><select id="c-topic"><option>Запросить доступ</option><option>Вопрос по тарифам</option><option>Методология и источники</option><option>Партнёрство</option><option>Другое</option></select></div>
+    <div class="field"><label for="c-msg">Сообщение <span class="req" aria-hidden="true">*</span></label><textarea id="c-msg" name="msg" required></textarea></div>
+    <button class="btn btn-primary" type="submit">Отправить</button></form>
+    <div class="stack"><div class="card tight"><h3 style="font-size:1rem;margin-bottom:6px">Почта</h3><a class="link" href="mailto:hello@lawtracker.example">hello@lawtracker.example</a><p class="note">Адрес-заглушка: укажите реальный адрес команды.</p></div>
+    <div class="card tight"><h3 style="font-size:1rem;margin-bottom:6px">Telegram</h3><p class="muted" style="font-size:.9rem">Канал и чат поддержки — ссылки появятся перед запуском.</p></div>
+    <div class="card tight"><h3 style="font-size:1rem;margin-bottom:6px">Время ответа</h3><p class="muted" style="font-size:.9rem">Обычно отвечаем в течение рабочего дня.</p></div></div></div></div>`, '/contacts');
+}
+
+function viewLegal(kind) {
+  const t = kind === 'privacy' ? 'Политика конфиденциальности' : 'Пользовательское соглашение';
+  return pubShell(`<div class="wrap"><div class="page-hero"><h1>${t}</h1></div><div class="prose" style="padding-bottom:80px">
+    <div class="banner amber" style="margin-bottom:22px">${ic('alert')}<div class="b-body"><strong>Черновик</strong>Текст документа готовит и утверждает юрист проекта. Ниже — структура-заглушка.</div></div>
+    ${(kind === 'privacy' ? ['Какие данные мы собираем', 'Цели и основания обработки', 'Где и как долго хранятся данные', 'Права пользователя и управление данными', 'Передача третьим лицам', 'Контакты ответственного лица'] : ['Предмет соглашения', 'Регистрация и аккаунт', 'Права и обязанности сторон', 'Информационный характер материалов и ограничение ответственности', 'Тарифы и оплата', 'Расторжение и удаление аккаунта']).map((h, i) => `<h2>${i + 1}. ${h}</h2><p>Текст раздела будет добавлен после согласования с юристом.</p>`).join('')}
+  </div></div>`, '/' + kind);
+}
+
+/* =====================  AUTH & ONBOARDING  ===================== */
+const authBrand = () => `<div class="brand-panel"><div>${logo()}</div>
+  <div><div class="brand-copy"><h2>Изменения в законах, которые касаются именно вашей компании</h2></div>
+  <div class="benefit-list">${['Персональный дайджест под профиль компании', 'Понятные сроки и ссылка на источник', 'Уведомления в кабинете, почте или Telegram'].map(t => `<div class="benefit">${ic('check')}<p>${t}</p></div>`).join('')}</div></div>
+  <div class="card-preview"><span class="tag">Персональные данные</span><h3>Новые требования к хранению персональных данных сотрудников</h3><p>Показано из-за раздела профиля «Работа с персональными данными»</p></div></div>`;
+const authShell = inner => `<a class="skip" href="#main" data-skip>К содержимому</a><div class="auth-screen">${authBrand()}<main class="form-side" id="main" tabindex="-1"><div class="form-wrap">${inner}</div></main></div>`;
+const authTabs = cur => `<div class="tabs" role="tablist" aria-label="Вход или регистрация" style="margin-bottom:26px"><a role="tab" href="#/register" aria-selected="${cur === 'r'}" style="display:flex;align-items:center;justify-content:center">Регистрация</a><a role="tab" href="#/login" aria-selected="${cur === 'l'}" style="display:flex;align-items:center;justify-content:center">Вход</a></div>`;
+const fieldErr = m => m ? `<div class="err" role="alert">${ic('alert', 'sm')}${esc(m)}</div>` : '';
+const pwScore = p => [p.length >= 8, /[a-zа-я]/i.test(p), /\d/.test(p), /[^\w\s]|[A-ZА-Я]/.test(p) && p.length >= 10].filter(Boolean).length;
+const oauthBtn = `<button class="btn btn-ghost btn-block" type="button" data-act="oauth"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.600 12.230c0-.7-.06-1.220-.2-1.760H12v3.300h5.500c-.11.900-.72 2.200-2.060 3.100l-.02.120 3 2.300.2.020c1.900-1.760 2.980-4.340 2.980-7.080z"/><path fill="#34A853" d="M12 22c2.700 0 4.960-.9 6.600-2.400l-3.140-2.430c-.84.580-1.960.98-3.460.98-2.640 0-4.880-1.740-5.680-4.140l-.12.010-3.100 2.400-.04.110A9.960 9.960 0 0012 22z"/><path fill="#FBBC05" d="M6.320 14.010A6 6 0 016 12c0-.7.120-1.380.31-2.010l-.01-.13-3.140-2.440-.1.050A9.960 9.960 0 002 12c0 1.610.39 3.140 1.070 4.500l3.250-2.490z"/><path fill="#EA4335" d="M12 5.850c1.870 0 3.130.81 3.850 1.480l2.810-2.740C16.950 3.010 14.700 2 12 2A9.960 9.960 0 003.070 7.500l3.240 2.500C7.120 7.600 9.360 5.850 12 5.850z"/></svg>Продолжить через Google</button>`;
+
+function viewRegister(err = {}, v = {}) {
+  const sc = pwScore(v.pass || '');
+  return authShell(`${authTabs('r')}<h1>Создать аккаунт</h1><p class="form-sub">Настройка профиля компании займёт пару минут — можно продолжить позже.</p>
+  <form id="regForm" novalidate>
+    <div class="field"><label for="r-name">Имя</label><input type="text" id="r-name" name="name" autocomplete="name" placeholder="Анна Ковалёва" value="${esc(v.name || '')}" ${err.name ? 'aria-invalid="true" aria-describedby="e-name"' : ''}><div id="e-name">${fieldErr(err.name)}</div></div>
+    <div class="field"><label for="r-mail">Рабочая почта</label><input type="email" id="r-mail" name="email" autocomplete="email" placeholder="you@company.ru" value="${esc(v.email || '')}" ${err.email ? 'aria-invalid="true" aria-describedby="e-mail"' : ''}><div id="e-mail">${fieldErr(err.email)}</div></div>
+    <div class="field"><label for="r-pass">Пароль</label><input type="password" id="r-pass" name="pass" autocomplete="new-password" placeholder="Минимум 8 символов" ${err.pass ? 'aria-invalid="true" aria-describedby="e-pass"' : 'aria-describedby="e-pass"'}>
+      <div class="pw-meter" aria-hidden="true">${[0, 1, 2, 3].map(i => `<i class="${i < sc ? 'on' : ''}"></i>`).join('')}</div><div id="e-pass">${err.pass ? fieldErr(err.pass) : '<div class="note">Минимум 8 символов, буква и цифра</div>'}</div></div>
+    <div class="field" style="margin-bottom:18px"><label class="check" style="font-weight:400;font-size:.86rem;color:var(--ink-soft)"><input type="checkbox" name="agree" ${v.agree ? 'checked' : ''}><span>Согласен с <a class="link" href="#/terms" target="_blank" rel="noopener">пользовательским соглашением</a> и <a class="link" href="#/privacy" target="_blank" rel="noopener">политикой конфиденциальности</a></span></label>${fieldErr(err.agree)}</div>
+    <button class="btn btn-primary btn-block" type="submit">Создать аккаунт</button></form>
+  <div class="divider">или</div>${oauthBtn}<p class="switch-note">Уже есть аккаунт? <a class="link" href="#/login">Войти</a></p>`);
+}
+function viewLogin(err = {}, v = {}) {
+  return authShell(`${authTabs('l')}<h1>Войти</h1><p class="form-sub">Рады видеть снова.</p>
+  <form id="loginForm" novalidate>
+    <div class="field"><label for="l-mail">Рабочая почта</label><input type="email" id="l-mail" name="email" autocomplete="email" placeholder="you@company.ru" value="${esc(v.email || '')}" ${err.email ? 'aria-invalid="true"' : ''}>${fieldErr(err.email)}</div>
+    <div class="field"><label for="l-pass">Пароль</label><input type="password" id="l-pass" name="pass" autocomplete="current-password" placeholder="Введите пароль" ${err.pass ? 'aria-invalid="true"' : ''}>${fieldErr(err.pass)}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:10px;flex-wrap:wrap"><label class="check" style="font-size:.88rem;color:var(--ink-soft)"><input type="checkbox">Запомнить меня</label><a class="link" href="#/forgot" style="font-size:.88rem">Забыли пароль?</a></div>
+    <button class="btn btn-primary btn-block" type="submit">Войти</button></form>
+  <div class="divider">или</div>${oauthBtn}<p class="switch-note">Ещё нет аккаунта? <a class="link" href="#/register">Зарегистрироваться</a></p>
+  <p class="note" style="text-align:center;margin-top:14px">Демо: подойдёт любая почта и пароль от 8 символов.</p>`);
+}
+function viewForgot(sent) {
+  return authShell(sent ? `<div class="banner" style="margin-bottom:20px">${ic('mail')}<div class="b-body"><strong>Проверьте почту</strong>Если аккаунт с таким адресом существует, мы отправили ссылку для сброса пароля.</div></div><a class="btn btn-ghost btn-block" href="#/login">Вернуться ко входу</a>`
+    : `<h1>Восстановление пароля</h1><p class="form-sub">Укажите почту — отправим ссылку для создания нового пароля.</p><form id="forgotForm" novalidate><div class="field"><label for="f-mail">Рабочая почта</label><input type="email" id="f-mail" name="email" autocomplete="email"></div><button class="btn btn-primary btn-block" type="submit">Отправить ссылку</button></form><p class="switch-note"><a class="link" href="#/login">← Назад ко входу</a></p>`);
+}
+
+const OB = { step: 1, err: {}, mode: 'create', tmp: { form: 'ООО', name: '', size: '', industry: '', topics: [] } };
+function viewOnboarding() {
+  if (!S.user) return null;
+  const st = OB.step, bar = `<div class="ob-steps" role="progressbar" aria-valuemin="1" aria-valuemax="4" aria-valuenow="${st}" aria-label="Шаг ${st} из 4">${[1, 2, 3, 4].map(i => `<i class="${i <= st ? 'on' : ''}"></i>`).join('')}</div>`;
+  const e = OB.err;
+  let inner;
+  if (st === 1) inner = `${bar}<h1>Подтвердите почту</h1><p class="form-sub">Мы отправили 6-значный код на <b>${esc(S.user.email)}</b>.</p>
+    <form id="obVerify" novalidate><div class="field"><label for="code-0">Код из письма</label><div class="code-inputs" role="group" aria-label="Код подтверждения">${[0, 1, 2, 3, 4, 5].map(i => `<input inputmode="numeric" maxlength="1" id="code-${i}" data-code="${i}" aria-label="Цифра ${i + 1}" autocomplete="${i ? 'off' : 'one-time-code'}">`).join('')}</div>${fieldErr(e.code)}<p class="note">Демо: введите любые 6 цифр.</p></div>
+    <button class="btn btn-primary btn-block" type="submit">Подтвердить</button></form><p class="switch-note"><button class="btn-text" data-act="resend" style="display:inline">Отправить код ещё раз</button></p>`;
+  else if (st === 2) inner = `${bar}<h1>Ваша компания</h1><p class="form-sub">Создайте профиль компании или присоединитесь к существующему.</p>
+    <div class="tabs" role="tablist" style="margin-bottom:22px"><button role="tab" aria-selected="${OB.mode === 'create'}" data-act="obmode" data-v="create">Создать</button><button role="tab" aria-selected="${OB.mode === 'join'}" data-act="obmode" data-v="join">Присоединиться</button></div>
+    ${OB.mode === 'create' ? `<form id="obCompany" novalidate><div class="field"><label for="ob-form">Форма</label><select id="ob-form">${['ООО', 'ИП', 'АО', 'Самозанятый', 'Другое'].map(f => `<option ${OB.tmp.form === f ? 'selected' : ''}>${f}</option>`).join('')}</select></div>
+      <div class="field"><label for="ob-name">Название компании <span class="req" aria-hidden="true">*</span></label><input type="text" id="ob-name" autocomplete="organization" value="${esc(OB.tmp.name)}" ${e.name ? 'aria-invalid="true"' : ''}>${fieldErr(e.name)}</div>
+      <button class="btn btn-primary btn-block" type="submit">Продолжить</button></form>`
+      : `<form id="obJoin" novalidate><div class="field"><label for="ob-code">Код приглашения</label><input type="text" id="ob-code" placeholder="Например, NW-4821" ${e.code ? 'aria-invalid="true"' : ''}>${fieldErr(e.code)}<p class="note">Код можно получить у владельца или администратора компании. Демо: любой код от 4 символов.</p></div><button class="btn btn-primary btn-block" type="submit">Присоединиться</button></form>`}`;
+  else if (st === 3) inner = `${bar}<h1>Расскажите о бизнесе</h1><p class="form-sub">Два вопроса — остальное можно заполнить позже в профиле компании.</p>
+    <form id="obBasics" novalidate><div class="field"><label for="ob-ind">Основная отрасль <span class="req" aria-hidden="true">*</span></label><select id="ob-ind" ${e.industry ? 'aria-invalid="true"' : ''}><option value="">Выберите…</option>${INDUSTRIES.map(f => `<option ${OB.tmp.industry === f ? 'selected' : ''}>${f}</option>`).join('')}</select>${fieldErr(e.industry)}</div>
+      <fieldset class="field" style="border:0;padding:0;margin:0 0 22px"><legend class="field-label" style="padding:0;font-weight:600;font-size:.92rem;margin-bottom:8px">Размер компании <span class="req" aria-hidden="true">*</span></legend><div class="radio-cards">${SIZES.map(s => `<label class="radio-card"><input type="radio" name="size" value="${s[0]}" ${OB.tmp.size === s[0] ? 'checked' : ''}><span>${s[1]}<small>${s[2]}</small></span></label>`).join('')}</div>${fieldErr(e.size)}</fieldset>
+      <button class="btn btn-primary btn-block" type="submit">Продолжить</button></form>`;
+  else inner = `${bar}<h1>Что вам интересно?</h1><p class="form-sub">Выберите тематики для дайджеста. Их можно изменить в любой момент.</p>
+    <form id="obTopics"><div class="chip-group" style="margin-bottom:26px" role="group" aria-label="Тематики">${Object.entries(TOPICS).map(([k, t]) => `<button type="button" class="chip" data-obtopic="${k}" aria-pressed="${OB.tmp.topics.includes(k)}">${t}</button>`).join('')}</div>
+      <button class="btn btn-primary btn-block" type="submit">Перейти в кабинет</button><p class="switch-note"><button class="btn-text" type="button" data-act="obskip" style="display:inline">Пропустить</button></p></form>`;
+  return authShell(inner);
+}
+
+/* =====================  APP SHELL  ===================== */
+const NAV = [
+  ['overview', '/app', 'Обзор', 'grid'], ['digests', '/app/digests', 'Дайджесты', 'list', 'count'], ['saved', '/app/saved', 'Сохранённое', 'bookmark'], '-',
+  ['profile', '/app/profile', 'Профиль компании', 'building'], ['notifications', '/app/notifications', 'Уведомления', 'bell'], ['telegram', '/app/telegram', 'Telegram', 'send'], ['team', '/app/team', 'Команда и доступы', 'users'], ['plan', '/app/plan', 'Персональный план', 'route', 'soon'], '-',
+  ['account', '/app/account', 'Настройки аккаунта', 'user'], ['support', '/app/support', 'Поддержка', 'help']];
+const companyName = () => S.company.name ? (S.company.form && S.company.form !== 'Другое' && S.company.form !== 'Самозанятый' ? S.company.form + ' «' + S.company.name + '»' : S.company.name) : 'Компания не указана';
+function navHTML() {
+  return NAV.map(n => n === '-' ? '<div class="nav-divider"></div>' :
+    `<a class="navlink" href="#${n[1]}" data-nav="${n[0]}">${ic(n[3])}<span>${n[2]}</span>${n[4] === 'count' && unreadCount() ? `<span class="count" aria-label="${unreadCount()} новых">${unreadCount()}</span>` : ''}${n[4] === 'soon' ? '<span class="soon">скоро</span>' : ''}</a>`).join('');
+}
+function appShell(active, { title, sub = '', body, actions = '' }) {
+  const bn = [['overview', '/app', 'Обзор', 'grid'], ['digests', '/app/digests', 'Дайджесты', 'list'], ['saved', '/app/saved', 'Сохранённое', 'bookmark'], ['notifications', '/app/notifications', 'Уведомления', 'bell']];
+  return `<a class="skip" href="#main" data-skip>К содержимому</a>
+  <div class="app"><aside class="sidebar" aria-label="Навигация кабинета"><div class="brand">${logo('#/app')}</div>
+    <nav class="navlist" aria-label="Разделы кабинета">${navHTML().replace(`data-nav="${active}"`, `data-nav="${active}" aria-current="page"`)}</nav>
+    <div class="company-pick"><button class="company-btn" data-act="company" aria-haspopup="true"><span class="dot"></span><span class="t">${esc(companyName())}</span>${ic('more', 'sm')}</button></div></aside>
+    <div><header class="topbar"><div style="min-width:0"><h1>${title}</h1>${sub ? `<p class="sub">${sub}</p>` : ''}</div>
+      <div class="top-actions">${actions}${themeBtn()}<button class="btn btn-ghost icon-only bell" data-act="bell" aria-label="Уведомления сервиса">${ic('bell')}${unreadCount() ? '<span class="dot"></span>' : ''}</button><a class="avatar" href="#/app/account" aria-label="Настройки аккаунта: ${esc(S.user.name)}">${esc(initials(S.user.name))}</a></div></header>
+      <main class="content" id="main" tabindex="-1">${body}</main></div></div>
+  <nav class="bottom-nav" aria-label="Быстрая навигация">${bn.map(n => `<a href="#${n[1]}" ${n[0] === active ? 'aria-current="page"' : ''}>${ic(n[3])}<span>${n[2]}</span>${n[0] === 'digests' && unreadCount() ? `<span class="count">${unreadCount()}</span>` : ''}</a>`).join('')}<button data-act="moremenu" aria-label="Ещё разделы">${ic('more')}<span>Ещё</span></button></nav>`;
+}
+const DEMO_STRIP = `<div class="demo-strip">${ic('info', 'sm')}<span>Демонстрационные данные: акты и реквизиты в кабинете вымышлены и служат только для показа интерфейса.</span></div>`;
+const skeletons = n => Array.from({ length: n }, () => `<div class="sk-card" aria-hidden="true"><div class="skeleton sk-line" style="width:30%"></div><div class="skeleton sk-line" style="width:80%;height:16px"></div><div class="skeleton sk-line" style="width:95%"></div><div class="skeleton sk-line" style="width:60%"></div></div>`).join('') + '<span class="sr-only" role="status">Загрузка…</span>';
+const emptyState = (icon, t, p, btn = '') => `<div class="empty">${ic(icon)}<h3>${t}</h3><p>${p}</p>${btn}</div>`;
+const errorState = (t, p, act) => `<div class="banner red" role="alert">${ic('alert')}<div class="b-body"><strong>${t}</strong>${p}<div style="margin-top:10px"><button class="btn btn-ghost btn-sm" data-act="${act}">${ic('refresh', 'sm')}Повторить</button></div></div></div>`;
+
+/* =====================  OVERVIEW  ===================== */
+function viewOverview() {
+  const c = S.company, pct = profilePct(), tg = S.tg.status;
+  const firstName = (S.user.name || '').split(' ')[0];
+  const personal = CHANGES.filter(x => isPersonal(x) && !x.draft && (x.impact !== 'low')).sort((a, b) => IMP_RANK[b.impact] - IMP_RANK[a.impact] || (a.eff ?? 999) - (b.eff ?? 999)).slice(0, 2);
+  const fallback = CHANGES.filter(x => x.impact === 'high').slice(0, 2);
+  const upcoming = CHANGES.filter(x => !x.draft && x.eff > 0).sort((a, b) => a.eff - b.eff).slice(0, 4);
+  const soon30 = CHANGES.filter(x => !x.draft && x.eff > 0 && x.eff <= 30).length;
+  const attn = attention().length, un = D.empty ? 0 : unreadCount();
+  const chk = [['Аккаунт создан, почта подтверждена', true, '/app'], ['Основные сведения о компании', !!S.company.saved.basics, '/app/profile', 1], ['Отрасль и направления', !!S.company.saved.industry, '/app/profile', 2], ['Регионы работы', !!S.company.saved.regions, '/app/profile', 3], ['Персональные данные', !!S.company.saved.pd, '/app/profile', 7], ['Подключить Telegram', tg === 'connected', '/app/telegram']];
+  const banner = !profileStarted() ? `<div class="banner amber" style="margin-bottom:22px">${ic('info')}<div class="b-body"><strong>Профиль компании пока не заполнен</strong>Пока вы видите общую ленту. Ответьте на несколько вопросов — и мы покажем, какие изменения относятся именно к вам.<div style="margin-top:12px"><a class="btn btn-primary btn-sm" href="#/app/profile">Заполнить профиль</a></div></div></div>` : (pct < 100 ? `<div class="banner" style="margin-bottom:22px">${ic('target')}<div class="b-body"><strong>Профиль заполнен на ${pct}%</strong>Чем полнее профиль, тем точнее персонализация. Осталось шагов: ${STEPS.filter(s => !stepDone(s)).length}.</div><a class="btn btn-ghost btn-sm" href="#/app/profile">Продолжить</a></div>` : '');
+  const list = (arr, fb) => arr.length ? arr.map(x => changeItem(x)).join('') : '';
+  const important = D.empty ? emptyState('check', 'Новых изменений нет', 'Пока ничего нового для вашей компании. Мы сообщим, когда появятся изменения — в кабинете, по почте или в Telegram.', '<a class="btn btn-ghost" href="#/app/notifications">Настроить уведомления</a>')
+    : (personal.length ? `<div class="stack">${list(personal)}</div>` : `<div class="stack"><p class="muted" style="font-size:.9rem">Совпадений с профилем пока нет — показываем самые значимые общие изменения.</p>${list(fallback)}</div>`);
+  const tgW = { none: ['', 'Не подключён', 'Получайте дайджесты и напоминания о сроках прямо в мессенджере.', 'Подключить'], pending: ['wait', 'Ожидается подтверждение', 'Отправьте код боту, чтобы завершить подключение.', 'Завершить подключение'], connected: ['ok', 'Подключён', 'Дайджесты приходят в ' + (S.tg.username || 'Telegram') + '.', 'Настроить'], error: ['bad', 'Ошибка подключения', 'Не удалось подтвердить подключение. Попробуйте ещё раз.', 'Повторить'], disabled: ['', 'Отключён', 'Уведомления в Telegram выключены.', 'Подключить снова'] }[tg];
+  return appShell('overview', {
+    title: `${firstName ? 'Добрый день, ' + esc(firstName) : 'Добрый день'}`, sub: `${esc(companyName())} · обновлено сегодня`,
+    body: `${DEMO_STRIP}${banner}
+    <div class="stats-row"><a class="stat" href="#/app/digests" data-filterlink="new"><div class="num">${un}</div><div class="label">новых изменений</div></a>
+      <a class="stat" href="#/app/digests" data-filterlink="attn"><div class="num">${attn}</div><div class="label">требуют внимания</div></a>
+      <div class="stat"><div class="num">${soon30}</div><div class="label">вступят в силу за 30 дней</div></div>
+      <a class="stat" href="#/app/profile"><div class="num">${pct}%</div><div class="label">заполненность профиля</div></a></div>
+    <div class="layout-grid"><div class="stack-lg">
+      <section aria-labelledby="h-imp"><div class="col-heading"><h2 id="h-imp">Важно для вашей компании</h2><a href="#/app/digests">Все изменения</a></div>${D.loading ? skeletons(2) : important}</section>
+      <section aria-labelledby="h-up"><div class="col-heading"><h2 id="h-up">Ближайшие изменения</h2></div><div class="list-card">${upcoming.map(x => `<a class="list-row" href="#/app/change/${x.id}"><span class="name">${esc(x.title)}</span><span class="date"><span class="days-left">${countdown(x) || ''}</span>${fmtS(dayOff(x.eff))}</span></a>`).join('')}</div></section></div>
+    <div class="stack">
+      <div class="widget"><h3>Профиль компании</h3><div class="progress" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Заполненность профиля"><div style="width:${pct}%"></div></div><p class="muted" style="font-size:.84rem;margin-top:8px">Заполнено ${pct}%${pct < 100 ? ' — можно продолжить в любой момент' : ''}</p>
+        <div class="checklist">${chk.map(([t, d, h, s]) => `<a href="#${h}" ${s ? `data-step="${s}"` : ''} class="${d ? 'done' : ''}"><span class="box">${d ? ic('check', 'sm') : ''}</span>${t}</a>`).join('')}</div></div>
+      <div class="widget"><h3>Telegram-уведомления</h3><div class="tg-status"><span class="sdot ${tgW[0]}" aria-hidden="true"></span>${tgW[1]}</div><p class="muted" style="font-size:.86rem;margin-bottom:14px">${tgW[2]}</p><a class="btn btn-ghost btn-block btn-sm" href="#/app/telegram">${tgW[3]}</a></div>
+      <div class="widget"><h3>Последние дайджесты</h3>${[[0, 5], [7, 8], [14, 4]].map(([d, n]) => `<a class="list-row" style="padding:10px 0;min-height:44px" href="#/app/digests"><span class="name">Дайджест · ${n} ${plural(n, ['изменение', 'изменения', 'изменений'])}</span><span class="date">${fmtS(dayOff(-d))}</span></a>`).join('')}</div>
+      <a class="btn btn-ghost" href="#/app/notifications">${ic('bell', 'sm')}Настройки уведомлений</a></div></div>`
+  });
+}
+
+/* =====================  DIGESTS  ===================== */
+const F = { q: '', period: 'all', topic: '', impact: '', status: 'all', sort: 'date', personal: false, page: 1 };
+const PAGE = 5;
+function filterChanges(ignoreStatus) {
+  const q = F.q.trim().toLowerCase();
+  let r = CHANGES.filter(c => {
+    if (q && !(c.title + ' ' + c.summary + ' ' + c.what + ' ' + c.agency + ' ' + TOPICS[c.topic]).toLowerCase().includes(q)) return false;
+    if (F.period !== 'all' && -c.pub > +F.period) return false;
+    if (F.topic && c.topic !== F.topic) return false;
+    if (F.impact && c.impact !== F.impact) return false;
+    if (F.personal && !isPersonal(c)) return false;
+    if (!ignoreStatus) { if (F.status === 'new' && isRead(c)) return false; if (F.status === 'read' && !isRead(c)) return false; if (F.status === 'saved' && !isSaved(c)) return false; if (F.status === 'attn' && !attention().includes(c)) return false; }
+    return true;
+  });
+  const cmp = { date: (a, b) => b.pub - a.pub, impact: (a, b) => IMP_RANK[b.impact] - IMP_RANK[a.impact] || b.pub - a.pub, eff: (a, b) => (a.eff ?? 9999) - (b.eff ?? 9999) }[F.sort];
+  return r.sort(cmp);
+}
+const opt = (v, t, cur) => `<option value="${v}" ${String(cur) === String(v) ? 'selected' : ''}>${t}</option>`;
+const filterFields = (p = '') => `<select class="fs" data-filter="period" aria-label="Период">${[['all', 'Любой период'], ['7', 'За неделю'], ['30', 'За месяц'], ['90', 'За 3 месяца']].map(([v, t]) => opt(v, t, F.period)).join('')}</select>
+  <select class="fs" data-filter="topic" aria-label="Тематика">${opt('', 'Все тематики', F.topic)}${Object.entries(TOPICS).map(([k, t]) => opt(k, t, F.topic)).join('')}</select>
+  <select class="fs" data-filter="impact" aria-label="Уровень влияния">${opt('', 'Любой уровень влияния', F.impact)}${Object.entries(IMP_SHORT).map(([k, t]) => opt(k, t, F.impact)).join('')}</select>
+  <label class="check" style="min-height:44px;align-items:center"><input type="checkbox" data-filter="personal" ${F.personal ? 'checked' : ''}><span>Только относящиеся к моей компании</span></label>`;
+function digestListHTML(list, shown) {
+  if (D.loading) return skeletons(3);
+  if (D.error) return errorState('Не удалось загрузить дайджесты', 'Проверьте соединение и попробуйте ещё раз. Ваши сохранённые материалы не пострадали.', 'retry');
+  if (D.empty) return emptyState('check', 'Новых изменений нет', 'Сейчас нет новых материалов. Мы сообщим о новых изменениях по выбранным каналам.', '<a class="btn btn-ghost" href="#/app/notifications">Настроить уведомления</a>');
+  if (!list.length) return emptyState('search', 'Ничего не найдено', 'По выбранным условиям материалов нет. Попробуйте изменить запрос или сбросить фильтры.', '<button class="btn btn-ghost" data-act="resetfilters">Сбросить фильтры</button>');
+  const rest = list.length - shown.length;
+  return `<div class="stack" role="list">${shown.map(c => `<div role="listitem">${changeItem(c)}</div>`).join('')}</div>${rest > 0 ? `<div class="load-more"><button class="btn btn-ghost" data-act="loadmore">Показать ещё (${Math.min(rest, PAGE)})</button><span>Показано ${shown.length} из ${list.length}</span></div>` : `<div class="load-more"><span>Показаны все материалы (${list.length})</span></div>`}`;
+}
+function activeChips() {
+  const a = [];
+  if (F.q) a.push(['q', 'Поиск: «' + F.q + '»']); if (F.period !== 'all') a.push(['period', 'Период: ' + F.period + ' дн.']); if (F.topic) a.push(['topic', TOPICS[F.topic]]); if (F.impact) a.push(['impact', 'Влияние: ' + IMP_SHORT[F.impact].toLowerCase()]); if (F.personal) a.push(['personal', 'Только мои']);
+  return a.map(([k, t]) => `<button data-clear="${k}" aria-label="Убрать фильтр: ${esc(t)}">${esc(t)} ${ic('x', 'sm')}</button>`).join('');
+}
+function digestsInner() {
+  const full = filterChanges(false), shown = full.slice(0, F.page * PAGE), base = filterChanges(true);
+  const cnt = { all: base.length, new: base.filter(c => !isRead(c)).length, read: base.filter(isRead).length, saved: base.filter(isSaved).length };
+  return { full, shown, cnt };
+}
+function renderDigestList() {
+  const { full, shown, cnt } = digestsInner();
+  const box = $('#dList'); if (!box) return;
+  box.innerHTML = digestListHTML(full, shown);
+  $('#dCount').textContent = `${full.length} ${plural(full.length, ['изменение', 'изменения', 'изменений'])}`;
+  $$('#dTabs button').forEach(b => { b.setAttribute('aria-selected', b.dataset.status === F.status); const n = $('.n', b); if (n && cnt[b.dataset.status] !== undefined) n.textContent = cnt[b.dataset.status]; });
+  $('#dChips').innerHTML = activeChips();
+  const dm = $('#drawerCount'); if (dm) dm.textContent = `Показать результаты (${full.length})`;
+}
+function viewDigests() {
+  const { full, shown, cnt } = digestsInner();
+  return appShell('digests', {
+    title: 'Дайджесты', sub: 'Все изменения законодательства, отобранные для вашей компании', body: `${DEMO_STRIP}
+    <div class="filters-bar"><div class="search-box" role="search">${ic('search', 'sm')}<input type="search" id="dSearch" placeholder="Поиск по названию и содержанию" aria-label="Поиск по названию и содержанию" value="${esc(F.q)}"></div>
+      <button class="btn btn-ghost only-m" data-act="openfilters">${ic('filter', 'sm')}Фильтры</button><div class="desktop-filters">${filterFields()}</div></div>
+    <div class="active-filters" id="dChips" style="margin-top:12px">${activeChips()}</div>
+    <div class="status-tabs" id="dTabs" role="tablist" aria-label="Статус">${[['all', 'Все'], ['new', 'Новые'], ['read', 'Прочитанные'], ['saved', 'Сохранённые']].map(([k, t]) => `<button role="tab" data-status="${k}" aria-selected="${F.status === k}">${t} <span class="n">${cnt[k]}</span></button>`).join('')}${F.status === 'attn' ? `<button role="tab" data-status="attn" aria-selected="true">Требуют внимания</button>` : ''}</div>
+    <div class="list-header"><span class="muted" id="dCount" role="status" style="font-size:.9rem">${full.length} ${plural(full.length, ['изменение', 'изменения', 'изменений'])}</span>
+      <label class="sort-row">Сортировать:<select class="fs" data-filter="sort">${[['date', 'по дате публикации'], ['impact', 'по значимости'], ['eff', 'по сроку вступления в силу']].map(([v, t]) => opt(v, t, F.sort)).join('')}</select></label></div>
+    <div id="dList">${digestListHTML(full, shown)}</div>`
+  });
+}
+function viewSaved() {
+  const list = CHANGES.filter(isSaved);
+  return appShell('saved', { title: 'Сохранённое', sub: 'Материалы, к которым вы хотите вернуться', body: list.length ? `<div class="stack">${list.map(c => changeItem(c)).join('')}</div>` : emptyState('bookmark', 'Пока ничего не сохранено', 'Нажмите на закладку в карточке изменения, чтобы сохранить материал и быстро вернуться к нему.', '<a class="btn btn-primary" href="#/app/digests">Перейти к дайджестам</a>') });
+}
+
+/* =====================  CHANGE DETAIL  ===================== */
+function viewChange(id) {
+  const c = CH[id];
+  if (!c) return appShell('digests', { title: 'Материал не найден', body: emptyState('search', 'Такого материала нет', 'Возможно, ссылка устарела.', '<a class="btn btn-primary" href="#/app/digests">К дайджестам</a>') });
+  const m = matchesOf(c), sv = isSaved(c), rd = isRead(c), cd = countdown(c);
+  const used = [];
+  const P = S.company; if (profileStarted()) { if (P.industry) used.push('Отрасль: ' + P.industry); if (P.headcount) used.push('Численность: ' + P.headcount); }
+  const tl = c.draft ? '' : `<div class="timeline" aria-label="Хронология"><div class="on">Опубликовано<br>${fmtS(dayOff(c.pub))}</div><div class="on">Сегодня<br>${fmtS(TODAY)}</div><div class="${c.eff <= 0 ? 'on' : ''}">${c.eff <= 0 ? 'Вступило' : 'Вступает'}<br>${fmtS(dayOff(c.eff))}</div></div>`;
+  const acts = c.actions.length ? `<div class="act-list">${c.actions.map((a, i) => { const st = actState(c, i); return `<div class="act ${st === 'done' ? 'done' : ''}"><input type="checkbox" class="chk" data-actcheck="${c.id}:${i}" ${st === 'done' ? 'checked' : ''} aria-label="Выполнено: ${esc(a[0])}" style="width:22px;height:22px;accent-color:var(--accent)"><div class="txt"><span class="k">Действие</span>${esc(a[0])}</div><div><span class="k">Рекомендуемый срок</span>до ${fmtS(dayOff(a[1]))}</div><div><span class="k">Возможный ответственный</span>${esc(a[2])}</div><div><span class="k">Статус</span><select data-actstatus="${c.id}:${i}" aria-label="Статус: ${esc(a[0])}">${[['todo', 'Не начато'], ['doing', 'В работе'], ['done', 'Выполнено']].map(([v, t]) => opt(v, t, st)).join('')}</select></div></div>`; }).join('')}</div><p class="note" style="margin-top:10px">Действия предположительные и подобраны автоматически. Ответственных и сроки можно скорректировать с юристом.</p>` : '<p class="muted">По этому материалу конкретных действий не требуется — достаточно следить за развитием событий.</p>';
+  const rel = c.related.map(x => CH[x]).filter(Boolean);
+  return appShell('digests', {
+    title: '', sub: '', body: `<article class="detail">
+    <nav class="breadcrumbs" aria-label="Хлебные крошки"><a href="#/app/digests">Дайджесты</a>${ic('right', 'sm')}<span>${esc(TOPICS[c.topic])}</span>${ic('right', 'sm')}<span aria-current="page">Карточка изменения</span></nav>
+    <div class="meta-row">${impactTag(c.impact)}${topicTag(c.topic)}${statusTag(c)}${cd ? `<span class="tag amber">${ic('clock')}${cd}</span>` : ''}</div>
+    <h1>${esc(c.title)}</h1>
+    <p class="muted" style="font-size:.86rem;margin:10px 0 20px">${esc(c.agency)} · опубликовано ${fmtD(dayOff(c.pub))} · данные обновлены ${fmtD(TODAY)}</p>
+    <div class="card-actions" style="margin-bottom:20px">
+      <button class="icon-btn ${sv ? 'on' : ''}" data-act="save" data-id="${c.id}" aria-pressed="${sv}">${ic('bookmark', 'sm')}${sv ? 'Сохранено' : 'Сохранить'}</button>
+      <button class="icon-btn ${rd ? 'on' : ''}" data-act="read" data-id="${c.id}" aria-pressed="${rd}">${ic('check', 'sm')}${rd ? 'Прочитано' : 'Отметить прочитанным'}</button>
+      <button class="icon-btn" data-act="share" data-id="${c.id}">${ic('share', 'sm')}Поделиться</button>
+      <a class="icon-btn" href="https://publication.pravo.gov.ru/" target="_blank" rel="noopener">${ic('ext', 'sm')}К источнику<span class="sr-only"> (новая вкладка)</span></a></div>
+
+    <section class="d-block" aria-labelledby="d1"><h2 id="d1">Коротко <span class="layer">Краткое изложение</span></h2><p class="d-summary" style="padding-left:16px">${esc(c.summary)}</p></section>
+
+    <section class="d-block" aria-labelledby="d2"><h2 id="d2">Относится ли это к вашей компании</h2>
+      ${m.length ? `<div class="why"><b>Почему материал показан вашей компании</b><ul>${m.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : (profileStarted() ? `<div class="banner blue">${ic('info')}<div class="b-body"><strong>Прямых совпадений с профилем нет</strong>Это общий материал по теме «${esc(TOPICS[c.topic])}». Если вы считаете, что он вас касается, уточните профиль компании.</div></div>` : `<div class="banner amber">${ic('info')}<div class="b-body"><strong>Профиль не заполнен</strong>Мы не можем оценить применимость. Заполните профиль компании — и здесь появится объяснение, почему материал относится к вам.</div></div>`)}
+      <p class="muted" style="font-size:.86rem;margin-top:12px"><b>Направление бизнеса:</b> ${esc(TOPICS[c.topic])}${used.length ? ' · Использованные данные: ' + esc(used.join('; ')) : ''}</p>
+      <p style="margin-top:8px;font-size:.88rem"><a class="link" href="#/app/profile">Изменить данные профиля, которые влияют на оценку</a></p></section>
+
+    <section class="d-block" aria-labelledby="d3"><h2 id="d3">Основное <span class="layer">Краткое изложение</span></h2>
+      <div class="kv" style="margin-top:0"><div><div class="k">Что изменилось</div><div class="v">${esc(c.what)}</div></div><div><div class="k">Кого касается</div><div class="v">${esc(c.who)}</div></div>
+      <div><div class="k">Когда вступает в силу</div><div class="v"><b>${effText(c)}</b></div></div><div><div class="k">Что может потребоваться</div><div class="v">${c.actions.length ? esc(c.actions[0][0]) + (c.actions.length > 1 ? ` и ещё ${c.actions.length - 1}` : '') : 'Пока ничего'}</div></div></div>${tl}</section>
+
+    <section class="d-block analytic" aria-labelledby="d4"><h2 id="d4">Комментарий платформы <span class="layer">Аналитика, не заключение</span></h2><p>${esc(c.comment)}</p>
+      <div class="meta-row" style="margin:14px 0 0">${confTag(c)}${reviewTag(c)}</div></section>
+
+    <section class="d-block" aria-labelledby="d5"><h2 id="d5">Предполагаемые действия <span class="layer">Рекомендации</span></h2>${acts}</section>
+
+    <section class="d-block" aria-labelledby="d6"><h2 id="d6">Первоисточник <span class="layer">Текст акта</span></h2>
+      <blockquote class="quote">${esc(c.quote)}</blockquote><p class="note">Фрагмент приведён для иллюстрации. Полный текст — на официальном ресурсе.</p>
+      <div class="source-row" style="border-top:1px solid var(--line);margin-top:14px"><div><div class="name">${esc(c.doc)}</div><div class="ref">${esc(c.docRef)} · ${esc(c.agency)}</div></div><a class="btn btn-ghost btn-sm" href="https://publication.pravo.gov.ru/" target="_blank" rel="noopener">Открыть официальный источник ${ic('ext', 'sm')}<span class="sr-only"> (новая вкладка)</span></a></div></section>
+
+    <div class="conf" role="note">${ic('info')}<span>${DISCLAIMER}</span></div>
+    <div class="card-actions" style="margin-top:18px"><button class="icon-btn danger" data-act="report" data-id="${c.id}">${ic('flag', 'sm')}Сообщить об ошибке</button></div>
+    ${rel.length ? `<section style="margin-top:30px" aria-labelledby="d7"><div class="col-heading"><h2 id="d7">Связанные материалы</h2></div><div class="list-card">${rel.map(x => `<a class="list-row" href="#/app/change/${x.id}"><span class="name">${esc(x.title)}</span><span class="tag ${IMP[x.impact][1]}">${IMP_SHORT[x.impact]}</span></a>`).join('')}</div></section>` : ''}
+  </article>`
+  });
+}
+
+/* =====================  PROFILE  ===================== */
+let PErr = {};
+const pv = f => S.company[f];
+const inflTag = t => `<span class="infl">${ic('target', 'sm')}Влияет на: ${t}</span>`;
+function fText(label, f, o = {}) {
+  const id = 'p-' + f, err = PErr[f];
+  return `<div class="field"><label for="${id}">${label}${o.req ? ' <span class="req" aria-hidden="true">*</span><span class="sr-only">обязательное поле</span>' : ' <span class="opt-mark">необязательно</span>'}</label>${o.hint ? `<p class="hint" id="h-${f}">${o.hint}</p>` : ''}
+  ${o.area ? `<textarea id="${id}" data-f="${f}" placeholder="${esc(o.ph || '')}">${esc(pv(f))}</textarea>` : `<input type="${o.type || 'text'}" id="${id}" data-f="${f}" value="${esc(pv(f))}" placeholder="${esc(o.ph || '')}" ${o.hint ? `aria-describedby="h-${f}"` : ''} ${err ? 'aria-invalid="true"' : ''}>`}${o.infl ? `<div style="margin-top:8px">${inflTag(o.infl)}</div>` : ''}${fieldErr(err)}</div>`;
+}
+function fSelect(label, f, opts, o = {}) {
+  const id = 'p-' + f, err = PErr[f];
+  return `<div class="field"><label for="${id}">${label}${o.req ? ' <span class="req" aria-hidden="true">*</span><span class="sr-only">обязательное поле</span>' : ''}</label>${o.hint ? `<p class="hint">${o.hint}</p>` : ''}
+  <select id="${id}" data-f="${f}" ${err ? 'aria-invalid="true"' : ''}>${o.blank ? '<option value="">Выберите…</option>' : ''}${opts.map(x => Array.isArray(x) ? opt(x[0], x[1], pv(f)) : opt(x, x, pv(f))).join('')}</select>${o.infl ? `<div style="margin-top:8px">${inflTag(o.infl)}</div>` : ''}${fieldErr(err)}</div>`;
+}
+function fChips(label, f, opts, o = {}) {
+  const sel = pv(f) || [];
+  return `<div class="field"><div class="field-label" id="l-${f}">${label}${o.req ? ' <span class="req" aria-hidden="true">*</span><span class="sr-only">обязательное поле</span>' : ' <span class="opt-mark">необязательно</span>'}</div>${o.hint ? `<p class="hint">${o.hint}</p>` : ''}
+  <div class="chip-group" role="group" aria-labelledby="l-${f}">${opts.map(x => `<button type="button" class="chip" data-chip="${f}" data-v="${esc(x)}" aria-pressed="${sel.includes(x)}">${esc(x)}</button>`).join('')}</div>${o.infl ? `<div style="margin-top:10px">${inflTag(o.infl)}</div>` : ''}${fieldErr(PErr[f])}</div>`;
+}
+const fTog = (f, t, s, infl) => `<div class="tog-row"><div><div class="t" id="t-${f}">${t}</div><div class="s">${s}</div>${infl ? `<div style="margin-top:6px">${inflTag(infl)}</div>` : ''}</div><label class="switch"><input type="checkbox" data-f="${f}" data-bool aria-labelledby="t-${f}" ${pv(f) ? 'checked' : ''}><span class="track"></span></label></div>`;
+function stepForm(id) {
+  switch (id) {
+    case 'basics': return `<div class="grid2">${fSelect('Организационно-правовая форма', 'form', ['ООО', 'ИП', 'АО', 'Самозанятый', 'Другое'], { req: 1, blank: 1 })}${fText('Название компании', 'name', { req: 1, ph: 'Например: Нордвуд Логистика' })}</div>${fText('ИНН', 'inn', { ph: '10 или 12 цифр', hint: 'Нужен, чтобы точнее определять применимость норм. Можно пропустить.' })}
+      <fieldset class="field" style="border:0;padding:0;margin:0 0 22px"><legend class="field-label" style="padding:0;font-weight:600;font-size:.92rem;margin-bottom:8px">Размер компании <span class="req" aria-hidden="true">*</span><span class="sr-only">обязательное поле</span></legend><div class="radio-cards">${SIZES.map(s => `<label class="radio-card"><input type="radio" name="size" data-f="size" value="${s[0]}" ${pv('size') === s[0] ? 'checked' : ''}><span>${s[1]}<small>${s[2]}</small></span></label>`).join('')}</div>${fieldErr(PErr.size)}<div style="margin-top:8px">${inflTag('налоги, отчётность, кадры')}</div></fieldset>`;
+    case 'industry': return `${fSelect('Основная отрасль', 'industry', INDUSTRIES, { req: 1, blank: 1, hint: 'Выберите отрасль, которая точнее всего описывает деятельность компании.' })}${fChips('Дополнительные направления деятельности', 'activities', ACTIVITIES, { hint: 'Можно выбрать несколько.' })}${fText('Краткое описание деятельности', 'desc', { area: 1, ph: 'Например: организуем перевозки сборных грузов' })}`;
+    case 'regions': return fChips('В каких регионах работает компания', 'regions', REGIONS, { req: 1, hint: 'Можно выбрать несколько.', infl: 'региональные нормы' });
+    case 'structure': return `<fieldset class="field" style="border:0;padding:0"><legend class="field-label" style="padding:0;font-weight:600;font-size:.92rem;margin-bottom:8px">Есть ли у компании филиалы или обособленные подразделения? <span class="req" aria-hidden="true">*</span></legend><div class="radio-cards" style="max-width:340px">${[['yes', 'Да'], ['no', 'Нет']].map(([v, t]) => `<label class="radio-card"><input type="radio" name="branches" data-f="branches" value="${v}" ${pv('branches') === v ? 'checked' : ''}><span>${t}</span></label>`).join('')}</div>${fieldErr(PErr.branches)}</fieldset>
+      <div style="margin:22px 0">${fSelect('Сколько юридических лиц в группе', 'entities', [['1', 'Одно'], ['2', 'Два'], ['3', '3–5'], ['6', 'Более 5']])}</div>${fTog('foreignShare', 'Есть иностранное участие в капитале', 'Иностранные участники или учредители', 'налоги и отчётность')}`;
+    case 'staff': return `${fSelect('Численность сотрудников', 'headcount', HEADCOUNTS, { req: 1, blank: 1 })}${fTog('remote', 'Есть сотрудники на дистанционной работе', 'Полностью удалённые или в гибридном формате', 'трудовое право')}${fTog('foreignStaff', 'Есть иностранные сотрудники', 'Работники — иностранные граждане', 'трудовое право, миграционный учёт')}`;
+    case 'licenses': return fChips('Лицензируемые виды деятельности', 'licenses', LICENSES, { hint: 'Если лицензий нет — просто пропустите вопрос.', infl: 'лицензирование' });
+    case 'pd': return `${fTog('pdCustomers', 'Собираем персональные данные клиентов', 'Формы заявок, заказы, регистрация на сайте', 'персональные данные')}${fTog('pdEmployees', 'Обрабатываем персональные данные сотрудников', 'Кадровый учёт, зарплата, доступы', 'персональные данные, трудовое право')}${fTog('pdExternal', 'Используем внешние сервисы для обработки данных', 'Облачные кадровые системы, CRM, рассылки', 'персональные данные')}${fTog('pdCross', 'Передаём данные за границу', 'Серверы или контрагенты за пределами страны', 'персональные данные')}`;
+    case 'ved': return `${fTog('vedExport', 'Экспортируем товары или услуги', 'Продажи иностранным клиентам', 'ВЭД, таможенные нормы')}${fTog('vedImport', 'Импортируем товары', 'Закупки у иностранных поставщиков', 'ВЭД, таможенные нормы')}`;
+    case 'digital': return fChips('Какие сервисы и технологии вы используете', 'digital', DIGITAL, { hint: 'Можно выбрать несколько.', infl: 'IT, персональные данные, реклама' });
+    case 'contacts': return `<div class="grid2">${fText('Контактное лицо', 'contactName', { ph: 'Имя и фамилия' })}${fText('Должность', 'contactRole', { ph: 'Например: юрист' })}</div>${fText('Почта для уведомлений', 'contactEmail', { req: 1, type: 'email', ph: 'you@company.ru' })}${fText('Дополнительные получатели', 'recipients', { area: 1, ph: 'Адреса через запятую', hint: 'Например, бухгалтер или HR — им тоже будут приходить дайджесты.' })}`;
+  }
+}
+function validateStep(id) {
+  const p = S.company, e = {};
+  if (id === 'basics') { if (!p.name.trim()) e.name = 'Укажите название компании'; if (!p.form) e.form = 'Выберите форму'; if (!p.size) e.size = 'Выберите размер компании'; if (p.inn && !/^(\d{10}|\d{12})$/.test(p.inn.trim())) e.inn = 'ИНН состоит из 10 или 12 цифр'; }
+  if (id === 'industry' && !p.industry) e.industry = 'Выберите основную отрасль';
+  if (id === 'regions' && !p.regions.length) e.regions = 'Выберите хотя бы один регион';
+  if (id === 'structure' && !p.branches) e.branches = 'Ответьте на вопрос';
+  if (id === 'staff' && !p.headcount) e.headcount = 'Укажите численность';
+  if (id === 'contacts') { if (!p.contactEmail) e.contactEmail = 'Укажите почту'; else if (!validEmail(p.contactEmail)) e.contactEmail = 'Проверьте адрес почты'; }
+  return e;
+}
+function viewProfile() {
+  const i = S.profileStep - 1, s = STEPS[i], pct = profilePct();
+  const shared = S.shareProfile;
+  return appShell('profile', {
+    title: 'Профиль компании', sub: `${esc(companyName())}`, actions: `<div style="width:170px" class="hide-m"><div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--ink-soft);margin-bottom:4px"><span>Заполнено</span><b>${pct}%</b></div><div class="progress" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Заполненность профиля"><div style="width:${pct}%"></div></div></div><button class="btn btn-ghost btn-sm" data-act="draft">Сохранить черновик</button>`,
+    body: `<div class="content-split"><nav class="steplist" aria-label="Шаги профиля">${STEPS.map((x, k) => `<button class="step-row ${stepDone(x) ? 'done' : ''}" data-step="${k + 1}" ${k === i ? 'aria-current="step"' : ''}><span class="step-marker">${stepDone(x) ? '✓' : k + 1}</span><span><span class="nm">${x.t}</span>${x.opt ? '<span class="op">Необязательно</span>' : ''}</span></button>`).join('')}</nav>
+    <div class="stack-lg"><form class="form-panel" id="profForm" novalidate><p class="eyebrow">Шаг ${i + 1} из ${STEPS.length}</p><h2>${s.t}</h2><p class="step-desc">${s.d}</p>
+      ${Object.keys(PErr).length ? `<div class="banner red" role="alert" style="margin-bottom:20px">${ic('alert')}<div class="b-body"><strong>Проверьте поля</strong>Заполните обязательные поля, отмеченные звёздочкой.</div></div>` : ''}
+      ${stepForm(s.id)}
+      <div class="banner" style="margin-top:6px">${ic('info')}<div class="b-body"><strong>Как это используется</strong>Ответы на этом шаге влияют на подбор изменений: ${s.inf}. Вы можете изменить их в любой момент.</div></div>
+      <div class="step-actions"><div class="l">${i > 0 ? '<button type="button" class="btn btn-ghost" data-act="pback">Назад</button>' : ''}${s.opt ? '<button type="button" class="btn-text" data-act="pskip">Пропустить вопрос</button>' : ''}</div><button class="btn btn-primary" type="submit">${i === STEPS.length - 1 ? 'Сохранить и завершить' : 'Сохранить и продолжить'}</button></div>
+      <p class="note" style="display:flex;gap:8px;align-items:center;margin-top:18px">${ic('lock', 'sm')}Эти данные видны только вашей команде в LawTracker.</p></form>
+    <section class="card" aria-labelledby="dacc"><h2 id="dacc" style="font-size:1.1rem;margin-bottom:6px">Данные и доступ</h2><p class="muted" style="font-size:.9rem;margin-bottom:8px">Мы используем сведения профиля только для подбора изменений. Вы решаете, кто в команде их видит.</p>
+      <div class="tog-row"><div><div class="t" id="t-share">Показывать профиль участникам и наблюдателям</div><div class="s">Если выключено, профиль видят только владелец и администраторы</div></div><label class="switch"><input type="checkbox" id="shareProfile" aria-labelledby="t-share" ${shared ? 'checked' : ''}><span class="track"></span></label></div>
+      <div class="tog-row"><div><div class="t">Скачать данные профиля</div><div class="s">Файл с ответами в формате JSON</div></div><button class="btn btn-ghost btn-sm" data-act="exportprofile">${ic('dl', 'sm')}Скачать</button></div>
+      <div class="tog-row"><div><div class="t">Очистить данные профиля</div><div class="s">Персонализация перестанет работать, пока вы не заполните профиль заново</div></div><button class="btn btn-danger-ghost btn-sm" data-act="resetprofile">Очистить</button></div></section></div></div>`
+  });
+}
+
+/* =====================  NOTIFICATIONS  ===================== */
+let ND = null, NDirty = false;
+const TGCHIP = { none: ['neutral', 'Не подключён'], pending: ['amber', 'Ожидание'], connected: ['', 'Подключён'], error: ['red', 'Ошибка'], disabled: ['neutral', 'Отключён'] };
+function viewNotifications() {
+  if (!ND) ND = JSON.parse(JSON.stringify(S.notif));
+  const n = ND, tg = S.tg.status, allOff = !n.cabinet && !n.email && !(n.tg && tg === 'connected');
+  const sw = (k, label) => `<label class="switch"><input type="checkbox" data-n="${k}" aria-label="${label}" ${n[k] ? 'checked' : ''}><span class="track"></span></label>`;
+  return appShell('notifications', {
+    title: 'Настройки уведомлений', sub: 'Каждый канал можно включить и настроить отдельно', actions: '', body: `<div class="narrow">
+    ${n.pause ? `<div class="banner amber" style="margin-bottom:22px">${ic('clock')}<div class="b-body"><strong>Уведомления приостановлены</strong>Материалы продолжают накапливаться в кабинете${n.pauseUntil ? '. Возобновим ' + fmtD(n.pauseUntil) : ''}.</div></div>` : ''}
+    ${allOff && !n.pause ? `<div class="banner blue" style="margin-bottom:22px">${ic('info')}<div class="b-body"><strong>Все каналы отключены</strong>Вы не получите ни одного уведомления. Изменения по-прежнему видны в разделе «Дайджесты».</div></div>` : ''}
+    <div class="group"><div class="group-head"><h2>Каналы получения</h2><p>Отключить можно любой канал — остальные продолжат работать.</p></div>
+      <div class="channel-card"><div class="channel-row"><div class="channel-icon">${ic('grid')}</div><div class="channel-body"><div class="name">В личном кабинете</div><div class="sub">Показывать новые изменения в кабинете</div></div><span class="tag ${n.cabinet ? '' : 'neutral'}">${n.cabinet ? 'Включено' : 'Выключено'}</span>${sw('cabinet', 'Уведомления в кабинете')}</div></div>
+      <div class="channel-card"><div class="channel-row"><div class="channel-icon">${ic('mail')}</div><div class="channel-body"><div class="name">По электронной почте</div><div class="sub">${esc(S.company.contactEmail || S.user.email)}</div></div><span class="tag ${n.email ? '' : 'neutral'}">${n.email ? 'Включено' : 'Выключено'}</span>${sw('email', 'Уведомления по почте')}</div>
+        ${n.email ? `<div class="channel-sub"><label for="n-freq">Частота писем:</label><select class="fs" id="n-freq" data-n="emailFreq">${[['now', 'Сразу'], ['daily', 'Раз в день'], ['weekly', 'Раз в неделю']].map(([v, t]) => opt(v, t, n.emailFreq)).join('')}</select></div>` : ''}</div>
+      <div class="channel-card"><div class="channel-row"><div class="channel-icon">${ic('send')}</div><div class="channel-body"><div class="name">Telegram</div><div class="sub">${{ none: 'Не подключён', pending: 'Ожидается подтверждение', connected: 'Аккаунт ' + esc(S.tg.username), error: 'Ошибка подключения', disabled: 'Отключён' }[tg]}</div></div><span class="tag ${TGCHIP[tg][0]}">${TGCHIP[tg][1]}</span>${tg === 'connected' ? sw('tg', 'Уведомления в Telegram') : ''}</div>
+        <div class="channel-sub">${tg === 'connected' ? `<span>${n.tg ? 'Дайджесты приходят в Telegram' : 'Отправка в Telegram выключена, подключение сохранено'}</span><a class="link" href="#/app/telegram">Управление</a>` : `<span>${tg === 'pending' ? 'Осталось подтвердить подключение' : tg === 'error' ? 'Не удалось подтвердить подключение' : 'Чтобы получать сообщения, подключите Telegram'}</span><a class="btn btn-primary btn-sm" href="#/app/telegram">${tg === 'pending' ? 'Завершить' : tg === 'error' ? 'Повторить' : 'Подключить Telegram'}</a>`}</div></div></div>
+    <div class="group"><div class="group-head"><h2>Что присылать</h2><p>Применяется ко всем включённым каналам.</p></div><div class="settings-card">
+      <div class="field"><div class="field-label" id="nl-t">Категории изменений</div><div class="chip-group" role="group" aria-labelledby="nl-t">${Object.entries(TOPICS).map(([k, t]) => `<button type="button" class="chip" data-ntopic="${k}" aria-pressed="${n.topics.includes(k)}">${t}</button>`).join('')}</div><p class="note">${n.topics.length ? '' : 'Ничего не выбрано — присылаем все категории, которые подходят профилю.'}</p></div>
+      <div class="field"><div class="field-label" id="nl-i">Присылать уведомления при уровне значимости</div><div class="segmented" role="group" aria-labelledby="nl-i">${[['low', 'Любом'], ['med', 'Среднем и выше'], ['high', 'Только высоком']].map(([v, t]) => `<button type="button" data-nimp="${v}" aria-pressed="${n.minImpact === v}">${t}</button>`).join('')}</div></div>
+      <div class="field" style="margin-bottom:0"><div class="field-label" id="nl-d">Время и дни отправки</div><div style="display:flex;gap:10px;align-items:center;margin-bottom:12px"><label for="n-time" class="muted" style="font-size:.9rem">Присылать в</label><input type="time" id="n-time" data-n="time" value="${n.time}" class="input" style="width:auto"></div>
+        <div class="day-row" role="group" aria-labelledby="nl-d">${['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((d, k) => `<button type="button" class="day-pill" data-nday="${k + 1}" aria-pressed="${n.days.includes(k + 1)}" aria-label="${['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'][k]}">${d}</button>`).join('')}</div>
+        <p class="note">Срочные изменения с высоким уровнем влияния приходят вне расписания, если канал включён.</p></div></div></div>
+    <div class="group"><div class="group-head"><h2>Приостановка уведомлений</h2></div><div class="settings-card">
+      <div class="tog-row" style="border:0;padding-top:0"><div><div class="t" id="t-pause">Временно приостановить все уведомления</div><div class="s">Материалы продолжат накапливаться в кабинете</div></div>${sw('pause', 'Приостановить все уведомления')}</div>
+      ${n.pause ? `<div style="border-top:1px solid var(--line);padding-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><label for="n-until" class="muted" style="font-size:.9rem">Возобновить</label><input type="date" class="input" id="n-until" data-n="pauseUntil" value="${n.pauseUntil}" min="${dToISO(TODAY)}" style="width:auto"></div>` : ''}</div></div>
+    <div class="save-bar" id="saveBar" ${NDirty ? '' : 'hidden'} style="position:sticky;bottom:76px;background:var(--bg-raised);border:1px solid var(--line);border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 8px 24px rgba(0,0,0,.12)"><span>Есть несохранённые изменения</span><span style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" data-act="ncancel">Отменить</button><button class="btn btn-primary btn-sm" data-act="nsave">Сохранить настройки</button></span></div></div>`
+  });
+}
+
+/* =====================  TELEGRAM  ===================== */
+const BOT = 'LawTrackerBot';
+function viewTelegram() {
+  const st = S.tg.status; let body;
+  const steps = `<ol class="tg-steps"><li><span>Нажмите «Подключить Telegram» — мы создадим одноразовый код.</span></li><li><span>Откройте нашего бота <b>@${BOT}</b> и нажмите «Запустить».</span></li><li><span>Отправьте боту код — и вернитесь в кабинет.</span></li></ol>`;
+  if (st === 'none') body = `<div class="card"><div class="tg-hero"><div><span class="tag neutral" style="margin-bottom:12px">Не подключён</span><h2 style="font-size:1.3rem;margin-bottom:8px">Дайджесты и напоминания в Telegram</h2><p class="muted">Получайте важные изменения и напоминания о сроках там, где удобно. Основной канал — кабинет; Telegram — дополнительный, его можно отключить в любой момент.</p>${steps}<button class="btn btn-primary" data-act="tgconnect">${ic('send', 'sm')}Подключить Telegram</button></div><div class="tg-msg" aria-label="Пример сообщения"><b>LawTracker · Высокий уровень влияния</b>Согласие на обработку персональных данных — только отдельным документом. Осталось 14 дней.<br><span class="link">Открыть в кабинете →</span></div></div></div>`;
+  if (st === 'pending') body = `<div class="card"><span class="tag amber" style="margin-bottom:12px">${ic('clock')}Ожидается подтверждение</span><h2 style="font-size:1.3rem;margin-bottom:8px">Завершите подключение</h2><p class="muted" style="margin-bottom:16px">Отправьте этот код боту @${BOT}. Код действует 15 минут.</p>
+    <div class="code-box" aria-label="Код подключения ${esc(S.tg.code)}">${esc(S.tg.code)}</div><div style="display:flex;gap:10px;flex-wrap:wrap;margin:18px 0"><a class="btn btn-primary" href="https://t.me/${BOT}" target="_blank" rel="noopener">${ic('ext', 'sm')}Открыть Telegram<span class="sr-only"> (новая вкладка)</span></a><button class="btn btn-ghost" data-act="tgcheck">Я отправил код — проверить</button><button class="btn-text" data-act="tgcancel">Отменить</button></div>
+    <div class="banner blue">${ic('info')}<div class="b-body">Демо: кнопка «Я отправил код» имитирует успешное подтверждение. Ошибку можно показать через панель «Демо».</div></div></div>`;
+  if (st === 'connected') body = `<div class="card"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px"><div style="display:flex;gap:12px;align-items:center"><div class="channel-icon">${ic('send')}</div><div><div style="font-weight:600">${esc(S.tg.username)}</div><span class="tag">${ic('check')}Подключён</span></div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" data-act="tgtest">Отправить тестовое сообщение</button><button class="btn btn-danger-ghost btn-sm" data-act="tgdisconnect">Отключить</button></div></div>
+    <div class="tg-msg"><b>LawTracker · Дайджест недели</b>${unreadCount()} новых изменений, ${attention().length} требуют внимания.<br><span class="link">Открыть кабинет →</span></div><p class="muted" style="font-size:.9rem;margin-top:16px">Тип и частоту сообщений можно настроить в разделе <a class="link" href="#/app/notifications">«Уведомления»</a>.</p></div>`;
+  if (st === 'error') body = `<div class="banner red" role="alert">${ic('alert')}<div class="b-body"><strong>Не удалось подтвердить подключение</strong>Возможные причины: код устарел, бот был заблокирован или код введён с ошибкой.<div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" data-act="tgconnect">Получить новый код</button><a class="btn btn-ghost btn-sm" href="#/app/support">Написать в поддержку</a></div></div></div>`;
+  if (st === 'disabled') body = `<div class="card"><span class="tag neutral" style="margin-bottom:12px">Отключён</span><h2 style="font-size:1.3rem;margin-bottom:8px">Telegram отключён</h2><p class="muted" style="margin-bottom:16px">Сообщения больше не отправляются. Дайджесты по-прежнему доступны в кабинете и по почте.</p><button class="btn btn-primary" data-act="tgconnect">Подключить снова</button></div>`;
+  return appShell('telegram', { title: 'Подключение Telegram', sub: 'Дополнительный канал уведомлений', body: `<div class="narrow stack-lg">${body}<div class="note">Вы можете отключить Telegram в любой момент — остальные каналы продолжат работать.</div></div>` });
+}
+
+/* =====================  TEAM  ===================== */
+function viewTeam() {
+  if (!S.team.length) S.team = [{ id: 'me', name: S.user.name, email: S.user.email, role: 'owner', status: 'active' }];
+  return appShell('team', { title: 'Команда и доступы', sub: 'Кто из сотрудников работает с профилем и материалами', actions: `<button class="btn btn-primary btn-sm" data-act="invite">${ic('plus', 'sm')}Пригласить</button>`, body: `<div class="stack-lg">
+    <div class="table-wrap"><table class="tbl"><caption class="sr-only">Участники команды</caption><thead><tr><th scope="col">Участник</th><th scope="col">Роль</th><th scope="col">Статус</th><th scope="col"><span class="sr-only">Действия</span></th></tr></thead><tbody>
+    ${S.team.map(m => `<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="avatar" style="width:34px;height:34px;font-size:.78rem">${esc(initials(m.name || m.email))}</span><div><div style="font-weight:600">${esc(m.name || m.email)}${m.id === 'me' ? ' <span class="faint" style="font-weight:400">(вы)</span>' : ''}</div><div class="muted" style="font-size:.84rem">${esc(m.email)}</div></div></div></td>
+    <td>${m.role === 'owner' ? '<span class="tag">Владелец</span>' : `<select class="fs" data-role="${m.id}" aria-label="Роль: ${esc(m.email)}" style="min-height:40px">${['admin', 'member', 'viewer'].map(r => opt(r, ROLES[r], m.role)).join('')}</select>`}</td>
+    <td>${m.status === 'active' ? `<span class="tag">${ic('check')}Активен</span>` : `<span class="tag amber">${ic('clock')}Приглашение отправлено</span>`}</td>
+    <td style="text-align:right;white-space:nowrap">${m.status === 'pending' ? `<button class="btn btn-ghost btn-sm" data-resend="${m.id}">Отправить снова</button> ` : ''}${m.role !== 'owner' ? `<button class="btn btn-danger-ghost btn-sm" data-remove="${m.id}" aria-label="Удалить: ${esc(m.email)}">${ic('trash', 'sm')}Удалить</button>` : ''}</td></tr>`).join('')}</tbody></table></div>
+    <section class="card" aria-labelledby="rl"><h2 id="rl" style="font-size:1.1rem;margin-bottom:12px">Роли и доступы</h2><div class="table-wrap" style="border:0"><table class="tbl"><thead><tr><th scope="col">Роль</th><th scope="col">Что может</th></tr></thead><tbody>${Object.entries(ROLES).map(([k, t]) => `<tr><th scope="row" style="font-weight:600;text-align:left">${t}</th><td class="muted">${ROLE_DESC[k]}</td></tr>`).join('')}</tbody></table></div></section>
+    <div class="banner blue">${ic('info')}<div class="b-body">Несколько пользователей доступны на тарифе «Профессиональный». В демо-версии ограничение не применяется.</div></div></div>` });
+}
+
+/* =====================  PLAN (future)  ===================== */
+function viewPlan() {
+  const steps = [['Обновить согласие на обработку данных', 'Юрист', '14 дней'], ['Проверить договоры с подрядчиками', 'Юрист, HR', '60 дней'], ['Подготовить дополнительную отчётность', 'Бухгалтерия', '62 дня']];
+  return appShell('plan', { title: 'Персональный план правовых действий', sub: 'Скоро', body: `<div class="narrow stack-lg"><div class="banner blue">${ic('spark')}<div class="b-body"><strong>Раздел в разработке</strong>Мы собираем изменения, сроки и рекомендации в единый план адаптации для вашей компании: с ответственными, сроками и отчётами для руководства.</div></div>
+    <div class="card locked" aria-hidden="true"><h2 style="font-size:1.1rem;margin-bottom:8px">Пример плана</h2>${steps.map((s, i) => `<div class="plan-step"><span class="step-marker">${i + 1}</span><div><div style="font-weight:600">${s[0]}</div><div class="muted" style="font-size:.86rem">${s[1]} · срок: ${s[2]}</div></div></div>`).join('')}</div>
+    <div><button class="btn btn-primary" data-act="waitlist" aria-pressed="${!!S.waitlist}" ${S.waitlist ? 'disabled' : ''}>${S.waitlist ? 'Мы сообщим, когда раздел будет готов' : 'Сообщить мне о запуске'}</button></div></div>` });
+}
+
+/* =====================  ACCOUNT / SUPPORT  ===================== */
+let sessions = [{ id: 1, d: 'Этот браузер · сейчас', cur: true }, { id: 2, d: 'Телефон · 2 дня назад' }, { id: 3, d: 'Ноутбук · 12 дней назад' }];
+function viewAccount() {
+  return appShell('account', { title: 'Настройки аккаунта', sub: esc(S.user.email), body: `<div class="narrow stack-lg">
+    <form class="card" id="accForm" novalidate><h2 style="font-size:1.1rem;margin-bottom:16px">Имя и контакты</h2><div class="grid2"><div class="field"><label for="a-name">Имя</label><input type="text" id="a-name" value="${esc(S.user.name)}" autocomplete="name"></div><div class="field"><label for="a-phone">Телефон <span class="opt-mark">необязательно</span></label><input type="tel" id="a-phone" value="${esc(S.user.phone || '')}" autocomplete="tel"></div></div><div class="field"><label for="a-mail">Почта</label><input type="email" id="a-mail" value="${esc(S.user.email)}" autocomplete="email"></div><button class="btn btn-primary" type="submit">Сохранить</button></form>
+    <form class="card" id="pwForm" novalidate><h2 style="font-size:1.1rem;margin-bottom:16px">Смена пароля</h2><div class="field"><label for="pw0">Текущий пароль</label><input type="password" id="pw0" autocomplete="current-password"></div><div class="field"><label for="pw1">Новый пароль</label><input type="password" id="pw1" autocomplete="new-password"><p class="note">Минимум 8 символов, буква и цифра</p></div><div id="pwErr"></div><button class="btn btn-ghost" type="submit">Сменить пароль</button></form>
+    <section class="card" aria-labelledby="ss"><h2 id="ss" style="font-size:1.1rem;margin-bottom:8px">Активные сессии</h2>${sessions.map(s => `<div class="sess"><span>${s.d}${s.cur ? ' <span class="tag" style="margin-left:6px">Текущая</span>' : ''}</span>${s.cur ? '' : `<button class="btn btn-ghost btn-sm" data-endsess="${s.id}">Завершить</button>`}</div>`).join('')}</section>
+    <section class="card"><h2 style="font-size:1.1rem;margin-bottom:12px">Язык интерфейса</h2><label class="field" style="margin:0"><span class="sr-only">Язык</span><select class="input" style="max-width:280px"><option>Русский</option><option disabled>English — скоро</option></select></label></section>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-ghost" data-act="logout">Выйти из аккаунта</button></div>
+    <section class="danger-zone" aria-labelledby="dz"><h2 id="dz" style="font-size:1.1rem;margin-bottom:6px">Удаление аккаунта</h2><p style="font-size:.92rem;margin-bottom:14px">Профиль компании, настройки и сохранённые материалы будут удалены без возможности восстановления.</p><button class="btn btn-danger" data-act="delacc">Удалить аккаунт</button></section></div>` });
+}
+function viewSupport() {
+  return appShell('support', { title: 'Поддержка', sub: 'Ответим в течение рабочего дня', body: `<div class="layout-grid"><form class="card" id="supForm" novalidate><h2 style="font-size:1.1rem;margin-bottom:16px">Написать в поддержку</h2>
+    <div class="field"><label for="s-t">Тема</label><select id="s-t"><option>Вопрос по работе сервиса</option><option>Ошибка в материале</option><option>Профиль и персонализация</option><option>Telegram и уведомления</option><option>Другое</option></select></div>
+    <div class="field"><label for="s-m">Сообщение <span class="req" aria-hidden="true">*</span></label><textarea id="s-m" style="min-height:130px"></textarea><div id="s-e"></div></div><button class="btn btn-primary" type="submit">Отправить</button></form>
+    <div><div class="col-heading"><h2>Частые вопросы</h2></div>${faqList(5)}</div></div>` });
+}
+
+/* =====================  ROUTER  ===================== */
+const root = $('#root');
+let curPath = null, pendingScroll = null, demoOpen = false, viewErr = {}, viewVals = {}, forgotSent = false;
+const TITLES = { '/': 'Мониторинг изменений законодательства для бизнеса', '/faq': 'Вопросы и ответы', '/pricing': 'Тарифы', '/about': 'О сервисе', '/contacts': 'Контакты', '/privacy': 'Политика конфиденциальности', '/terms': 'Пользовательское соглашение', '/login': 'Вход', '/register': 'Регистрация', '/forgot': 'Восстановление пароля', '/onboarding': 'Настройка аккаунта', '/app': 'Обзор', '/app/digests': 'Дайджесты', '/app/saved': 'Сохранённое', '/app/profile': 'Профиль компании', '/app/notifications': 'Настройки уведомлений', '/app/telegram': 'Подключение Telegram', '/app/team': 'Команда и доступы', '/app/plan': 'Персональный план', '/app/account': 'Настройки аккаунта', '/app/support': 'Поддержка' };
+const getPath = () => (location.hash.replace(/^#/, '') || '/').split('?')[0];
+const go = p => { location.hash = '#' + p; };
+
+function resolve(path) {
+  let m;
+  if (path.startsWith('/app')) {
+    if (!S.user) { return { redirect: '/login' }; }
+    if (!S.onboarded) return { redirect: '/onboarding' };
+  }
+  if (['/login', '/register'].includes(path) && S.user) return { redirect: S.onboarded ? '/app' : '/onboarding' };
+  if (path === '/onboarding') { if (!S.user) return { redirect: '/register' }; if (S.onboarded) return { redirect: '/app' }; }
+  const T = {
+    '/': viewHome, '/faq': viewFaq, '/pricing': viewPricing, '/about': viewAbout, '/contacts': viewContacts, '/privacy': () => viewLegal('privacy'), '/terms': () => viewLegal('terms'),
+    '/login': () => viewLogin(viewErr, viewVals), '/register': () => viewRegister(viewErr, viewVals), '/forgot': () => viewForgot(forgotSent), '/onboarding': viewOnboarding,
+    '/app': viewOverview, '/app/digests': viewDigests, '/app/saved': viewSaved, '/app/profile': viewProfile, '/app/notifications': viewNotifications, '/app/telegram': viewTelegram, '/app/team': viewTeam, '/app/plan': viewPlan, '/app/account': viewAccount, '/app/support': viewSupport
+  };
+  if (T[path]) return { html: T[path](), title: TITLES[path] };
+  if ((m = path.match(/^\/app\/change\/([\w-]+)$/))) return { html: viewChange(m[1]), title: CH[m[1]] ? CH[m[1]].title : 'Материал не найден' };
+  return { html: pubShell(`<div class="wrap"><div class="empty" style="margin:60px 0">${ic('search')}<h3>Страница не найдена</h3><p>Возможно, ссылка устарела или адрес введён неточно.</p><a class="btn btn-primary" href="#/">На главную</a></div></div>`), title: 'Страница не найдена' };
+}
+
+function render({ keep = false } = {}) {
+  const path = getPath(), r = resolve(path);
+  if (r.redirect) { go(r.redirect); return; }
+  const changed = path !== curPath, y = window.scrollY;
+  if (changed) {
+    $$('.overlay').forEach(o => { if (o._dismiss) o.remove(); }); modalStack = modalStack.filter(f => f._d === false);
+    if (path !== '/app/notifications') { ND = null; NDirty = false; }
+    PErr = {}; if (!['/login', '/register'].includes(path)) { viewErr = {}; viewVals = {}; } if (path !== '/forgot') forgotSent = false;
+  }
+  if (r.html === null) { go('/register'); return; }
+  root.innerHTML = r.html;
+  document.title = (r.title ? r.title + ' — ' : '') + 'LawTracker';
+  const a = $$('.navlink').find(n => n.getAttribute('aria-current') === 'page');
+  if (keep && !changed) window.scrollTo(0, y);
+  else if (pendingScroll && $('#' + pendingScroll)) { $('#' + pendingScroll).scrollIntoView(); }
+  else { window.scrollTo(0, 0); if (changed) $('#main')?.focus({ preventScroll: true }); }
+  pendingScroll = null; curPath = path;
+  renderDemo();
+}
+
+/* =====================  DEMO PANEL  ===================== */
+function renderDemo() {
+  const host = $('#demo-root'), p = getPath();
+  if (['/login', '/register', '/forgot', '/onboarding'].includes(p)) { host.innerHTML = ''; return; }
+  const b = (id, label, on) => `<button data-demo="${id}" ${on !== undefined ? `aria-pressed="${on}"` : ''}>${label}</button>`;
+  host.innerHTML = `<div class="demo-fab"><button data-act="demo" aria-expanded="${demoOpen}" aria-controls="demoPanel">${ic('layers', 'sm')}Демо: состояния</button>
+  ${demoOpen ? `<div class="demo-panel" id="demoPanel" role="region" aria-label="Панель демонстрации состояний">
+    <h4>Быстрый старт</h4>${b('fill', 'Открыть кабинет с демо-компанией')}${b('emptyprofile', 'Пустой профиль (сбросить компанию)')}
+    <h4>Состояния экранов</h4>${b('loading', 'Показать загрузку')}${b('error', 'Ошибка загрузки дайджестов', D.error)}${b('empty', 'Нет новых изменений', D.empty)}${b('session', 'Истёкшая сессия')}
+    <h4>Telegram</h4>${[['none', 'Не подключён'], ['pending', 'Ожидается подтверждение'], ['connected', 'Подключён'], ['error', 'Ошибка подключения'], ['disabled', 'Отключён']].map(([k, t]) => b('tg:' + k, t, S.tg.status === k)).join('')}
+    <h4>Прочее</h4>${b('reset', 'Сбросить все демо-данные')}</div>` : ''}</div>`;
+}
+function ensureUser() {
+  if (!S.user) S.user = { name: 'Анна Ковалёва', email: 'a.kovaleva@nordwood.ru' };
+  S.onboarded = true;
+}
+function demoAction(id) {
+  demoOpen = false;
+  const inApp = getPath().startsWith('/app') && S.user;
+  if (id === 'fill') { ensureUser(); loadDemoCompany(); S.team = []; toast('Загружена демо-компания «Нордвуд Логистика»'); getPath() === '/app' ? render() : go('/app'); return; }
+  if (id === 'emptyprofile') { ensureUser(); S.company = emptyCompany(); S.notif.topics = []; persist(); toast('Профиль очищен'); getPath() === '/app' ? render() : go('/app'); return; }
+  if (id === 'loading') { ensureUser(); D.loading = true; const p = getPath(); if (p !== '/app' && p !== '/app/digests') go('/app/digests'); else render({ keep: true }); setTimeout(() => { D.loading = false; render({ keep: true }); }, 1800); return; }
+  if (id === 'error') { ensureUser(); D.error = !D.error; if (D.error) D.empty = false; const p = getPath(); if (D.error && p !== '/app/digests') go('/app/digests'); else render({ keep: true }); return; }
+  if (id === 'empty') { ensureUser(); D.empty = !D.empty; if (D.empty) D.error = false; const p = getPath(); if (D.empty && p !== '/app' && p !== '/app/digests') go('/app'); else render({ keep: true }); return; }
+  if (id === 'session') { sessionExpired(); return; }
+  if (id.startsWith('tg:')) { ensureUser(); const st = id.slice(3); S.tg.status = st; if (st === 'pending') S.tg.code = genCode(); if (st === 'connected') S.tg.username = '@anna_kovaleva'; persist(); getPath() === '/app/telegram' ? render({ keep: true }) : go('/app/telegram'); return; }
+  if (id === 'reset') { try { localStorage.removeItem(KEY); } catch (e) { } S = defState(); D.loading = D.error = D.empty = false; OB.step = 1; Object.assign(F, { q: '', period: 'all', topic: '', impact: '', status: 'all', sort: 'date', personal: false, page: 1 }); applyTheme(); toast('Демо-данные сброшены'); getPath() === '/' ? render() : go('/'); }
+}
+const genCode = () => 'LT-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+function sessionExpired() {
+  modal({ title: 'Сессия истекла', dismiss: false, body: 'Для безопасности мы завершили сессию из-за долгого бездействия. Войдите снова — все ваши данные сохранены.', actions: [{ label: 'Войти снова', cls: 'btn-primary', on: () => { S.user = null; persist(); go('/login'); } }] });
+}
+
+/* =====================  CLICK ACTIONS  ===================== */
+const toggleIn = (arr, v) => { const i = arr.indexOf(v); i > -1 ? arr.splice(i, 1) : arr.push(v); };
+function finishOnboarding() {
+  S.company.topics = OB.tmp.topics.slice(); S.notif.topics = OB.tmp.topics.slice(); S.onboarded = true; persist(); toast('Аккаунт создан. Добро пожаловать в LawTracker!'); go('/app');
+}
+const ACT = {
+  theme(t, e) { const dark = document.documentElement.dataset.theme === 'dark' || (!S.theme && matchMedia('(prefers-color-scheme:dark)').matches); S.theme = dark ? 'light' : 'dark'; applyTheme(); persist(); render({ keep: true }); },
+  pubmenu() { modal({ title: 'Меню', drawer: true, body: `<nav class="mobile-menu">${PUB_NAV.map(([h, t, sc]) => sc ? `<a href="#/" data-scroll="${sc}">${t}</a>` : `<a href="#${h}">${t}</a>`).join('')}${S.user ? '' : '<a href="#/login">Вход</a>'}<a href="#" data-act="theme" style="display:flex;gap:10px;align-items:center">${ic('moon')}Сменить тему</a></nav>` }); },
+  moremenu() { modal({ title: 'Разделы', drawer: true, body: `<nav class="mobile-menu">${NAV.filter(n => n !== '-').map(n => `<a href="#${n[1]}" style="display:flex;gap:12px;align-items:center">${ic(n[3])}${n[2]}${n[4] === 'soon' ? ' <span class="faint" style="font-size:.75rem">скоро</span>' : ''}</a>`).join('')}<a href="#/" style="display:flex;gap:12px;align-items:center">${ic('left')}На публичный сайт</a></nav>` }); },
+  company(t) {
+    const w = t.closest('.company-pick'), ex = $('.pop', w); if (ex) { ex.remove(); return; }
+    w.insertAdjacentHTML('beforeend', `<div class="pop" role="menu"><div style="padding:10px"><div style="font-weight:600;font-size:.9rem">${esc(companyName())}</div><div class="muted" style="font-size:.78rem">${esc(S.company.industry || 'Отрасль не указана')} · заполнено ${profilePct()}%</div></div><button role="menuitem" data-act="addcompany">${ic('plus', 'sm')}Добавить компанию</button><button role="menuitem" data-go="/app/profile">${ic('building', 'sm')}Профиль компании</button></div>`);
+  },
+  addcompany() { $('.pop')?.remove(); modal({ title: 'Недоступно на вашем тарифе', body: 'Работа с несколькими компаниями и юридическими лицами входит в тариф «Корпоративный». В демо-версии эта функция не активна.', actions: [{ label: 'Закрыть' }, { label: 'Узнать о тарифах', cls: 'btn-primary', on: () => { go('/pricing'); } }] }); },
+  bell() { const un = CHANGES.filter(c => !isRead(c)).slice(0, 3); modal({ title: 'Уведомления', body: `<div>${un.map(c => `<a class="notif-item" href="#/app/change/${c.id}">${ic('doc')}<span><b>Новый материал</b><br>${esc(c.title)}</span></a>`).join('')}${profilePct() < 100 ? `<a class="notif-item" href="#/app/profile">${ic('building')}<span><b>Профиль заполнен на ${profilePct()}%</b><br>Продолжите заполнение для точной персонализации</span></a>` : ''}${un.length === 0 && profilePct() === 100 ? '<p class="muted">Новых уведомлений нет.</p>' : ''}</div>` }); },
+  save(t) { const id = t.dataset.id; toggleIn(S.saved, id); persist(); toast(S.saved.includes(id) ? 'Материал сохранён' : 'Убрано из сохранённого'); render({ keep: true }); if (getPath() === '/app/digests') { } },
+  read(t) { const id = t.dataset.id; toggleIn(S.read, id); persist(); render({ keep: true }); },
+  share(t) { const u = location.origin + location.pathname + '#/app/change/' + t.dataset.id; (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => toast('Ссылка скопирована'), () => toast('Скопируйте ссылку из адресной строки')); },
+  report(t) { modal({ title: 'Сообщить об ошибке', body: `<div class="field" style="margin:0"><label for="rep">Что не так в этом материале?</label><textarea id="rep" placeholder="Например: неверная дата или не тот круг лиц"></textarea><div id="repE"></div></div>`, actions: [{ label: 'Отмена' }, { label: 'Отправить', cls: 'btn-primary', on: ov => { const v = $('#rep', ov).value.trim(); if (v.length < 5) { $('#repE', ov).innerHTML = fieldErr('Опишите проблему хотя бы в нескольких словах'); return false; } toast('Спасибо! Юрист проверит материал'); } }] }); },
+  oauth() { toast('Вход через внешний сервис в демо недоступен', 'err'); },
+  resend() { toast('Код отправлен повторно'); },
+  obmode(t) { OB.mode = t.dataset.v; OB.err = {}; render({ keep: true }); },
+  obskip() { OB.tmp.topics = []; finishOnboarding(); },
+  draft() { persist(); toast('Черновик сохранён'); },
+  pback() { S.profileStep = Math.max(1, S.profileStep - 1); PErr = {}; persist(); render(); },
+  pskip() { const s = STEPS[S.profileStep - 1]; S.company.skipped[s.id] = 1; PErr = {}; S.profileStep = Math.min(STEPS.length, S.profileStep + 1); persist(); render(); },
+  exportprofile() { const b = new Blob([JSON.stringify(S.company, null, 2)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'lawtracker-profile.json'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 500); toast('Файл подготовлен'); },
+  resetprofile() { confirmBox('Очистить данные профиля?', 'Ответы будут удалены, персонализация перестанет работать, пока вы не заполните профиль заново.', 'Очистить', 'btn-danger', () => { S.company = emptyCompany(); S.profileStep = 1; persist(); toast('Данные профиля очищены'); render(); }); },
+  tgconnect() { S.tg.status = 'pending'; S.tg.code = genCode(); persist(); render({ keep: true }); },
+  tgcheck() { S.tg.status = 'connected'; S.tg.username = '@' + ((S.user.name || 'user').split(' ')[0].toLowerCase().replace(/[^a-z0-9а-я]/gi, '') || 'user') + '_tg'; S.notif.tg = true; persist(); toast('Telegram подключён'); render({ keep: true }); },
+  tgcancel() { S.tg.status = 'none'; persist(); render({ keep: true }); },
+  tgtest() { toast('Тестовое сообщение отправлено в Telegram'); },
+  tgdisconnect() { confirmBox('Отключить Telegram?', 'Сообщения перестанут приходить в мессенджер. Подключить его снова можно в любой момент.', 'Отключить', 'btn-danger', () => { S.tg.status = 'disabled'; persist(); toast('Telegram отключён'); render({ keep: true }); }); },
+  nsave() { S.notif = JSON.parse(JSON.stringify(ND)); NDirty = false; persist(); toast('Настройки сохранены'); render({ keep: true }); },
+  ncancel() { ND = null; NDirty = false; render({ keep: true }); },
+  waitlist() { S.waitlist = true; persist(); toast('Готово! Сообщим о запуске раздела'); render({ keep: true }); },
+  logout() { S.user = null; persist(); toast('Вы вышли из аккаунта'); go('/'); },
+  delacc() { modal({ title: 'Удалить аккаунт?', body: `<p>Профиль компании, настройки и сохранённые материалы будут удалены без возможности восстановления.</p><div class="field" style="margin:16px 0 0"><label for="delc">Для подтверждения введите слово «УДАЛИТЬ»</label><input type="text" id="delc" autocomplete="off"><div id="delE"></div></div>`, actions: [{ label: 'Отмена' }, { label: 'Удалить навсегда', cls: 'btn-danger', on: ov => { if ($('#delc', ov).value.trim().toUpperCase() !== 'УДАЛИТЬ') { $('#delE', ov).innerHTML = fieldErr('Введите слово «УДАЛИТЬ»'); return false; } try { localStorage.removeItem(KEY); } catch (e) { } S = defState(); applyTheme(); toast('Аккаунт удалён'); go('/'); } }] }); },
+  invite() { modal({ title: 'Пригласить участника', body: `<div class="field"><label for="iv-m">Рабочая почта</label><input type="email" id="iv-m" autocomplete="off"><div id="ivE"></div></div><div class="field" style="margin:0"><label for="iv-r">Роль</label><select id="iv-r">${['admin', 'member', 'viewer'].map(r => opt(r, ROLES[r] + ' — ' + ROLE_DESC[r], 'member')).join('')}</select></div>`, actions: [{ label: 'Отмена' }, { label: 'Отправить приглашение', cls: 'btn-primary', on: ov => { const m = $('#iv-m', ov).value.trim(); if (!validEmail(m)) { $('#ivE', ov).innerHTML = fieldErr('Введите корректный адрес почты'); return false; } if (S.team.some(x => x.email === m)) { $('#ivE', ov).innerHTML = fieldErr('Этот участник уже приглашён'); return false; } S.team.push({ id: uid(), name: '', email: m, role: $('#iv-r', ov).value, status: 'pending' }); persist(); toast('Приглашение отправлено'); render({ keep: true }); } }] }); },
+  loadmore() { F.page++; renderDigestList(); },
+  resetfilters() { Object.assign(F, { q: '', period: 'all', topic: '', impact: '', status: 'all', personal: false, page: 1 }); render({ keep: true }); },
+  retry() { D.error = false; D.loading = true; render({ keep: true }); setTimeout(() => { D.loading = false; render({ keep: true }); }, 700); },
+  openfilters() { const m = modal({ title: 'Фильтры', drawer: true, body: `<div style="display:grid;gap:14px">${filterFields()}</div><button class="btn btn-primary btn-block" style="margin-top:20px" data-close id="drawerCount">Показать результаты (${filterChanges(false).length})</button><button class="btn btn-text btn-block" data-act="resetfilters" data-close>Сбросить фильтры</button>` }); },
+  demo() { demoOpen = !demoOpen; renderDemo(); }
+};
+
+document.addEventListener('click', e => {
+  const t = e.target;
+  const pop = $('.pop'); if (pop && !t.closest('.company-pick')) pop.remove();
+  let el;
+  if ((el = t.closest('[data-skip]'))) { e.preventDefault(); $('#main')?.focus(); return; }
+  if ((el = t.closest('[data-scroll]'))) { e.preventDefault(); const id = el.dataset.scroll; $('.overlay[class*=drawer]')?.remove(); if (getPath() === '/') $('#' + id)?.scrollIntoView(); else { pendingScroll = id; go('/'); } return; }
+  if ((el = t.closest('[data-demo]'))) { demoAction(el.dataset.demo); return; }
+  if (demoOpen && !t.closest('.demo-fab')) { demoOpen = false; renderDemo(); }
+  if ((el = t.closest('[data-go]'))) { $('.pop')?.remove(); go(el.dataset.go); return; }
+  if ((el = t.closest('[data-filterlink]'))) { Object.assign(F, { q: '', period: 'all', topic: '', impact: '', personal: false, page: 1, status: el.dataset.filterlink }); return; }
+  if ((el = t.closest('[data-status]'))) { F.status = el.dataset.status; F.page = 1; renderDigestList(); return; }
+  if ((el = t.closest('[data-clear]'))) { const k = el.dataset.clear; F[k] = k === 'period' ? 'all' : k === 'personal' ? false : ''; F.page = 1; $$('[data-filter="' + k + '"]').forEach(x => x.type === 'checkbox' ? x.checked = F[k] : x.value = F[k]); const s = $('#dSearch'); if (s) s.value = F.q; renderDigestList(); return; }
+  if ((el = t.closest('[data-chip]'))) { const f = el.dataset.chip; toggleIn(S.company[f], el.dataset.v); el.setAttribute('aria-pressed', S.company[f].includes(el.dataset.v)); persist(); return; }
+  if ((el = t.closest('[data-obtopic]'))) { toggleIn(OB.tmp.topics, el.dataset.obtopic); el.setAttribute('aria-pressed', OB.tmp.topics.includes(el.dataset.obtopic)); return; }
+  if ((el = t.closest('[data-ntopic]'))) { toggleIn(ND.topics, el.dataset.ntopic); el.setAttribute('aria-pressed', ND.topics.includes(el.dataset.ntopic)); markDirty(); return; }
+  if ((el = t.closest('[data-nimp]'))) { ND.minImpact = el.dataset.nimp; $$('[data-nimp]').forEach(b => b.setAttribute('aria-pressed', b === el)); markDirty(); return; }
+  if ((el = t.closest('[data-nday]'))) { toggleIn(ND.days, +el.dataset.nday); el.setAttribute('aria-pressed', ND.days.includes(+el.dataset.nday)); markDirty(); return; }
+  if ((el = t.closest('[data-step]')) && el.tagName !== 'BUTTON') { S.profileStep = +el.dataset.step; persist(); return; }
+  if ((el = t.closest('button[data-step]'))) { S.profileStep = +el.dataset.step; PErr = {}; persist(); render(); return; }
+  if ((el = t.closest('[data-remove]'))) { const m = S.team.find(x => x.id === el.dataset.remove); confirmBox('Удалить участника?', `${esc(m.email)} потеряет доступ к материалам компании.`, 'Удалить', 'btn-danger', () => { S.team = S.team.filter(x => x !== m); persist(); toast('Участник удалён'); render({ keep: true }); }); return; }
+  if ((el = t.closest('[data-resend]'))) { toast('Приглашение отправлено повторно'); return; }
+  if ((el = t.closest('[data-endsess]'))) { sessions = sessions.filter(s => s.id !== +el.dataset.endsess); toast('Сессия завершена'); render({ keep: true }); return; }
+  if ((el = t.closest('[data-act]'))) { const f = ACT[el.dataset.act]; if (f) { if (el.tagName === 'A') e.preventDefault(); f(el); } return; }
+});
+function markDirty() { NDirty = true; const b = $('#saveBar'); if (b) b.hidden = false; }
+
+/* =====================  INPUTS  ===================== */
+let searchT;
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'dSearch') { clearTimeout(searchT); searchT = setTimeout(() => { F.q = t.value; F.page = 1; renderDigestList(); }, 180); return; }
+  if (t.dataset.code !== undefined) { t.value = t.value.replace(/\D/g, '').slice(0, 1); const i = +t.dataset.code; if (t.value && i < 5) $('#code-' + (i + 1)).focus(); return; }
+  if (t.id === 'ob-name') { OB.tmp.name = t.value; return; }
+  if (t.dataset.f && !t.dataset.bool && t.type !== 'radio' && t.tagName !== 'SELECT') { S.company[t.dataset.f] = t.value; persist(); }
+  if (t.id === 'r-pass') { $$('.pw-meter i').forEach((b, i) => b.classList.toggle('on', i < pwScore(t.value))); }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.f) { S.company[t.dataset.f] = t.dataset.bool ? t.checked : t.value; if (PErr[t.dataset.f]) { delete PErr[t.dataset.f]; t.removeAttribute('aria-invalid'); t.closest('.field')?.querySelector('.err')?.remove(); } persist(); return; }
+  if (t.dataset.filter) { const k = t.dataset.filter, v = t.type === 'checkbox' ? t.checked : t.value; F[k] = v; F.page = 1; $$('[data-filter="' + k + '"]').forEach(x => { if (x !== t) x.type === 'checkbox' ? x.checked = v : x.value = v; }); renderDigestList(); return; }
+  if (t.dataset.n) { const k = t.dataset.n; ND[k] = t.type === 'checkbox' ? t.checked : t.value; markDirty(); if (['email', 'pause', 'cabinet', 'tg'].includes(k)) { render({ keep: true }); $(`[data-n="${k}"]`)?.focus(); } return; }
+  if (t.dataset.actcheck) { S.acts[t.dataset.actcheck] = t.checked ? 'done' : 'todo'; persist(); render({ keep: true }); return; }
+  if (t.dataset.actstatus) { S.acts[t.dataset.actstatus] = t.value; persist(); render({ keep: true }); return; }
+  if (t.dataset.role) { const m = S.team.find(x => x.id === t.dataset.role); m.role = t.value; persist(); toast('Роль изменена: ' + ROLES[t.value]); return; }
+  if (t.id === 'shareProfile') { S.shareProfile = t.checked; persist(); toast(t.checked ? 'Профиль виден всей команде' : 'Профиль скрыт от участников и наблюдателей'); return; }
+  if (t.id === 'ob-form') OB.tmp.form = t.value;
+  if (t.id === 'ob-ind') OB.tmp.industry = t.value;
+  if (t.name === 'size' && t.closest('#obBasics')) OB.tmp.size = t.value;
+});
+document.addEventListener('keydown', e => {
+  if (e.target.dataset && e.target.dataset.code !== undefined && e.key === 'Backspace' && !e.target.value && +e.target.dataset.code > 0) $('#code-' + (+e.target.dataset.code - 1)).focus();
+  if (e.key === 'Escape') { const pop = $('.pop'); if (pop) { pop.remove(); return; } const top = modalStack[modalStack.length - 1]; if (top && top._d !== false) top(); else if (demoOpen) { demoOpen = false; renderDemo(); } }
+  if (e.key === 'Tab') { const ov = $$('.overlay').pop(); if (ov) { const f = $$('button,a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])', ov).filter(x => !x.disabled && x.offsetParent !== null); if (f.length) { const first = f[0], last = f[f.length - 1]; if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); } else if (!ov.contains(document.activeElement)) { e.preventDefault(); first.focus(); } } } }
+});
+document.addEventListener('paste', e => {
+  if (e.target.dataset && e.target.dataset.code !== undefined) { const d = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6); if (d) { e.preventDefault(); d.split('').forEach((c, i) => { const x = $('#code-' + i); if (x) x.value = c; }); $('#code-' + Math.min(5, d.length))?.focus(); } }
+});
+
+/* =====================  FORMS  ===================== */
+const focusInvalid = () => setTimeout(() => $('[aria-invalid="true"]')?.focus(), 30);
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  const f = e.target, id = f.id, val = n => (f.elements[n]?.value || '').trim();
+  if (id === 'regForm') {
+    const v = { name: val('name'), email: val('email'), agree: f.elements.agree.checked }, pass = f.elements.pass.value, err = {};
+    if (v.name.length < 2) err.name = 'Введите имя'; if (!validEmail(v.email)) err.email = 'Проверьте адрес почты'; if (pass.length < 8 || !/[a-zа-я]/i.test(pass) || !/\d/.test(pass)) err.pass = 'Минимум 8 символов, буква и цифра'; if (!v.agree) err.agree = 'Необходимо принять условия';
+    if (Object.keys(err).length) { viewErr = err; viewVals = { ...v, pass }; render({ keep: true }); focusInvalid(); return; }
+    S = Object.assign(defState(), { user: { name: v.name, email: v.email } }); OB.step = 1; OB.mode = 'create'; OB.err = {}; OB.tmp = { form: 'ООО', name: '', size: '', industry: '', topics: [] }; persist(); viewErr = {}; viewVals = {}; go('/onboarding'); return;
+  }
+  if (id === 'loginForm') {
+    const v = { email: val('email') }, pass = f.elements.pass.value, err = {};
+    if (!validEmail(v.email)) err.email = 'Проверьте адрес почты'; if (pass.length < 8) err.pass = 'Введите пароль (минимум 8 символов)';
+    if (Object.keys(err).length) { viewErr = err; viewVals = v; render({ keep: true }); focusInvalid(); return; }
+    const nm = v.email.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    S.user = S.user && S.user.email === v.email ? S.user : { name: S.user?.name || nm, email: v.email }; persist(); viewErr = {}; go(S.onboarded ? '/app' : '/onboarding'); return;
+  }
+  if (id === 'forgotForm') { if (!validEmail(val('email'))) { toast('Проверьте адрес почты', 'err'); return; } forgotSent = true; render(); return; }
+  if (id === 'contactForm') { if (val('name').length < 2 || !validEmail(val('email')) || val('msg').length < 5) { toast('Заполните имя, почту и сообщение', 'err'); return; } f.reset(); toast('Сообщение отправлено. Мы скоро ответим'); return; }
+  if (id === 'obVerify') { const code = $$('[data-code]').map(x => x.value).join(''); if (code.length < 6) { OB.err = { code: 'Введите все 6 цифр' }; render({ keep: true }); $('#code-0').focus(); return; } OB.err = {}; OB.step = 2; render(); return; }
+  if (id === 'obCompany') { OB.tmp.name = $('#ob-name').value.trim(); OB.tmp.form = $('#ob-form').value; if (!OB.tmp.name) { OB.err = { name: 'Укажите название компании' }; render({ keep: true }); focusInvalid(); return; } OB.err = {}; S.company.name = OB.tmp.name; S.company.form = OB.tmp.form; persist(); OB.step = 3; render(); return; }
+  if (id === 'obJoin') { if ($('#ob-code').value.trim().length < 4) { OB.err = { code: 'Введите код приглашения' }; render({ keep: true }); focusInvalid(); return; } loadDemoCompany(); S.team = [{ id: 'own', name: 'Мария Орлова', email: 'm.orlova@nordwood.ru', role: 'owner', status: 'active' }, { id: 'me', name: S.user.name, email: S.user.email, role: 'member', status: 'active' }]; S.joined = true; S.onboarded = true; persist(); toast('Вы присоединились к компании «Нордвуд Логистика»'); go('/app'); return; }
+  if (id === 'obBasics') { const err = {}; if (!OB.tmp.industry) err.industry = 'Выберите отрасль'; if (!OB.tmp.size) err.size = 'Выберите размер компании'; if (Object.keys(err).length) { OB.err = err; render({ keep: true }); focusInvalid(); return; } OB.err = {}; Object.assign(S.company, { industry: OB.tmp.industry, size: OB.tmp.size }); S.company.saved.basics = 1; S.company.saved.industry = 1; persist(); OB.step = 4; render(); return; }
+  if (id === 'obTopics') { finishOnboarding(); return; }
+  if (id === 'profForm') {
+    const s = STEPS[S.profileStep - 1], err = validateStep(s.id);
+    if (Object.keys(err).length) { PErr = err; render({ keep: true }); focusInvalid(); return; }
+    PErr = {}; S.company.saved[s.id] = 1; delete S.company.skipped[s.id];
+    const last = S.profileStep === STEPS.length; if (!last) S.profileStep++; persist();
+    toast(last ? 'Профиль сохранён' + (profilePct() < 100 ? '' : ' — заполнен на 100%') : 'Шаг сохранён'); render(); return;
+  }
+  if (id === 'accForm') { const n = $('#a-name').value.trim(), m = $('#a-mail').value.trim(); if (n.length < 2 || !validEmail(m)) { toast('Проверьте имя и почту', 'err'); return; } S.user.name = n; S.user.email = m; S.user.phone = $('#a-phone').value.trim(); persist(); toast('Данные сохранены'); render({ keep: true }); return; }
+  if (id === 'pwForm') { const a = $('#pw0').value, b = $('#pw1').value; let m = ''; if (!a) m = 'Введите текущий пароль'; else if (b.length < 8 || !/[a-zа-я]/i.test(b) || !/\d/.test(b)) m = 'Новый пароль: минимум 8 символов, буква и цифра'; $('#pwErr').innerHTML = m ? fieldErr(m) : ''; if (!m) { f.reset(); toast('Пароль изменён'); } return; }
+  if (id === 'supForm') { if ($('#s-m').value.trim().length < 5) { $('#s-e').innerHTML = fieldErr('Опишите ваш вопрос'); return; } f.reset(); $('#s-e').innerHTML = ''; toast('Сообщение отправлено. Ответим в течение рабочего дня'); }
+});
+
+window.addEventListener('hashchange', () => render());
+matchMedia('(prefers-color-scheme:dark)').addEventListener?.('change', () => render({ keep: true }));
+render();
+
+</script>
+</body>
+</html>

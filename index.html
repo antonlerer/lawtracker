@@ -16,7 +16,7 @@
   --accent:#22574A;--accent-ink:#F4F7F4;--accent-soft:#E4EBE6;--amber:#8A5A20;--amber-soft:#F2E7D5;
   --red:#A23B2E;--red-soft:#F5E4E0;--blue:#2F5573;--blue-soft:#E1EAF1;--radius:10px;
   --shadow:0 1px 2px rgba(0,0,0,.05);--focus:#1B6FD8;
-  --panel-2:#1E4137;--panel-line:#2C5347;--panel-accent:#6FAE97;--panel-tag-bg:#2C5347;--panel-tag-ink:#9FDBC3;--panel-soft:#C7D2CB;
+  --f-head:"PT Serif",Georgia,serif;--f-body:Inter,-apple-system,"Segoe UI",Roboto,sans-serif;--panel-2:#1E4137;--panel-line:#2C5347;--panel-accent:#6FAE97;--panel-tag-bg:#2C5347;--panel-tag-ink:#9FDBC3;--panel-soft:#C7D2CB;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#12160F;--bg-raised:#1A211B;--sidebar:#171E17;--panel:#0F1D18;
@@ -31,8 +31,8 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:1rem;line-height:1.6;-webkit-font-smoothing:antialiased}
-h1,h2,h3,h4{font-family:"PT Serif",Georgia,serif;font-weight:700;margin:0;color:var(--ink);line-height:1.25}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1rem;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--f-head);font-weight:700;margin:0;color:var(--ink);line-height:1.25}
 p{margin:0}a{color:inherit;text-decoration:none}
 button,select,input,textarea{font-family:inherit;font-size:inherit;color:inherit}
 button{cursor:pointer}
@@ -162,7 +162,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.9rem}
 /* ---------- PUBLIC ---------- */
 header.site{border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:50}
 .nav-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 24px;max-width:1080px;margin:0 auto}
-.logo{display:flex;align-items:center;gap:10px;font-family:"PT Serif",serif;font-weight:700;font-size:1.1rem;color:var(--ink)}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--f-head);font-weight:700;font-size:1.1rem;color:var(--ink)}
 .logo svg{color:var(--accent)}
 nav.links{display:flex;gap:6px;font-size:.92rem;color:var(--ink-soft)}
 nav.links a{padding:10px 12px;border-radius:8px}nav.links a:hover,nav.links a[aria-current=page]{color:var(--ink);background:var(--accent-soft)}
@@ -187,12 +187,12 @@ section.pub{padding:76px 0;border-bottom:1px solid var(--line)}
 .problem-grid,.trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
 @media (max-width:860px){.problem-grid,.trust-grid{grid-template-columns:1fr}}
 .problem{padding:20px 22px;border-radius:12px;background:var(--bg-raised);border:1px solid var(--line)}
-.problem .n{font-family:"PT Serif",serif;font-size:1.6rem;color:var(--accent)}
+.problem .n{font-family:var(--f-head);font-size:1.6rem;color:var(--accent)}
 .problem h3{font-size:1.02rem;margin:8px 0 6px}.problem p{font-size:.92rem;color:var(--ink-soft)}
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}
 @media (max-width:860px){.steps{grid-template-columns:repeat(2,1fr)}}@media (max-width:560px){.steps{grid-template-columns:1fr}}
 .step{border-top:2px solid var(--accent);padding-top:14px}
-.step .num{font-family:"PT Serif",serif;font-size:1.5rem;color:var(--accent)}
+.step .num{font-family:var(--f-head);font-size:1.5rem;color:var(--accent)}
 .step h3{font-size:1.02rem;margin:8px 0 6px}.step p{color:var(--ink-soft);font-size:.92rem}
 .sample-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:36px;align-items:start}
 @media (max-width:900px){.sample-grid{grid-template-columns:1fr}}
@@ -220,7 +220,7 @@ details p{padding:0 0 18px;color:var(--ink-soft);font-size:.96rem;max-width:66ch
 footer.site{padding:48px 0 40px;border-top:1px solid var(--line)}
 .foot-cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px;font-size:.9rem}
 @media (max-width:760px){.foot-cols{grid-template-columns:1fr 1fr}}
-.foot-cols h4{font-family:Inter,sans-serif;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);margin-bottom:10px}
+.foot-cols h4{font-family:var(--f-body);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);margin-bottom:10px}
 .foot-cols a{display:block;padding:5px 0;color:var(--ink-soft)}.foot-cols a:hover{color:var(--accent)}
 .footer-disclaimer{font-size:.82rem;color:var(--ink-soft);max-width:78ch;margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
 .page-hero{padding:56px 0 30px}.page-hero h1{font-size:clamp(1.7rem,4vw,2.3rem);margin-bottom:12px}
@@ -232,7 +232,7 @@ footer.site{padding:48px 0 40px;border-top:1px solid var(--line)}
 .plan h3{font-size:1.15rem}.plan .for{color:var(--ink-soft);font-size:.88rem;margin:4px 0 16px}
 .plan ul{list-style:none;padding:0;margin:0 0 22px;display:grid;gap:9px;font-size:.92rem;flex:1}
 .plan li{display:flex;gap:8px}.plan li .ico{color:var(--accent);margin-top:3px}
-.plan .price{font-family:"PT Serif",serif;font-size:1.05rem;margin-bottom:14px;color:var(--ink-soft)}
+.plan .price{font-family:var(--f-head);font-size:1.05rem;margin-bottom:14px;color:var(--ink-soft)}
 
 /* digest card sample */
 .digest-card{background:var(--bg-raised);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:0 8px 30px rgba(20,40,30,.08)}
@@ -305,7 +305,7 @@ footer.site{padding:48px 0 40px;border-top:1px solid var(--line)}
 @media (max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}}
 .stat{background:var(--bg-raised);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;display:block}
 a.stat:hover{border-color:var(--accent)}
-.stat .num{font-family:"PT Serif",serif;font-size:1.7rem;line-height:1.2}.stat .label{color:var(--ink-soft);font-size:.85rem;margin-top:4px}
+.stat .num{font-family:var(--f-head);font-size:1.7rem;line-height:1.2}.stat .label{color:var(--ink-soft);font-size:.85rem;margin-top:4px}
 .layout-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:26px;align-items:start}
 @media (max-width:1050px){.layout-grid{grid-template-columns:1fr}}
 .col-heading{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;gap:10px}
@@ -371,9 +371,9 @@ select.fs{min-height:44px;padding:8px 12px;border-radius:8px;border:1px solid #8
 .d-block{background:var(--bg-raised);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:16px}
 @media (max-width:640px){.d-block{padding:18px}}
 .d-block>h2{font-size:1.06rem;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.layer{font-family:Inter,sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:6px;background:var(--sidebar);color:var(--ink-soft)}
-.d-summary{border-left:4px solid var(--accent);font-size:1.08rem;font-family:"PT Serif",serif;line-height:1.5}
-.quote{margin:0;padding:14px 18px;background:var(--sidebar);border-radius:10px;font-family:"PT Serif",serif;font-size:.95rem;color:var(--ink-soft);border-left:3px solid var(--ink-faint)}
+.layer{font-family:var(--f-body);font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:6px;background:var(--sidebar);color:var(--ink-soft)}
+.d-summary{border-left:4px solid var(--accent);font-size:1.08rem;font-family:var(--f-head);line-height:1.5}
+.quote{margin:0;padding:14px 18px;background:var(--sidebar);border-radius:10px;font-family:var(--f-head);font-size:.95rem;color:var(--ink-soft);border-left:3px solid var(--ink-faint)}
 .analytic{background:var(--blue-soft);border-color:transparent}
 .act-list{display:grid;gap:10px}
 .act{display:grid;grid-template-columns:auto 1.6fr 1fr 1fr 150px;gap:14px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:.9rem}
@@ -448,7 +448,7 @@ select.fs{min-height:44px;padding:8px 12px;border-radius:8px;border:1px solid #8
 @media (max-width:980px){.demo-fab{bottom:74px}}
 .demo-fab>button{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border-radius:999px;border:none;background:var(--ink);color:var(--bg);font-size:.82rem;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.3)}
 .demo-panel{position:absolute;bottom:52px;left:0;width:290px;max-height:70vh;overflow:auto;background:var(--bg-raised);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.28);padding:14px;font-size:.84rem}
-.demo-panel h4{font-family:Inter,sans-serif;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);margin:12px 0 6px}
+.demo-panel h4{font-family:var(--f-body);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);margin:12px 0 6px}
 .demo-panel h4:first-child{margin-top:0}
 .demo-panel button{display:block;width:100%;text-align:left;padding:8px 10px;min-height:38px;border-radius:6px;border:none;background:none;font-size:.84rem}
 .demo-panel button:hover{background:var(--accent-soft)}
@@ -475,6 +475,13 @@ html,body{overflow-x:clip}
 :root[data-palette="indigo"]{--bg:#F4F4FA;--bg-raised:#FFFFFF;--sidebar:#EAEAF4;--panel:#1E1B4B;--ink:#171629;--ink-soft:#4B4A63;--ink-faint:#68677F;--line:#DEDDEB;--accent:#4B45B2;--accent-ink:#FFFFFF;--accent-soft:#E8E7F8;--blue:#2F5573;--blue-soft:#E1EAF1;--panel-2:#2B2866;--panel-line:#403C86;--panel-accent:#A9A5F5;--panel-tag-bg:#403C86;--panel-tag-ink:#CFCCFA;--panel-soft:#C3C1DC;--amber:#8A5A20;--amber-soft:#F2E7D5;--red:#A23B2E;--red-soft:#F5E4E0;--focus:#1B6FD8;}
 @media (prefers-color-scheme:dark){:root[data-palette="indigo"]:not([data-theme="light"]){--bg:#110F1E;--bg-raised:#1A1829;--sidebar:#151325;--panel:#0D0B1B;--ink:#ECEBF6;--ink-soft:#ADABC6;--ink-faint:#8B89A6;--line:#2B2940;--accent:#A39EF5;--accent-ink:#12102B;--accent-soft:#25224A;--blue:#8DB6D6;--blue-soft:#1C2A36;--panel-2:#2B2866;--panel-line:#403C86;--panel-accent:#A9A5F5;--panel-tag-bg:#403C86;--panel-tag-ink:#CFCCFA;--panel-soft:#C3C1DC;--amber:#D8AE72;--amber-soft:#2E2618;--red:#E39A8D;--red-soft:#33211E;--focus:#7DB2FF;}}
 :root[data-palette="indigo"][data-theme="dark"]{--bg:#110F1E;--bg-raised:#1A1829;--sidebar:#151325;--panel:#0D0B1B;--ink:#ECEBF6;--ink-soft:#ADABC6;--ink-faint:#8B89A6;--line:#2B2940;--accent:#A39EF5;--accent-ink:#12102B;--accent-soft:#25224A;--blue:#8DB6D6;--blue-soft:#1C2A36;--panel-2:#2B2866;--panel-line:#403C86;--panel-accent:#A9A5F5;--panel-tag-bg:#403C86;--panel-tag-ink:#CFCCFA;--panel-soft:#C3C1DC;--amber:#D8AE72;--amber-soft:#2E2618;--red:#E39A8D;--red-soft:#33211E;--focus:#7DB2FF;}
+
+/* ===== alternative font pairings ===== */
+:root[data-font="source"]{--f-head:"Source Serif 4",Georgia,serif;--f-body:"Source Sans 3",system-ui,sans-serif}
+:root[data-font="plex"]{--f-head:"IBM Plex Serif",Georgia,serif;--f-body:"IBM Plex Sans",system-ui,sans-serif}
+:root[data-font="golos"]{--f-head:"Golos Text",system-ui,sans-serif;--f-body:"Golos Text",system-ui,sans-serif}
+:root[data-font="manrope"]{--f-head:"Manrope",system-ui,sans-serif;--f-body:Inter,system-ui,sans-serif}
+:root[data-font="golos"] h1,:root[data-font="golos"] h2,:root[data-font="golos"] h3,:root[data-font="manrope"] h1,:root[data-font="manrope"] h2,:root[data-font="manrope"] h3{letter-spacing:-.01em}
 </style>
 </head>
 <body>
@@ -657,7 +664,7 @@ const CH = Object.fromEntries(CHANGES.map(c => [c.id, c]));
 const KEY = 'lawtracker.demo.v1';
 const emptyCompany = () => ({ name: '', inn: '', form: '', size: '', industry: '', activities: [], desc: '', regions: [], branches: '', foreignShare: false, entities: '1', headcount: '', remote: false, foreignStaff: false, licenses: [], pdCustomers: false, pdEmployees: false, pdExternal: false, pdCross: false, vedExport: false, vedImport: false, digital: [], contactName: '', contactEmail: '', contactRole: '', recipients: '', topics: [], saved: {}, skipped: {} });
 const defState = () => ({
-  user: null, onboarded: false, company: emptyCompany(), read: [], saved: [], acts: {}, welcomed: false, theme: '', palette: 'forest', profileStep: 1, shareProfile: true, joined: false,
+  user: null, onboarded: false, company: emptyCompany(), read: [], saved: [], acts: {}, welcomed: false, theme: '', palette: 'forest', font: 'classic', profileStep: 1, shareProfile: true, joined: false,
   notif: { cabinet: true, email: true, emailFreq: 'daily', tg: true, topics: [], minImpact: 'med', days: [1, 2, 3, 4, 5], time: '09:00', pause: false, pauseUntil: '' },
   tg: { status: 'none', code: '', username: '' }, team: []
 });
@@ -666,7 +673,19 @@ try { const r = localStorage.getItem(KEY); if (r) S = Object.assign(defState(), 
 const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } };
 const D = { loading: false, error: false, empty: false };   // demo-only flags, not persisted
 const PALETTES = [['forest', 'Лес', '#22574A', '#17352C', '#F2F4F0'], ['navy', 'Синий «Доверие»', '#1F4E8C', '#13284B', '#F3F5F9'], ['burgundy', 'Бордо «Классика»', '#7B2D3E', '#3A1620', '#F7F4F0'], ['teal', 'Бирюза «Современный»', '#0B7A84', '#0B3A40', '#F0F6F6'], ['indigo', 'Индиго «Технологичный»', '#4B45B2', '#1E1B4B', '#F4F4FA']];
-const applyTheme = () => { const h = document.documentElement; if (S.theme) h.dataset.theme = S.theme; else delete h.dataset.theme; if (S.palette && S.palette !== 'forest') h.dataset.palette = S.palette; else delete h.dataset.palette; };
+const FONTS = {
+  classic: ['PT Serif + Inter', null, 'Классика'],
+  source: ['Source Serif 4 + Source Sans 3', 'Source+Serif+4:wght@400;600;700&family=Source+Sans+3:wght@400;500;600;700', 'Издательская'],
+  plex: ['IBM Plex Serif + IBM Plex Sans', 'IBM+Plex+Serif:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700', 'Строгая'],
+  golos: ['Golos Text', 'Golos+Text:wght@400;500;600;700', 'Российский гротеск'],
+  manrope: ['Manrope + Inter', 'Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700', 'Современный']
+};
+const applyTheme = () => {
+  const h = document.documentElement; if (S.theme) h.dataset.theme = S.theme; else delete h.dataset.theme;
+  if (S.palette && S.palette !== 'forest') h.dataset.palette = S.palette; else delete h.dataset.palette;
+  const f = FONTS[S.font] ? S.font : 'classic';
+  if (f !== 'classic') { h.dataset.font = f; const id = 'font-' + f; if (!document.getElementById(id)) { const l = document.createElement('link'); l.id = id; l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?family=' + FONTS[f][1] + '&display=swap&subset=cyrillic'; document.head.appendChild(l); } } else delete h.dataset.font;
+};
 applyTheme();
 
 /* profile helpers */
@@ -1281,6 +1300,7 @@ function viewAccount() {
     <form class="card" id="pwForm" novalidate><h2 style="font-size:1.1rem;margin-bottom:16px">Смена пароля</h2><div class="field"><label for="pw0">Текущий пароль</label><input type="password" id="pw0" autocomplete="current-password"></div><div class="field"><label for="pw1">Новый пароль</label><input type="password" id="pw1" autocomplete="new-password"><p class="note">Минимум 8 символов, буква и цифра</p></div><div id="pwErr"></div><button class="btn btn-ghost" type="submit">Сменить пароль</button></form>
     <section class="card" aria-labelledby="ss"><h2 id="ss" style="font-size:1.1rem;margin-bottom:8px">Активные сессии</h2>${sessions.map(s => `<div class="sess"><span>${s.d}${s.cur ? ' <span class="tag" style="margin-left:6px">Текущая</span>' : ''}</span>${s.cur ? '' : `<button class="btn btn-ghost btn-sm" data-endsess="${s.id}">Завершить</button>`}</div>`).join('')}</section>
     <section class="card" aria-labelledby="pal"><h2 id="pal" style="font-size:1.1rem;margin-bottom:12px">Цветовая гамма</h2><div class="radio-cards" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">${PALETTES.map(p => `<label class="radio-card"><input type="radio" name="palette" value="${p[0]}" ${S.palette === p[0] ? 'checked' : ''}><span>${p[1]}<small style="display:flex;gap:4px;margin-top:6px"><i style="width:26px;height:16px;border-radius:4px;background:${p[2]}"></i><i style="width:26px;height:16px;border-radius:4px;background:${p[3]}"></i><i style="width:26px;height:16px;border-radius:4px;background:${p[4]};border:1px solid #8883"></i></small></span></label>`).join('')}</div></section>
+    <section class="card" aria-labelledby="fnt"><h2 id="fnt" style="font-size:1.1rem;margin-bottom:12px">Шрифт</h2><div class="radio-cards" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">${Object.entries(FONTS).map(([k, f]) => `<label class="radio-card"><input type="radio" name="font" value="${k}" ${S.font === k ? 'checked' : ''}><span>${f[2]}<small>${f[0]}</small></span></label>`).join('')}</div></section>
     <section class="card"><h2 style="font-size:1.1rem;margin-bottom:12px">Язык интерфейса</h2><label class="field" style="margin:0"><span class="sr-only">Язык</span><select class="input" style="max-width:280px"><option>Русский</option><option disabled>English — скоро</option></select></label></section>
     <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-ghost" data-act="logout">Выйти из аккаунта</button></div>
     <section class="danger-zone" aria-labelledby="dz"><h2 id="dz" style="font-size:1.1rem;margin-bottom:6px">Удаление аккаунта</h2><p style="font-size:.92rem;margin-bottom:14px">Профиль компании, настройки и сохранённые материалы будут удалены без возможности восстановления.</p><button class="btn btn-danger" data-act="delacc">Удалить аккаунт</button></section></div>` });
@@ -1347,7 +1367,7 @@ function renderDemo() {
     <h4>Быстрый старт</h4>${b('fill', 'Открыть кабинет с демо-компанией')}${b('emptyprofile', 'Пустой профиль (сбросить компанию)')}
     <h4>Состояния экранов</h4>${b('loading', 'Показать загрузку')}${b('error', 'Ошибка загрузки дайджестов', D.error)}${b('empty', 'Нет новых изменений', D.empty)}${b('session', 'Истёкшая сессия')}
     <h4>Telegram</h4>${[['none', 'Не подключён'], ['pending', 'Ожидается подтверждение'], ['connected', 'Подключён'], ['error', 'Ошибка подключения'], ['disabled', 'Отключён']].map(([k, t]) => b('tg:' + k, t, S.tg.status === k)).join('')}
-    <h4>Цветовая гамма</h4>${PALETTES.map(p => b('pal:' + p[0], p[1], S.palette === p[0])).join('')}<h4>Прочее</h4>${b('reset', 'Сбросить все демо-данные')}</div>` : ''}</div>`;
+    <h4>Цветовая гамма</h4>${PALETTES.map(p => b('pal:' + p[0], p[1], S.palette === p[0])).join('')}<h4>Шрифты</h4>${Object.entries(FONTS).map(([k, f]) => b('font:' + k, f[2] + ' — ' + f[0], S.font === k)).join('')}<h4>Прочее</h4>${b('reset', 'Сбросить все демо-данные')}</div>` : ''}</div>`;
 }
 function ensureUser() {
   if (!S.user) S.user = { name: 'Анна Ковалёва', email: 'a.kovaleva@nordwood.ru' };
@@ -1363,6 +1383,7 @@ function demoAction(id) {
   if (id === 'empty') { ensureUser(); D.empty = !D.empty; if (D.empty) D.error = false; const p = getPath(); if (D.empty && p !== '/app' && p !== '/app/digests') go('/app'); else render({ keep: true }); return; }
   if (id === 'session') { sessionExpired(); return; }
   if (id.startsWith('tg:')) { ensureUser(); const st = id.slice(3); S.tg.status = st; if (st === 'pending') S.tg.code = genCode(); if (st === 'connected') S.tg.username = '@anna_kovaleva'; persist(); getPath() === '/app/telegram' ? render({ keep: true }) : go('/app/telegram'); return; }
+  if (id.startsWith('font:')) { S.font = id.slice(5); applyTheme(); persist(); render({ keep: true }); return; }
   if (id.startsWith('pal:')) { S.palette = id.slice(4); applyTheme(); persist(); render({ keep: true }); return; }
   if (id === 'reset') { try { localStorage.removeItem(KEY); } catch (e) { } S = defState(); D.loading = D.error = D.empty = false; OB.step = 1; Object.assign(F, { q: '', period: 'all', topic: '', impact: '', status: 'all', sort: 'date', personal: false, page: 1 }); applyTheme(); toast('Демо-данные сброшены'); getPath() === '/' ? render() : go('/'); }
 }
@@ -1462,6 +1483,7 @@ document.addEventListener('change', e => {
   if (t.dataset.actstatus) { S.acts[t.dataset.actstatus] = t.value; persist(); render({ keep: true }); return; }
   if (t.dataset.role) { const m = S.team.find(x => x.id === t.dataset.role); m.role = t.value; persist(); toast('Роль изменена: ' + ROLES[t.value]); return; }
   if (t.id === 'shareProfile') { S.shareProfile = t.checked; persist(); toast(t.checked ? 'Профиль виден всей команде' : 'Профиль скрыт от участников и наблюдателей'); return; }
+  if (t.name === 'font') { S.font = t.value; applyTheme(); persist(); render({ keep: true }); return; }
   if (t.name === 'palette') { S.palette = t.value; applyTheme(); persist(); render({ keep: true }); return; }
   if (t.id === 'ob-form') OB.tmp.form = t.value;
   if (t.id === 'ob-ind') OB.tmp.industry = t.value;

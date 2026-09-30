@@ -478,6 +478,20 @@ html,body{overflow-x:clip}
 .trust-row{display:flex;gap:10px 26px;justify-content:center;flex-wrap:wrap;margin-top:34px;color:var(--ink-soft);font-size:.9rem}.trust-row span{display:inline-flex;gap:8px;align-items:center}.trust-row .ico{color:var(--accent)}
 .role-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:26px}
 .hero-c h1{max-width:26ch}
+
+/* ===== tariffs ===== */
+.plan .amount{font-family:var(--f-head);margin-top:2px}.plan .amount .a{font-size:1.9rem;font-weight:700}.plan .amount .u{font-size:.95rem;color:var(--ink-soft);font-family:var(--f-body)}
+.plan .per{font-size:.82rem;color:var(--ink-soft);margin-bottom:16px;min-height:1.3em}
+.choose{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}@media(max-width:800px){.choose{grid-template-columns:1fr}}
+.choice{display:block;background:var(--bg-raised);border:1px solid var(--line);border-radius:12px;padding:18px 20px}.choice:hover{border-color:var(--accent)}.choice b{display:block;margin-bottom:4px}.choice span{font-size:.9rem;color:var(--ink-soft)}.choice u{text-decoration-color:var(--accent);text-underline-offset:3px}
+.matrix{min-width:720px}.matrix th[scope=col]{text-align:center;font-size:.82rem;color:var(--ink);white-space:nowrap}.matrix th[scope=col]:first-child{text-align:left}.matrix td{text-align:center;font-size:.88rem}
+.matrix tbody th[scope=row]{text-align:left;font-weight:500;font-size:.9rem;color:var(--ink)}.matrix .grp th{background:var(--accent-soft);color:var(--accent);font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;text-align:left;padding:8px 16px}
+.matrix .hl{background:color-mix(in srgb,var(--accent-soft) 45%,transparent)}.matrix th.hl{background:var(--accent-soft)}.matrix th.cur{box-shadow:inset 0 -3px var(--accent)}
+.matrix .yes{color:var(--accent);display:inline-flex}.matrix .no{color:var(--ink-faint)}
+.plan-use{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}@media(max-width:700px){.plan-use{grid-template-columns:1fr}}
+.plan-use .u{background:var(--sidebar);border-radius:10px;padding:12px 14px;font-size:.88rem}.plan-use .u b{display:block;font-size:1.05rem;font-family:var(--f-head)}
+.navlink .ptag{margin-left:auto;font-size:.68rem;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:0 7px}
+.plan ul{align-content:start}
 /* ===== alternative palettes ===== */
 :root[data-palette="navy"]{--bg:#F3F5F9;--bg-raised:#FFFFFF;--sidebar:#E9EDF4;--panel:#13284B;--ink:#131C2B;--ink-soft:#485468;--ink-faint:#647086;--line:#D8DEE8;--accent:#1F4E8C;--accent-ink:#FFFFFF;--accent-soft:#E3EAF5;--blue:#3B6A8F;--blue-soft:#E1ECF4;--panel-2:#1B3663;--panel-line:#2B4A7C;--panel-accent:#8DB4E8;--panel-tag-bg:#2B4A7C;--panel-tag-ink:#BBD3F5;--panel-soft:#B8C4D8;--amber:#8A5A20;--amber-soft:#F2E7D5;--red:#A23B2E;--red-soft:#F5E4E0;--focus:#1B6FD8;}
 @media (prefers-color-scheme:dark){:root[data-palette="navy"]:not([data-theme="light"]){--bg:#0E131C;--bg-raised:#161D29;--sidebar:#121824;--panel:#0B1424;--ink:#E7ECF4;--ink-soft:#A6B1C3;--ink-faint:#8793A7;--line:#263042;--accent:#7FAAE6;--accent-ink:#0B1424;--accent-soft:#1C2A42;--blue:#8DB6D6;--blue-soft:#1C2A36;--panel-2:#1B3663;--panel-line:#2B4A7C;--panel-accent:#8DB4E8;--panel-tag-bg:#2B4A7C;--panel-tag-ink:#BBD3F5;--panel-soft:#B8C4D8;--amber:#D8AE72;--amber-soft:#2E2618;--red:#E39A8D;--red-soft:#33211E;--focus:#7DB2FF;}}
@@ -557,6 +571,7 @@ const ICONS = {
   chat: '<path d="M4 5h16v11H9l-5 4V5z"/>',
   dl: '<path d="M12 4v11M7.500 10.500L12 15l4.500-4.500M5 20h14"/>',
   more: '<circle cx="5" cy="12" r="1.200"/><circle cx="12" cy="12" r="1.200"/><circle cx="19" cy="12" r="1.200"/>',
+  card: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>',
   layers: '<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/>'
 };
 const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n] || ''}</svg>`;
@@ -676,11 +691,34 @@ const CHANGES = [
 ];
 const CH = Object.fromEntries(CHANGES.map(c => [c.id, c]));
 
+/* tariffs — prices are PLACEHOLDERS until the pricing model is approved */
+const PLANS = [
+  { id: 'free', name: 'Бесплатный старт', short: 'Старт', for: 'Знакомство с сервисом', m: 0, y: 0, users: 1, areas: 1, cta: 'Начать', feat: ['Профиль компании', 'Общий дайджест раз в месяц', 'Ссылки на источники'] },
+  { id: 'basic', name: 'Базовый', short: 'Базовый', for: 'ИП и микробизнес', m: 990, y: 9500, users: 1, areas: 3, cta: 'Запросить доступ', feat: ['Персональный дайджест', 'Уведомления в Telegram', 'Напоминания о сроках', 'Ссылки на источники'] },
+  { id: 'pro', name: 'Профессиональный', short: 'Проф.', for: 'Малый и средний бизнес', m: 2990, y: 28700, users: 5, areas: 10, cta: 'Запросить доступ', featured: true, feat: ['Больше сфер мониторинга', 'Рекомендации к действию', 'Архив изменений', 'До 5 пользователей'] },
+  { id: 'corp', name: 'Корпоративный', short: 'Корп.', for: 'Группы компаний', m: null, y: null, users: null, areas: null, cta: 'Связаться', feat: ['Несколько юридических лиц', 'Задачи, сроки, отчёты', 'API и интеграции', 'Персональный менеджер'] }
+];
+const PLAN = id => PLANS.find(p => p.id === id) || PLANS[0];
+const T = true, N = false;
+const MATRIX = [
+  ['Мониторинг', null],
+  ['Профиль компании', [T, T, T, T]], ['Персональный дайджест', ['Общий, раз в месяц', T, T, T]], ['Сферы мониторинга', ['1', '3', '10', 'Без ограничений']], ['Ссылки на первоисточники', [T, T, T, T]],
+  ['Уведомления', null],
+  ['Кабинет и почта', [T, T, T, T]], ['Уведомления в Telegram', [N, T, T, T]], ['Напоминания о сроках', [N, T, T, T]],
+  ['Работа с изменениями', null],
+  ['Рекомендации к действию', [N, N, T, T]], ['Архив изменений', [N, N, T, T]], ['Задачи, сроки и отчёты', [N, N, N, T]],
+  ['Команда и компании', null],
+  ['Пользователи', ['1', '1', 'до 5', 'Без ограничений']], ['Несколько юридических лиц', [N, N, N, T]],
+  ['Интеграции и поддержка', null],
+  ['API и интеграции', [N, N, N, T]], ['Поддержка', ['Почта', 'Почта', 'Приоритетная', 'Персональный менеджер']]
+];
+const money = n => n.toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' ₽';
+
 /* =====================  STATE  ===================== */
 const KEY = 'lawtracker.demo.v1';
 const emptyCompany = () => ({ name: '', inn: '', form: '', size: '', industry: '', activities: [], desc: '', regions: [], branches: '', foreignShare: false, entities: '1', headcount: '', remote: false, foreignStaff: false, licenses: [], pdCustomers: false, pdEmployees: false, pdExternal: false, pdCross: false, vedExport: false, vedImport: false, digital: [], contactName: '', contactEmail: '', contactRole: '', recipients: '', topics: [], saved: {}, skipped: {} });
 const defState = () => ({
-  user: null, onboarded: false, company: emptyCompany(), read: [], saved: [], acts: {}, welcomed: false, theme: '', palette: 'forest', font: 'classic', hero: 'personal', profileStep: 1, shareProfile: true, joined: false,
+  user: null, onboarded: false, company: emptyCompany(), read: [], saved: [], acts: {}, welcomed: false, theme: '', palette: 'forest', font: 'classic', hero: 'personal', plan: 'free', profileStep: 1, shareProfile: true, joined: false,
   notif: { cabinet: true, email: true, emailFreq: 'daily', tg: true, topics: [], minImpact: 'med', days: [1, 2, 3, 4, 5], time: '09:00', pause: false, pauseUntil: '' },
   tg: { status: 'none', code: '', username: '' }, team: []
 });
@@ -739,6 +777,7 @@ function loadDemoCompany() {
     topics: ['pd', 'tax', 'labor', 'log'], saved: { basics: 1, industry: 1, regions: 1, structure: 1, staff: 1, pd: 1 }, skipped: {}
   });
   S.notif.topics = ['pd', 'tax', 'labor', 'log'];
+  S.plan = 'pro';
   persist();
 }
 
@@ -892,16 +931,32 @@ const FAQ = [
 const faqList = n => (n ? FAQ.slice(0, n) : FAQ).map((f, i) => `<details ${i === 0 ? 'open' : ''}><summary>${f[0]}</summary><p>${f[1]}</p></details>`).join('');
 const viewFaq = () => pubShell(`<div class="wrap"><div class="page-hero"><h1>Вопросы и ответы</h1><p class="lede" style="margin-top:0">Не нашли ответ? <a class="link" href="#/contacts">Напишите нам</a>.</p></div><div style="max-width:780px;padding-bottom:70px">${faqList()}</div></div>`, '/faq');
 
+let BILL = 'm';
+function priceBlock(p) {
+  if (p.m === null) return '<div class="amount"><span class="a">По запросу</span></div><div class="per">Индивидуальные условия</div>';
+  if (p.m === 0) return '<div class="amount"><span class="a">0 ₽</span></div><div class="per">Без срока и банковской карты</div>';
+  const mo = BILL === 'y' ? Math.round(p.y / 12) : p.m;
+  return `<div class="amount"><span class="a">${money(mo)}</span><span class="u"> / мес</span></div><div class="per">${BILL === 'y' ? `${money(p.y)} при оплате за год` : 'при оплате помесячно'}</div>`;
+}
+const cell = v => v === true ? `<span class="yes">${ic('check', 'sm')}<span class="sr-only">Да</span></span>` : v === false ? '<span class="no" aria-label="Нет">—</span>' : esc(v);
+function matrixHTML(cur) {
+  return `<div class="table-wrap"><table class="tbl matrix"><caption class="sr-only">Сравнение тарифов</caption><thead><tr><th scope="col">Возможность</th>${PLANS.map(p => `<th scope="col" class="${p.featured ? 'hl' : ''} ${cur === p.id ? 'cur' : ''}">${esc(p.short === 'Проф.' ? 'Профессиональный' : p.name)}</th>`).join('')}</tr></thead><tbody>
+  ${MATRIX.map(r => r[1] === null ? `<tr class="grp"><th colspan="5" scope="colgroup">${r[0]}</th></tr>` : `<tr><th scope="row">${r[0]}</th>${r[1].map((v, i) => `<td class="${PLANS[i].featured ? 'hl' : ''}">${cell(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
 function viewPricing() {
-  const feat = t => t.map(x => `<li>${ic('check', 'sm')}<span>${x}</span></li>`).join('');
-  const plans = [
-    ['Бесплатный старт', 'Знакомство с сервисом', ['Профиль компании', 'Общий дайджест раз в месяц'], 'Бесплатно', 'Начать', false],
-    ['Базовый', 'ИП и микробизнес', ['Персональный дайджест', 'Уведомления в Telegram', 'Напоминания о сроках', 'Ссылки на источники'], 'Стоимость уточняется', 'Запросить доступ', false],
-    ['Профессиональный', 'Малый и средний бизнес', ['Больше сфер мониторинга', 'Рекомендации к действию', 'Архив изменений', 'Несколько пользователей'], 'Стоимость уточняется', 'Запросить доступ', true],
-    ['Корпоративный', 'Группы компаний', ['Несколько юрлиц', 'Задачи, сроки, отчёты', 'API и интеграции', 'Персональный менеджер'], 'По запросу', 'Связаться', false]];
-  return pubShell(`<div class="wrap"><div class="page-hero"><p class="eyebrow">Тарифы</p><h1>Подписка, которая растёт вместе с бизнесом</h1><p class="lede" style="margin-top:0">Уровень зависит от размера компании и числа пользователей. Окончательные тарифы и цены утверждаются — оставьте заявку, и мы сообщим о запуске.</p></div>
-    <div class="price-grid" style="padding-bottom:30px">${plans.map(p => `<div class="plan ${p[5] ? 'featured' : ''}">${p[5] ? '<span class="tag" style="align-self:flex-start;margin-bottom:10px">Для большинства компаний</span>' : ''}<h3>${p[0]}</h3><p class="for">${p[1]}</p><div class="price">${p[3]}</div><ul>${feat(p[2])}</ul><a class="btn ${p[5] ? 'btn-primary' : 'btn-ghost'}" href="#/register">${p[4]}</a></div>`).join('')}</div>
-    <p class="muted" style="font-size:.88rem;padding-bottom:70px">Состав тарифов предварительный и может измениться до запуска платных подписок.</p></div>`, '/pricing');
+  const card = p => `<div class="plan ${p.featured ? 'featured' : ''}">${p.featured ? '<span class="tag" style="align-self:flex-start;margin-bottom:10px">Для большинства компаний</span>' : ''}<h3>${p.name}</h3><p class="for">${p.for}</p>${priceBlock(p)}<ul>${p.feat.map(x => `<li>${ic('check', 'sm')}<span>${x}</span></li>`).join('')}</ul><a class="btn ${p.featured ? 'btn-primary' : 'btn-ghost'}" href="#/${p.id === 'corp' ? 'contacts' : 'register'}">${p.cta}</a></div>`;
+  const faq = [['Можно ли начать бесплатно?', 'Да. Бесплатный старт включает профиль компании и общий дайджест раз в месяц — без срока и без банковской карты.'], ['Как оплачивать подписку?', 'Способы оплаты и закрывающие документы для юридических лиц уточняются и будут опубликованы перед запуском платных тарифов.'], ['Можно ли сменить тариф?', 'Да, тариф можно повысить или понизить в разделе «Тариф и оплата». Условия перерасчёта будут опубликованы вместе с тарифами.'], ['Чем отличается годовая оплата?', 'При оплате за год предполагается скидка около 20 %. Точные условия утверждаются.']];
+  return pubShell(`<div class="wrap"><div class="page-hero"><p class="eyebrow">Тарифы</p><h1>Подписка, которая растёт вместе с бизнесом</h1><p class="lede" style="margin-top:0">Уровень зависит от размера компании и числа пользователей. Начните бесплатно — перейдите на платный тариф, когда понадобится больше.</p></div>
+    <div class="banner amber" style="margin-bottom:22px">${ic('alert')}<div class="b-body"><strong>Цены предварительные</strong>Тарифы и стоимость ещё утверждаются и могут измениться до запуска платных подписок. Оставьте заявку — мы сообщим о запуске.</div></div>
+    <div style="display:flex;justify-content:center;margin-bottom:26px"><div class="segmented" role="group" aria-label="Период оплаты"><button data-act="bill" data-v="m" aria-pressed="${BILL === 'm'}">Помесячно</button><button data-act="bill" data-v="y" aria-pressed="${BILL === 'y'}">На год <span class="tag" style="margin-left:6px">−20%</span></button></div></div>
+    <div class="price-grid">${PLANS.map(card).join('')}</div>
+    <section style="padding:56px 0 10px"><div class="section-head" style="margin-bottom:22px"><h2>Какой тариф выбрать</h2></div><div class="choose">
+      <a class="choice" href="#/register"><b>Я ИП или микробизнес</b><span>Нужно знать главное без лишнего. Подойдёт <u>Базовый</u>.</span></a>
+      <a class="choice" href="#/register"><b>Малый или средний бизнес</b><span>Есть юрист, бухгалтер или HR и нужны рекомендации. Подойдёт <u>Профессиональный</u>.</span></a>
+      <a class="choice" href="#/contacts"><b>Группа компаний</b><span>Несколько юрлиц, задачи и отчёты. Подойдёт <u>Корпоративный</u>.</span></a></div></section>
+    <section style="padding:40px 0"><div class="section-head" style="margin-bottom:22px"><h2>Сравнение тарифов</h2></div>${matrixHTML()}</section>
+    <section style="padding:10px 0 70px"><div class="section-head" style="margin-bottom:10px"><h2>Вопросы о тарифах</h2></div><div style="max-width:780px">${faq.map((f, i) => `<details ${i === 0 ? 'open' : ''}><summary>${f[0]}</summary><p>${f[1]}</p></details>`).join('')}</div>
+      <p class="muted" style="margin-top:22px;font-size:.88rem">Материалы платформы носят информационный характер и не заменяют индивидуальную юридическую консультацию.</p></section></div>`, '/pricing');
 }
 
 const viewAbout = () => pubShell(`<div class="wrap"><div class="page-hero"><p class="eyebrow">О сервисе</p><h1>Мы применяем изменения к конкретному бизнесу</h1></div>
@@ -1044,12 +1099,12 @@ function heroHTML() {
 /* =====================  APP SHELL  ===================== */
 const NAV = [
   ['overview', '/app', 'Обзор', 'grid'], ['digests', '/app/digests', 'Дайджесты', 'list', 'count'], ['saved', '/app/saved', 'Сохранённое', 'bookmark'], '-',
-  ['profile', '/app/profile', 'Профиль компании', 'building'], ['notifications', '/app/notifications', 'Уведомления', 'bell'], ['telegram', '/app/telegram', 'Telegram', 'send'], ['team', '/app/team', 'Команда и доступы', 'users'], ['plan', '/app/plan', 'Персональный план', 'route', 'soon'], '-',
+  ['profile', '/app/profile', 'Профиль компании', 'building'], ['notifications', '/app/notifications', 'Уведомления', 'bell'], ['telegram', '/app/telegram', 'Telegram', 'send'], ['team', '/app/team', 'Команда и доступы', 'users'], ['billing', '/app/billing', 'Тариф', 'card', 'plan'], ['plan', '/app/plan', 'Персональный план', 'route', 'soon'], '-',
   ['account', '/app/account', 'Настройки аккаунта', 'user'], ['support', '/app/support', 'Поддержка', 'help']];
 const companyName = () => S.company.name ? (S.company.form && S.company.form !== 'Другое' && S.company.form !== 'Самозанятый' ? S.company.form + ' «' + S.company.name + '»' : S.company.name) : 'Компания не указана';
 function navHTML() {
   return NAV.map(n => n === '-' ? '<div class="nav-divider"></div>' :
-    `<a class="navlink" href="#${n[1]}" data-nav="${n[0]}">${ic(n[3])}<span>${n[2]}</span>${n[4] === 'count' && unreadCount() ? `<span class="count" aria-label="${unreadCount()} новых">${unreadCount()}</span>` : ''}${n[4] === 'soon' ? '<span class="soon">скоро</span>' : ''}</a>`).join('');
+    `<a class="navlink" href="#${n[1]}" data-nav="${n[0]}">${ic(n[3])}<span>${n[2]}</span>${n[4] === 'count' && unreadCount() ? `<span class="count" aria-label="${unreadCount()} новых">${unreadCount()}</span>` : ''}${n[4] === 'soon' ? '<span class="soon">скоро</span>' : ''}${n[4] === 'plan' ? `<span class="ptag">${esc(PLAN(S.plan).short)}</span>` : ''}</a>`).join('');
 }
 function appShell(active, { title, sub = '', body, actions = '' }) {
   const bn = [['overview', '/app', 'Обзор', 'grid'], ['digests', '/app/digests', 'Дайджесты', 'list'], ['saved', '/app/saved', 'Сохранённое', 'bookmark'], ['notifications', '/app/notifications', 'Уведомления', 'bell']];
@@ -1325,7 +1380,7 @@ function viewTelegram() {
     <div class="tg-msg"><b>LawTracker · Дайджест недели</b>${unreadCount()} новых изменений, ${attention().length} требуют внимания.<br><span class="link">Открыть кабинет →</span></div><p class="muted" style="font-size:.9rem;margin-top:16px">Тип и частоту сообщений можно настроить в разделе <a class="link" href="#/app/notifications">«Уведомления»</a>.</p></div>`;
   if (st === 'error') body = `<div class="banner red" role="alert">${ic('alert')}<div class="b-body"><strong>Не удалось подтвердить подключение</strong>Возможные причины: код устарел, бот был заблокирован или код введён с ошибкой.<div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" data-act="tgconnect">Получить новый код</button><a class="btn btn-ghost btn-sm" href="#/app/support">Написать в поддержку</a></div></div></div>`;
   if (st === 'disabled') body = `<div class="card"><span class="tag neutral" style="margin-bottom:12px">Отключён</span><h2 style="font-size:1.3rem;margin-bottom:8px">Telegram отключён</h2><p class="muted" style="margin-bottom:16px">Сообщения больше не отправляются. Дайджесты по-прежнему доступны в кабинете и по почте.</p><button class="btn btn-primary" data-act="tgconnect">Подключить снова</button></div>`;
-  return appShell('telegram', { title: 'Подключение Telegram', sub: 'Дополнительный канал уведомлений', body: `<div class="narrow stack-lg">${body}<div class="note">Вы можете отключить Telegram в любой момент — остальные каналы продолжат работать.</div></div>` });
+  return appShell('telegram', { title: 'Подключение Telegram', sub: 'Дополнительный канал уведомлений', body: `<div class="narrow stack-lg">${S.plan === 'free' ? `<div class="banner blue">${ic('info')}<div class="b-body">В демо Telegram доступен на всех тарифах. В боевой версии уведомления в Telegram входят в тариф «Базовый» и выше.</div></div>` : ''}${body}<div class="note">Вы можете отключить Telegram в любой момент — остальные каналы продолжат работать.</div></div>` });
 }
 
 /* =====================  TEAM  ===================== */
@@ -1338,7 +1393,7 @@ function viewTeam() {
     <td>${m.status === 'active' ? `<span class="tag">${ic('check')}Активен</span>` : `<span class="tag amber">${ic('clock')}Приглашение отправлено</span>`}</td>
     <td style="text-align:right;white-space:nowrap">${m.status === 'pending' ? `<button class="btn btn-ghost btn-sm" data-resend="${m.id}">Отправить снова</button> ` : ''}${m.role !== 'owner' ? `<button class="btn btn-danger-ghost btn-sm" data-remove="${m.id}" aria-label="Удалить: ${esc(m.email)}">${ic('trash', 'sm')}Удалить</button>` : ''}</td></tr>`).join('')}</tbody></table></div>
     <section class="card" aria-labelledby="rl"><h2 id="rl" style="font-size:1.1rem;margin-bottom:12px">Роли и доступы</h2><div class="table-wrap" style="border:0"><table class="tbl"><thead><tr><th scope="col">Роль</th><th scope="col">Что может</th></tr></thead><tbody>${Object.entries(ROLES).map(([k, t]) => `<tr><th scope="row" style="font-weight:600;text-align:left">${t}</th><td class="muted">${ROLE_DESC[k]}</td></tr>`).join('')}</tbody></table></div></section>
-    <div class="banner blue">${ic('info')}<div class="b-body">Несколько пользователей доступны на тарифе «Профессиональный». В демо-версии ограничение не применяется.</div></div></div>` });
+    <div class="banner blue">${ic('info')}<div class="b-body"><strong>Тариф «${esc(PLAN(S.plan).name)}»</strong>${PLAN(S.plan).users === null ? 'Число участников не ограничено.' : `Участников: ${S.team.length} из ${PLAN(S.plan).users}.`} <a class="link" href="#/app/billing">Сменить тариф</a></div></div></div>` });
 }
 
 /* =====================  PLAN (future)  ===================== */
@@ -1369,10 +1424,25 @@ function viewSupport() {
     <div><div class="col-heading"><h2>Частые вопросы</h2></div>${faqList(5)}</div></div>` });
 }
 
+/* =====================  BILLING  ===================== */
+function viewBilling() {
+  const cur = PLAN(S.plan), team = S.team.length || 1, areas = S.notif.topics.length;
+  const lim = (n, l) => l === null ? `${n} · без ограничений` : `${n} из ${l}`;
+  const next = fmtD(dayOff(30));
+  return appShell('billing', { title: 'Тариф и оплата', sub: 'Ваш тариф, лимиты и счета', actions: '<a class="btn btn-ghost btn-sm" href="#/pricing">Сравнить тарифы</a>', body: `<div class="stack-lg">
+    <div class="banner amber">${ic('alert')}<div class="b-body"><strong>Демо-режим оплаты</strong>Оплата пока не подключена, цены предварительные. Смена тарифа ниже работает для примера.</div></div>
+    <section class="card" aria-labelledby="bc"><div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start"><div><span class="tag">Текущий тариф</span><h2 id="bc" style="font-size:1.5rem;margin:10px 0 4px">${esc(cur.name)}</h2><p class="muted">${esc(cur.for)}</p></div>
+      <div style="text-align:right"><div style="font:700 1.6rem var(--f-head)">${cur.m === null ? 'По запросу' : cur.m === 0 ? '0 ₽' : money(cur.m) + ' <span style="font:400 .9rem var(--f-body);color:var(--ink-soft)">/ мес</span>'}</div><p class="muted" style="font-size:.84rem">${cur.m ? 'Следующее списание: ' + next + ' (демо)' : 'Без срока действия'}</p></div></div>
+      <div class="plan-use"><div class="u">Участники команды<b>${lim(team, cur.users)}</b></div><div class="u">Сферы мониторинга<b>${lim(areas, cur.areas)}</b></div><div class="u">Telegram и напоминания<b>${PLANS.indexOf(cur) >= 1 ? 'Включены' : 'С тарифа «Базовый»'}</b></div></div></section>
+    <section aria-labelledby="bp"><div class="col-heading"><h2 id="bp">Доступные тарифы</h2></div><div class="price-grid">${PLANS.map(p => `<div class="plan ${p.featured ? 'featured' : ''}"><h3>${p.name}</h3><p class="for">${p.for}</p>${p.m === null ? '<div class="amount"><span class="a">По запросу</span></div><div class="per">&nbsp;</div>' : p.m === 0 ? '<div class="amount"><span class="a">0 ₽</span></div><div class="per">&nbsp;</div>' : `<div class="amount"><span class="a">${money(p.m)}</span><span class="u"> / мес</span></div><div class="per">${money(p.y)} при оплате за год</div>`}<ul>${p.feat.map(x => `<li>${ic('check', 'sm')}<span>${x}</span></li>`).join('')}</ul>${p.id === S.plan ? '<button class="btn btn-ghost" disabled>Ваш тариф</button>' : `<button class="btn ${p.featured ? 'btn-primary' : 'btn-ghost'}" data-act="chooseplan" data-id="${p.id}">${p.id === 'corp' ? 'Связаться' : PLANS.indexOf(p) > PLANS.indexOf(cur) ? 'Перейти' : 'Понизить'}</button>`}</div>`).join('')}</div></section>
+    <section class="card"><h2 style="font-size:1.1rem;margin-bottom:12px">Способ оплаты</h2><div class="empty" style="padding:26px"><p style="margin-bottom:14px">Способ оплаты не добавлен.</p><button class="btn btn-ghost" data-act="addpay">Добавить способ оплаты</button></div></section>
+    <section class="card"><h2 style="font-size:1.1rem;margin-bottom:12px">Счета и платежи</h2><div class="empty" style="padding:26px"><p style="margin:0 auto">Счетов пока нет. Они появятся после перехода на платный тариф.</p></div></section></div>` });
+}
+
 /* =====================  ROUTER  ===================== */
 const root = $('#root');
 let curPath = null, pendingScroll = null, demoOpen = false, viewErr = {}, viewVals = {}, forgotSent = false;
-const TITLES = { '/': 'Мониторинг изменений законодательства для бизнеса', '/faq': 'Вопросы и ответы', '/pricing': 'Тарифы', '/about': 'О сервисе', '/contacts': 'Контакты', '/privacy': 'Политика конфиденциальности', '/terms': 'Пользовательское соглашение', '/login': 'Вход', '/register': 'Регистрация', '/forgot': 'Восстановление пароля', '/onboarding': 'Настройка аккаунта', '/app': 'Обзор', '/app/digests': 'Дайджесты', '/app/saved': 'Сохранённое', '/app/profile': 'Профиль компании', '/app/notifications': 'Настройки уведомлений', '/app/telegram': 'Подключение Telegram', '/app/team': 'Команда и доступы', '/app/plan': 'Персональный план', '/app/account': 'Настройки аккаунта', '/app/support': 'Поддержка' };
+const TITLES = { '/': 'Мониторинг изменений законодательства для бизнеса', '/faq': 'Вопросы и ответы', '/pricing': 'Тарифы', '/about': 'О сервисе', '/contacts': 'Контакты', '/privacy': 'Политика конфиденциальности', '/terms': 'Пользовательское соглашение', '/login': 'Вход', '/register': 'Регистрация', '/forgot': 'Восстановление пароля', '/onboarding': 'Настройка аккаунта', '/app': 'Обзор', '/app/digests': 'Дайджесты', '/app/saved': 'Сохранённое', '/app/profile': 'Профиль компании', '/app/notifications': 'Настройки уведомлений', '/app/telegram': 'Подключение Telegram', '/app/team': 'Команда и доступы', '/app/billing': 'Тариф и оплата', '/app/plan': 'Персональный план', '/app/account': 'Настройки аккаунта', '/app/support': 'Поддержка' };
 const getPath = () => (location.hash.replace(/^#/, '') || '/').split('?')[0];
 const go = p => { location.hash = '#' + p; };
 
@@ -1387,7 +1457,7 @@ function resolve(path) {
   const T = {
     '/': viewHome, '/faq': viewFaq, '/pricing': viewPricing, '/about': viewAbout, '/contacts': viewContacts, '/privacy': () => viewLegal('privacy'), '/terms': () => viewLegal('terms'),
     '/login': () => viewLogin(viewErr, viewVals), '/register': () => viewRegister(viewErr, viewVals), '/forgot': () => viewForgot(forgotSent), '/onboarding': viewOnboarding,
-    '/app': viewOverview, '/app/digests': viewDigests, '/app/saved': viewSaved, '/app/profile': viewProfile, '/app/notifications': viewNotifications, '/app/telegram': viewTelegram, '/app/team': viewTeam, '/app/plan': viewPlan, '/app/account': viewAccount, '/app/support': viewSupport
+    '/app': viewOverview, '/app/digests': viewDigests, '/app/saved': viewSaved, '/app/profile': viewProfile, '/app/notifications': viewNotifications, '/app/telegram': viewTelegram, '/app/team': viewTeam, '/app/billing': viewBilling, '/app/plan': viewPlan, '/app/account': viewAccount, '/app/support': viewSupport
   };
   if (T[path]) return { html: T[path](), title: TITLES[path] };
   if ((m = path.match(/^\/app\/change\/([\w-]+)$/))) return { html: viewChange(m[1]), title: CH[m[1]] ? CH[m[1]].title : 'Материал не найден' };
@@ -1424,7 +1494,7 @@ function renderDemo() {
     <h4>Быстрый старт</h4>${b('fill', 'Открыть кабинет с демо-компанией')}${b('emptyprofile', 'Пустой профиль (сбросить компанию)')}
     <h4>Состояния экранов</h4>${b('loading', 'Показать загрузку')}${b('error', 'Ошибка загрузки дайджестов', D.error)}${b('empty', 'Нет новых изменений', D.empty)}${b('session', 'Истёкшая сессия')}
     <h4>Telegram</h4>${[['none', 'Не подключён'], ['pending', 'Ожидается подтверждение'], ['connected', 'Подключён'], ['error', 'Ошибка подключения'], ['disabled', 'Отключён']].map(([k, t]) => b('tg:' + k, t, S.tg.status === k)).join('')}
-    <h4>Цветовая гамма</h4>${PALETTES.map(p => b('pal:' + p[0], p[1], S.palette === p[0])).join('')}<h4>Первый экран</h4>${Object.entries(HERO).map(([k, t]) => b('hero:' + k, t, S.hero === k)).join('')}<h4>Шрифты</h4>${Object.entries(FONTS).map(([k, f]) => b('font:' + k, f[2] + ' — ' + f[0], S.font === k)).join('')}<h4>Прочее</h4>${b('reset', 'Сбросить все демо-данные')}</div>` : ''}</div>`;
+    <h4>Цветовая гамма</h4>${PALETTES.map(p => b('pal:' + p[0], p[1], S.palette === p[0])).join('')}<h4>Тариф</h4>${PLANS.map(p => b('plan:' + p.id, p.name, S.plan === p.id)).join('')}<h4>Первый экран</h4>${Object.entries(HERO).map(([k, t]) => b('hero:' + k, t, S.hero === k)).join('')}<h4>Шрифты</h4>${Object.entries(FONTS).map(([k, f]) => b('font:' + k, f[2] + ' — ' + f[0], S.font === k)).join('')}<h4>Прочее</h4>${b('reset', 'Сбросить все демо-данные')}</div>` : ''}</div>`;
 }
 function ensureUser() {
   if (!S.user) S.user = { name: 'Анна Ковалёва', email: 'a.kovaleva@nordwood.ru' };
@@ -1440,6 +1510,7 @@ function demoAction(id) {
   if (id === 'empty') { ensureUser(); D.empty = !D.empty; if (D.empty) D.error = false; const p = getPath(); if (D.empty && p !== '/app' && p !== '/app/digests') go('/app'); else render({ keep: true }); return; }
   if (id === 'session') { sessionExpired(); return; }
   if (id.startsWith('tg:')) { ensureUser(); const st = id.slice(3); S.tg.status = st; if (st === 'pending') S.tg.code = genCode(); if (st === 'connected') S.tg.username = '@anna_kovaleva'; persist(); getPath() === '/app/telegram' ? render({ keep: true }) : go('/app/telegram'); return; }
+  if (id.startsWith('plan:')) { ensureUser(); S.plan = id.slice(5); persist(); getPath() === '/app/billing' ? render({ keep: true }) : go('/app/billing'); return; }
   if (id.startsWith('hero:')) { S.hero = id.slice(5); persist(); getPath() === '/' ? render({ keep: true }) : go('/'); return; }
   if (id.startsWith('font:')) { S.font = id.slice(5); applyTheme(); persist(); render({ keep: true }); return; }
   if (id.startsWith('pal:')) { S.palette = id.slice(4); applyTheme(); persist(); render({ keep: true }); return; }
@@ -1488,12 +1559,20 @@ const ACT = {
   waitlist() { S.waitlist = true; persist(); toast('Готово! Сообщим о запуске раздела'); render({ keep: true }); },
   logout() { S.user = null; persist(); toast('Вы вышли из аккаунта'); go('/'); },
   delacc() { modal({ title: 'Удалить аккаунт?', body: `<p>Профиль компании, настройки и сохранённые материалы будут удалены без возможности восстановления.</p><div class="field" style="margin:16px 0 0"><label for="delc">Для подтверждения введите слово «УДАЛИТЬ»</label><input type="text" id="delc" autocomplete="off"><div id="delE"></div></div>`, actions: [{ label: 'Отмена' }, { label: 'Удалить навсегда', cls: 'btn-danger', on: ov => { if ($('#delc', ov).value.trim().toUpperCase() !== 'УДАЛИТЬ') { $('#delE', ov).innerHTML = fieldErr('Введите слово «УДАЛИТЬ»'); return false; } try { localStorage.removeItem(KEY); } catch (e) { } S = defState(); applyTheme(); toast('Аккаунт удалён'); go('/'); } }] }); },
-  invite() { modal({ title: 'Пригласить участника', body: `<div class="field"><label for="iv-m">Рабочая почта</label><input type="email" id="iv-m" autocomplete="off"><div id="ivE"></div></div><div class="field" style="margin:0"><label for="iv-r">Роль</label><select id="iv-r">${['admin', 'member', 'viewer'].map(r => opt(r, ROLES[r] + ' — ' + ROLE_DESC[r], 'member')).join('')}</select></div>`, actions: [{ label: 'Отмена' }, { label: 'Отправить приглашение', cls: 'btn-primary', on: ov => { const m = $('#iv-m', ov).value.trim(); if (!validEmail(m)) { $('#ivE', ov).innerHTML = fieldErr('Введите корректный адрес почты'); return false; } if (S.team.some(x => x.email === m)) { $('#ivE', ov).innerHTML = fieldErr('Этот участник уже приглашён'); return false; } S.team.push({ id: uid(), name: '', email: m, role: $('#iv-r', ov).value, status: 'pending' }); persist(); toast('Приглашение отправлено'); render({ keep: true }); } }] }); },
+  invite() { const pl = PLAN(S.plan); if (pl.users !== null && S.team.length >= pl.users) { modal({ title: 'Недоступно на вашем тарифе', body: `Тариф «${esc(pl.name)}» допускает участников: ${pl.users}. Чтобы пригласить коллег, перейдите на тариф «Профессиональный» или выше.`, actions: [{ label: 'Закрыть' }, { label: 'Сменить тариф', cls: 'btn-primary', on: () => { go('/app/billing'); } }] }); return; } modal({ title: 'Пригласить участника', body: `<div class="field"><label for="iv-m">Рабочая почта</label><input type="email" id="iv-m" autocomplete="off"><div id="ivE"></div></div><div class="field" style="margin:0"><label for="iv-r">Роль</label><select id="iv-r">${['admin', 'member', 'viewer'].map(r => opt(r, ROLES[r] + ' — ' + ROLE_DESC[r], 'member')).join('')}</select></div>`, actions: [{ label: 'Отмена' }, { label: 'Отправить приглашение', cls: 'btn-primary', on: ov => { const m = $('#iv-m', ov).value.trim(); if (!validEmail(m)) { $('#ivE', ov).innerHTML = fieldErr('Введите корректный адрес почты'); return false; } if (S.team.some(x => x.email === m)) { $('#ivE', ov).innerHTML = fieldErr('Этот участник уже приглашён'); return false; } S.team.push({ id: uid(), name: '', email: m, role: $('#iv-r', ov).value, status: 'pending' }); persist(); toast('Приглашение отправлено'); render({ keep: true }); } }] }); },
   loadmore() { F.page++; renderDigestList(); },
   resetfilters() { Object.assign(F, { q: '', period: 'all', topic: '', impact: '', status: 'all', personal: false, page: 1 }); render({ keep: true }); },
   retry() { D.error = false; D.loading = true; render({ keep: true }); setTimeout(() => { D.loading = false; render({ keep: true }); }, 700); },
   openfilters() { const m = modal({ title: 'Фильтры', drawer: true, body: `<div style="display:grid;gap:14px">${filterFields()}</div><button class="btn btn-primary btn-block" style="margin-top:20px" data-close id="drawerCount">Показать результаты (${filterChanges(false).length})</button><button class="btn btn-text btn-block" data-act="resetfilters" data-close>Сбросить фильтры</button>` }); },
   heroRole(t) { heroRole = +t.dataset.v; render({ keep: true }); },
+  bill(t) { BILL = t.dataset.v; render({ keep: true }); },
+  addpay() { modal({ title: 'Недоступно в демо', body: 'Приём платежей ещё не подключён. Способы оплаты будут доступны перед запуском платных тарифов.', actions: [{ label: 'Понятно', cls: 'btn-primary' }] }); },
+  chooseplan(t) {
+    const p = PLAN(t.dataset.id);
+    if (p.id === 'corp') { modal({ title: 'Корпоративный тариф', body: 'Условия для групп компаний обсуждаются индивидуально. Напишите нам — мы свяжемся и подберём решение.', actions: [{ label: 'Закрыть' }, { label: 'Написать', cls: 'btn-primary', on: () => { go('/contacts'); } }] }); return; }
+    const down = PLANS.indexOf(p) < PLANS.indexOf(PLAN(S.plan));
+    confirmBox((down ? 'Понизить' : 'Перейти на') + ' тариф «' + p.name + '»?', 'Оплата в демо не подключена — тариф переключится для примера.' + (down && p.users !== null && S.team.length > p.users ? ' В команде больше участников, чем допускает этот тариф: лишних придётся удалить.' : ''), 'Подтвердить', 'btn-primary', () => { S.plan = p.id; persist(); toast('Тариф изменён: ' + p.name); render({ keep: true }); });
+  },
   demo() { demoOpen = !demoOpen; renderDemo(); }
 };
 

@@ -563,6 +563,17 @@ footer .hq-fc .hq-logo{display:flex;padding:0;color:var(--ink)}
 .bp-steps .now .bp-dot{background:var(--panel-accent);border-color:var(--panel-accent);color:var(--panel)}.bp-steps .now b{color:#fff}
 .bp-steps .bp-next .bp-dot{border-style:dashed}.bp-steps .bp-next b{color:var(--panel-soft);font-weight:600}
 @media(max-width:900px){.brand-panel .bp-extra,.brand-panel .bp-steps{display:none}.brand-panel .bp-main{gap:0}}
+
+/* ===== overview variants ===== */
+.ov-narrow{max-width:780px}.ov-line{font-size:1.02rem;color:var(--ink-soft);margin:22px 0}.ov-line b{color:var(--ink);font-family:var(--f-head);font-size:1.2rem}
+.ov-hero h2{font-size:1.45rem;margin:12px 0 8px}.ov-hero .ov-meta{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:.9rem;margin:16px 0}.ov-cta{display:flex;gap:10px;flex-wrap:wrap}
+.mini-imp{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;color:var(--ink-soft);white-space:nowrap}.mini-imp.high{color:var(--amber)}.mini-imp.med{color:var(--accent)}
+.crow{display:flex;align-items:center;gap:14px;padding:14px 18px;min-height:64px}.crow+.crow{border-top:1px solid var(--line)}a.crow:hover{background:var(--accent-soft)}
+.crow-main{flex:1;min-width:0}.crow-main b{display:block;font-weight:500;font-size:.96rem;line-height:1.4}.crow.unread .crow-main b{font-weight:700}.crow-main small{display:block;color:var(--ink-soft);font-size:.82rem;margin-top:2px}.crow-main em{font-style:normal;color:var(--amber);font-weight:600}.crow>.ico{color:var(--ink-faint)}
+@media(max-width:560px){.crow{flex-wrap:wrap}.crow .mini-imp{order:3}}
+.ov-strip{background:var(--bg-raised);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;gap:12px}.ov-strip-row{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:.9rem}.ov-strip-t{margin-bottom:6px;font-size:.92rem}
+.trow{display:flex;gap:14px;align-items:flex-start;padding:14px 18px}.trow+.trow{border-top:1px solid var(--line)}.trow input{width:22px;height:22px;margin-top:2px;accent-color:var(--accent);flex-shrink:0}
+.trow-main{flex:1;min-width:0}.trow-main b{display:block;font-weight:600;font-size:.95rem}.trow-main small{color:var(--ink-soft);font-size:.82rem}.trow-main a{text-decoration:underline;text-underline-offset:2px}.trow-due{font-size:.86rem;white-space:nowrap;text-align:right}.trow-due small{display:block;color:var(--amber);font-weight:600}
 /* ===== alternative palettes ===== */
 :root[data-palette="navy"]{--bg:#F3F5F9;--bg-raised:#FFFFFF;--sidebar:#E9EDF4;--panel:#13284B;--ink:#131C2B;--ink-soft:#485468;--ink-faint:#647086;--line:#D8DEE8;--accent:#1F4E8C;--accent-ink:#FFFFFF;--accent-soft:#E3EAF5;--blue:#3B6A8F;--blue-soft:#E1ECF4;--panel-2:#1B3663;--panel-line:#2B4A7C;--panel-accent:#8DB4E8;--panel-tag-bg:#2B4A7C;--panel-tag-ink:#BBD3F5;--panel-soft:#B8C4D8;--amber:#8A5A20;--amber-soft:#F2E7D5;--red:#A23B2E;--red-soft:#F5E4E0;--focus:#1B6FD8;}
 @media (prefers-color-scheme:dark){:root[data-palette="navy"]:not([data-theme="light"]){--bg:#0E131C;--bg-raised:#161D29;--sidebar:#121824;--panel:#0B1424;--ink:#E7ECF4;--ink-soft:#A6B1C3;--ink-faint:#8793A7;--line:#263042;--accent:#7FAAE6;--accent-ink:#0B1424;--accent-soft:#1C2A42;--blue:#8DB6D6;--blue-soft:#1C2A36;--panel-2:#1B3663;--panel-line:#2B4A7C;--panel-accent:#8DB4E8;--panel-tag-bg:#2B4A7C;--panel-tag-ink:#BBD3F5;--panel-soft:#B8C4D8;--amber:#D8AE72;--amber-soft:#2E2618;--red:#E39A8D;--red-soft:#33211E;--focus:#7DB2FF;}}
@@ -1226,7 +1237,7 @@ const emptyState = (icon, t, p, btn = '') => `<div class="empty">${ic(icon)}<h3>
 const errorState = (t, p, act) => `<div class="banner red" role="alert">${ic('alert')}<div class="b-body"><strong>${t}</strong>${p}<div style="margin-top:10px"><button class="btn btn-ghost btn-sm" data-act="${act}">${ic('refresh', 'sm')}Повторить</button></div></div></div>`;
 
 /* =====================  OVERVIEW  ===================== */
-function viewOverview() {
+function viewOverviewClassic() {
   const c = S.company, pct = profilePct(), tg = S.tg.status;
   const firstName = (S.user.name || '').split(' ')[0];
   const personal = CHANGES.filter(x => isPersonal(x) && !x.draft && (x.impact !== 'low')).sort((a, b) => IMP_RANK[b.impact] - IMP_RANK[a.impact] || (a.eff ?? 999) - (b.eff ?? 999)).slice(0, 2);
@@ -1542,6 +1553,65 @@ function viewBilling() {
     <section class="card"><h2 style="font-size:1.1rem;margin-bottom:12px">Счета и платежи</h2><div class="empty" style="padding:26px"><p style="margin:0 auto">Счетов пока нет. Они появятся после перехода на платный тариф.</p></div></section></div>` });
 }
 
+/* =====================  OVERVIEW VARIANTS  ===================== */
+const OV = { classic: 'Как сейчас', focus: 'Фокус', feed: 'Лента и сводка', tasks: 'Задачи', tabs: 'Вкладки' };
+let OVT = 'important';
+function ovVariant() { const q = new URLSearchParams(location.hash.split('?')[1] || '').get('ov'), v = q || S.ovLayout || 'classic'; return OV[v] ? v : 'classic'; }
+function viewOverview() { return ({ classic: viewOverviewClassic, focus: viewOvFocus, feed: viewOvFeed, tasks: viewOvTasks, tabs: viewOvTabs })[ovVariant()](); }
+const impMini = l => `<span class="mini-imp ${l}"><span class="bars" aria-hidden="true">${[1, 2, 3].map(i => `<i class="${i <= IMP[l][2] ? 'on' : ''}"></i>`).join('')}</span>${IMP_SHORT[l]}</span>`;
+function changeRow(c) {
+  const cd = countdown(c), when = c.draft ? 'проект' : (c.eff <= 0 ? 'действует' : 'вступает ' + fmtS(dayOff(c.eff)));
+  return `<a class="crow ${isRead(c) ? '' : 'unread'}" href="#/app/change/${c.id}"><span class="crow-main"><b>${esc(c.title)}</b><small>${esc(TOPICS[c.topic])} · ${when}${cd ? ` · <em>${cd}</em>` : ''}</small></span>${impMini(c.impact)}${ic('right', 'sm')}</a>`;
+}
+function ovData() {
+  const pct = profilePct(), tg = S.tg.status, first = (S.user.name || '').split(' ')[0];
+  const personal = CHANGES.filter(x => isPersonal(x) && !x.draft && x.impact !== 'low').sort((x, y) => IMP_RANK[y.impact] - IMP_RANK[x.impact] || (x.eff ?? 999) - (y.eff ?? 999));
+  const top = D.empty ? null : (personal[0] || CHANGES.filter(x => x.impact === 'high')[0]);
+  const upcoming = CHANGES.filter(x => !x.draft && x.eff > 0).sort((x, y) => x.eff - y.eff);
+  const fresh = D.empty ? [] : CHANGES.filter(x => !isRead(x)).sort((x, y) => IMP_RANK[y.impact] - IMP_RANK[x.impact] || y.pub - x.pub);
+  const tasks = []; CHANGES.filter(x => !x.draft && (profileStarted() ? isPersonal(x) : x.impact === 'high')).forEach(c => c.actions.forEach((ac, i) => { if (actState(c, i) !== 'done') tasks.push({ c, i, a: ac, due: ac[1] }); })); tasks.sort((x, y) => x.due - y.due);
+  const nextStep = STEPS.findIndex(s => !stepDone(s));
+  const tgTxt = { none: 'не подключён', pending: 'ожидает подтверждения', connected: 'подключён', error: 'ошибка подключения', disabled: 'отключён' }[tg];
+  const tgBtn = { none: 'Подключить', pending: 'Завершить', connected: 'Настроить', error: 'Повторить', disabled: 'Подключить' }[tg];
+  return { pct, tg, first, top, upcoming, fresh, tasks, nextStep, tgTxt, tgBtn, un: D.empty ? 0 : unreadCount(), attn: D.empty ? 0 : attention().length, soon30: upcoming.filter(x => x.eff <= 30).length };
+}
+const ovShell = (d, body) => appShell('overview', { title: d.first ? 'Добрый день, ' + esc(d.first) : 'Добрый день', sub: esc(companyName()), body: `<div class="${ovVariant() === 'feed' ? '' : 'ov-narrow'}">${body}<p class="note" style="margin-top:34px">${ic('info', 'sm')} Демонстрационные данные: акты и реквизиты вымышлены и служат только для показа интерфейса.</p></div>` });
+const ovEmpty = () => emptyState('check', 'Новых изменений нет', 'Пока ничего нового для вашей компании. Мы сообщим, когда появятся изменения — в кабинете, по почте или в Telegram.', '<a class="btn btn-ghost" href="#/app/notifications">Настроить уведомления</a>');
+const ovSetup = d => `<div class="ov-strip"><div class="ov-strip-row"><div style="flex:1;min-width:180px"><div class="ov-strip-t"><b>Профиль компании: ${d.pct}%</b></div><div class="progress" role="progressbar" aria-valuenow="${d.pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Заполненность профиля"><div style="width:${d.pct}%"></div></div></div>${d.nextStep >= 0 ? `<a class="btn btn-ghost btn-sm" href="#/app/profile" data-step="${d.nextStep + 1}">Продолжить: ${esc(STEPS[d.nextStep].t)}</a>` : '<span class="tag">Профиль заполнен</span>'}</div>
+  <div class="ov-strip-row"><span>${ic('send', 'sm')} Telegram: ${d.tgTxt}</span><a class="link" href="#/app/telegram">${d.tgBtn}</a></div></div>`;
+const upRow = x => `<a class="list-row" href="#/app/change/${x.id}"><span class="name">${esc(x.title)}</span><span class="date"><span class="days-left">${countdown(x) || ''}</span>${fmtS(dayOff(x.eff))}</span></a>`;
+
+function viewOvFocus() {
+  const d = ovData(), t = d.top;
+  const hero = D.empty ? ovEmpty() : t ? `<section class="card ov-hero"><span class="tag amber">Самое важное сейчас</span><h2>${esc(t.title)}</h2><p class="muted">${esc(t.summary)}</p><p class="ov-meta">${impMini(t.impact)} <span>${countdown(t) || esc(effText(t))}</span>${t.actions[0] ? `<span>Ответственный: ${esc(t.actions[0][2])}</span>` : ''}</p><div class="ov-cta"><a class="btn btn-primary" href="#/app/change/${t.id}">Открыть карточку</a><a class="btn btn-ghost" href="#/app/digests">Все изменения (${CHANGES.length})</a></div></section>` : '';
+  return ovShell(d, `${hero}
+  <p class="ov-line"><b>${d.un}</b> новых · <b>${d.attn}</b> требуют внимания · <b>${d.soon30}</b> вступят в силу за 30 дней</p>
+  <section aria-labelledby="ovu"><div class="col-heading"><h2 id="ovu">Ближайшие сроки</h2></div><div class="list-card">${d.upcoming.slice(0, 3).map(upRow).join('')}</div></section>
+  <section style="margin-top:26px">${ovSetup(d)}</section>`);
+}
+function viewOvFeed() {
+  const d = ovData(), att = attention().slice(0, 3), attList = att.length ? att : (d.top ? [d.top] : []), rest = d.fresh.filter(x => !attList.includes(x)).slice(0, 4);
+  return ovShell(d, `<p class="ov-line" style="margin-top:0">За неделю: <b>${d.un}</b> новых изменений, <b>${d.attn}</b> требуют внимания.</p>
+  <div class="layout-grid"><div class="stack-lg">${D.empty ? ovEmpty() : `<section aria-labelledby="ova"><div class="col-heading"><h2 id="ova">Требует внимания</h2></div><div class="list-card">${attList.map(changeRow).join('')}</div></section>
+    <section aria-labelledby="ovn"><div class="col-heading"><h2 id="ovn">Новое</h2><a href="#/app/digests">Все (${CHANGES.length})</a></div><div class="list-card">${rest.map(changeRow).join('')}</div></section>`}</div>
+  <div class="stack"><section aria-labelledby="ovs"><div class="col-heading"><h2 id="ovs">Ближайшие сроки</h2></div><div class="list-card">${d.upcoming.slice(0, 3).map(upRow).join('')}</div></section>${ovSetup(d)}</div></div>`);
+}
+function viewOvTasks() {
+  const d = ovData(), tk = d.tasks.slice(0, 6);
+  return ovShell(d, `<section aria-labelledby="ovt"><div class="col-heading"><h2 id="ovt">Что нужно сделать</h2><span class="muted" style="font-size:.86rem">Открытых задач: ${d.tasks.length}</span></div>
+  ${tk.length ? `<div class="list-card">${tk.map(t => `<div class="trow"><input type="checkbox" data-actcheck="${t.c.id}:${t.i}" aria-label="Выполнено: ${esc(t.a[0])}"><div class="trow-main"><b>${esc(t.a[0])}</b><small><a href="#/app/change/${t.c.id}">${esc(t.c.title)}</a> · ${esc(t.a[2])}</small></div><span class="trow-due">до ${fmtS(dayOff(t.due))}<small>${t.due <= 14 ? 'скоро' : ''}</small></span></div>`).join('')}</div>` : emptyState('check', 'Открытых задач нет', 'Когда появятся изменения, требующие действий, они окажутся здесь.')}</section>
+  <section aria-labelledby="ovnn" style="margin-top:28px"><div class="col-heading"><h2 id="ovnn">Новое в дайджестах</h2><a href="#/app/digests">Все (${CHANGES.length})</a></div>${D.empty ? ovEmpty() : `<div class="list-card">${d.fresh.slice(0, 3).map(changeRow).join('')}</div>`}</section>
+  <section style="margin-top:26px">${ovSetup(d)}</section>`);
+}
+function viewOvTabs() {
+  const d = ovData(), tabs = [['important', 'Важное', d.attn || ''], ['deadlines', 'Сроки', d.soon30 || ''], ['setup', 'Настройка', d.pct < 100 ? d.pct + '%' : '']];
+  let body;
+  if (OVT === 'deadlines') body = `<div class="list-card">${d.upcoming.slice(0, 6).map(upRow).join('')}</div>`;
+  else if (OVT === 'setup') body = ovSetup(d) + `<div class="checklist" style="margin-top:14px">${STEPS.map((s, i) => `<a href="#/app/profile" data-step="${i + 1}" class="${stepDone(s) ? 'done' : ''}"><span class="box">${stepDone(s) ? ic('check', 'sm') : ''}</span>${s.t}</a>`).join('')}</div>`;
+  else body = D.empty ? ovEmpty() : `<div class="list-card">${(attention().length ? attention() : d.fresh).slice(0, 4).map(changeRow).join('')}</div><p style="margin-top:14px"><a class="link" href="#/app/digests">Все изменения (${CHANGES.length}) →</a></p>`;
+  return ovShell(d, `<p class="ov-line" style="margin-top:0"><b>${d.un}</b> новых изменений, <b>${d.attn}</b> требуют внимания.</p><div class="tabs" role="tablist" aria-label="Разделы обзора">${tabs.map(([k, t, n]) => `<button role="tab" data-act="ovtab" data-v="${k}" aria-selected="${OVT === k}">${t}${n !== '' ? ` <span class="tag" style="margin-left:4px">${n}</span>` : ''}</button>`).join('')}</div><div style="margin-top:18px" role="tabpanel">${body}</div>`);
+}
+
 /* =====================  ROUTER  ===================== */
 const root = $('#root');
 let curPath = null, pendingScroll = null, demoOpen = false, viewErr = {}, viewVals = {}, forgotSent = false;
@@ -1597,7 +1667,7 @@ function renderDemo() {
     <h4>Быстрый старт</h4>${b('fill', 'Открыть кабинет с демо-компанией')}${b('emptyprofile', 'Пустой профиль (сбросить компанию)')}
     <h4>Состояния экранов</h4>${b('loading', 'Показать загрузку')}${b('error', 'Ошибка загрузки дайджестов', D.error)}${b('empty', 'Нет новых изменений', D.empty)}${b('session', 'Истёкшая сессия')}
     <h4>Telegram</h4>${[['none', 'Не подключён'], ['pending', 'Ожидается подтверждение'], ['connected', 'Подключён'], ['error', 'Ошибка подключения'], ['disabled', 'Отключён']].map(([k, t]) => b('tg:' + k, t, S.tg.status === k)).join('')}
-    <h4>Цветовая гамма</h4>${PALETTES.map(p => b('pal:' + p[0], p[1], S.palette === p[0])).join('')}<h4>Тариф</h4>${PLANS.map(p => b('plan:' + p.id, p.name, S.plan === p.id)).join('')}<h4>Шрифты</h4>${Object.entries(FONTS).map(([k, f]) => b('font:' + k, f[2] + ' — ' + f[0], S.font === k)).join('')}<h4>Прочее</h4>${b('reset', 'Сбросить все демо-данные')}</div>` : ''}</div>`;
+    <h4>Цветовая гамма</h4>${PALETTES.map(p => b('pal:' + p[0], p[1], S.palette === p[0])).join('')}<h4>Страница «Обзор»</h4>${Object.entries(OV).map(([k, t]) => b('ov:' + k, t, ovVariant() === k)).join('')}<h4>Тариф</h4>${PLANS.map(p => b('plan:' + p.id, p.name, S.plan === p.id)).join('')}<h4>Шрифты</h4>${Object.entries(FONTS).map(([k, f]) => b('font:' + k, f[2] + ' — ' + f[0], S.font === k)).join('')}<h4>Прочее</h4>${b('reset', 'Сбросить все демо-данные')}</div>` : ''}</div>`;
 }
 function ensureUser() {
   if (!S.user) S.user = { name: 'Анна Ковалёва', email: 'a.kovaleva@nordwood.ru' };
@@ -1613,6 +1683,7 @@ function demoAction(id) {
   if (id === 'empty') { ensureUser(); D.empty = !D.empty; if (D.empty) D.error = false; const p = getPath(); if (D.empty && p !== '/app' && p !== '/app/digests') go('/app'); else render({ keep: true }); return; }
   if (id === 'session') { sessionExpired(); return; }
   if (id.startsWith('tg:')) { ensureUser(); const st = id.slice(3); S.tg.status = st; if (st === 'pending') S.tg.code = genCode(); if (st === 'connected') S.tg.username = '@anna_kovaleva'; persist(); getPath() === '/app/telegram' ? render({ keep: true }) : go('/app/telegram'); return; }
+  if (id.startsWith('ov:')) { ensureUser(); S.ovLayout = id.slice(3); persist(); getPath() === '/app' ? render({ keep: true }) : go('/app'); return; }
   if (id.startsWith('plan:')) { ensureUser(); S.plan = id.slice(5); persist(); getPath() === '/app/billing' ? render({ keep: true }) : go('/app/billing'); return; }
   if (id.startsWith('font:')) { S.font = id.slice(5); applyTheme(); persist(); render({ keep: true }); return; }
   if (id.startsWith('pal:')) { S.palette = id.slice(4); applyTheme(); persist(); render({ keep: true }); return; }
@@ -1666,6 +1737,7 @@ const ACT = {
   resetfilters() { Object.assign(F, { q: '', period: 'all', topic: '', impact: '', status: 'all', personal: false, page: 1 }); render({ keep: true }); },
   retry() { D.error = false; D.loading = true; render({ keep: true }); setTimeout(() => { D.loading = false; render({ keep: true }); }, 700); },
   openfilters() { const m = modal({ title: 'Фильтры', drawer: true, body: `<div style="display:grid;gap:14px">${filterFields()}</div><button class="btn btn-primary btn-block" style="margin-top:20px" data-close id="drawerCount">Показать результаты (${filterChanges(false).length})</button><button class="btn btn-text btn-block" data-act="resetfilters" data-close>Сбросить фильтры</button>` }); },
+  ovtab(t) { OVT = t.dataset.v; render({ keep: true }); },
   bill(t) { BILL = t.dataset.v; render({ keep: true }); },
   addpay() { modal({ title: 'Недоступно в демо', body: 'Приём платежей ещё не подключён. Способы оплаты будут доступны перед запуском платных тарифов.', actions: [{ label: 'Понятно', cls: 'btn-primary' }] }); },
   chooseplan(t) {
@@ -1718,7 +1790,7 @@ document.addEventListener('change', e => {
   if (t.dataset.f) { S.company[t.dataset.f] = t.dataset.bool ? t.checked : t.value; if (PErr[t.dataset.f]) { delete PErr[t.dataset.f]; t.removeAttribute('aria-invalid'); t.closest('.field')?.querySelector('.err')?.remove(); } persist(); return; }
   if (t.dataset.filter) { const k = t.dataset.filter, v = t.type === 'checkbox' ? t.checked : t.value; F[k] = v; F.page = 1; $$('[data-filter="' + k + '"]').forEach(x => { if (x !== t) x.type === 'checkbox' ? x.checked = v : x.value = v; }); renderDigestList(); return; }
   if (t.dataset.n) { const k = t.dataset.n; ND[k] = t.type === 'checkbox' ? t.checked : t.value; markDirty(); if (['email', 'pause', 'cabinet', 'tg'].includes(k)) { render({ keep: true }); $(`[data-n="${k}"]`)?.focus(); } return; }
-  if (t.dataset.actcheck) { S.acts[t.dataset.actcheck] = t.checked ? 'done' : 'todo'; persist(); render({ keep: true }); return; }
+  if (t.dataset.actcheck) { S.acts[t.dataset.actcheck] = t.checked ? 'done' : 'todo'; persist(); if (t.checked) toast('Задача отмечена выполненной'); render({ keep: true }); return; }
   if (t.dataset.actstatus) { S.acts[t.dataset.actstatus] = t.value; persist(); render({ keep: true }); return; }
   if (t.dataset.role) { const m = S.team.find(x => x.id === t.dataset.role); m.role = t.value; persist(); toast('Роль изменена: ' + ROLES[t.value]); return; }
   if (t.id === 'shareProfile') { S.shareProfile = t.checked; persist(); toast(t.checked ? 'Профиль виден всей команде' : 'Профиль скрыт от участников и наблюдателей'); return; }

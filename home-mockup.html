@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LawTracker — макет главной страницы «Три вопроса»</title>
+<meta name="description" content="LawTracker отвечает на три вопроса: что изменилось в законе, касается ли это вашей компании и что нужно сделать.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=Inter:wght@400;500;600;700&display=swap&subset=cyrillic" rel="stylesheet">
+<style>
+:root{--bg:#F2F4F0;--raised:#fff;--sidebar:#EBEEE8;--panel:#17352C;--panel2:#1E4137;--panel-line:#2C5347;--panel-acc:#6FAE97;
+--ink:#16201B;--soft:#4A554E;--faint:#67726A;--line:#DBDFD7;--accent:#22574A;--accent-ink:#F4F7F4;--accent-soft:#E4EBE6;
+--amber:#8A5A20;--amber-soft:#F2E7D5;--blue:#2F5573;--blue-soft:#E1EAF1;--focus:#1B6FD8;--f-head:"PT Serif",Georgia,serif;--f-body:Inter,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#12160F;--raised:#1A211B;--sidebar:#171E17;--panel:#0F1D18;--ink:#E9EDE8;--soft:#A9B3A9;--faint:#8A958C;--line:#2A322B;--accent:#6FAE97;--accent-ink:#0E1A15;--accent-soft:#223028;--amber:#D8AE72;--amber-soft:#2E2618;--blue:#8DB6D6;--blue-soft:#1C2A36;--focus:#7DB2FF}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.6 var(--f-body);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--f-head);font-weight:700;line-height:1.25;margin:0}p{margin:0}a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+.w{max-width:1120px;margin:0 auto;padding:0 24px}
+.ico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:10px 24px;border-radius:8px;font:600 .96rem var(--f-body);border:1px solid transparent;cursor:pointer}
+.btn-p{background:var(--accent);color:var(--accent-ink)}.btn-p:hover{opacity:.92}
+.btn-g{background:var(--raised);color:var(--ink);border-color:var(--line)}.btn-g:hover{background:var(--accent-soft)}
+.btn-sm{min-height:40px;padding:6px 16px;font-size:.88rem}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.tag.amber{background:var(--amber-soft);color:var(--amber)}.tag.blue{background:var(--blue-soft);color:var(--blue)}.tag.n{background:var(--sidebar);color:var(--soft)}
+.tag .ico{width:13px;height:13px}
+.eyebrow{font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+/* header */
+header{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 24px;max-width:1120px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:10px;font:700 1.1rem var(--f-head)}.logo .ico{width:28px;height:28px;color:var(--accent);stroke-width:1.7}
+nav.l{display:flex;gap:4px;color:var(--soft);font-size:.92rem}nav.l a{padding:10px 12px;border-radius:8px}nav.l a:hover{background:var(--accent-soft);color:var(--ink)}
+.na{display:flex;gap:10px}
+@media(max-width:900px){nav.l{display:none}.na .btn-g{display:none}}
+/* hero */
+.hero{text-align:center;padding:76px 0 70px;border-bottom:1px solid var(--line)}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);max-width:19ch;margin:0 auto}
+.hero .lede{font-size:1.14rem;color:var(--soft);max-width:54ch;margin:20px auto 0}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:30px}
+.note{font-size:.85rem;color:var(--faint);margin-top:16px}
+.q3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:52px;text-align:left}
+@media(max-width:820px){.q3{grid-template-columns:1fr}.hero{padding:48px 0 52px}}
+.qc{display:block;background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:22px 24px;transition:border-color .15s,transform .15s}
+.qc:hover{border-color:var(--accent);transform:translateY(-2px)}
+.qn{font:700 1.7rem var(--f-head);color:var(--accent)}.qc h3{font-size:1.15rem;margin:6px 0}.qc p{font-size:.93rem;color:var(--soft)}
+.qc .more{display:inline-flex;gap:6px;align-items:center;margin-top:12px;font-size:.86rem;font-weight:600;color:var(--accent)}
+/* sections */
+section{padding:84px 0;border-bottom:1px solid var(--line)}
+@media(max-width:700px){section{padding:56px 0}}
+.sh{max-width:660px;margin-bottom:40px}.sh h2{font-size:clamp(1.6rem,3.6vw,2.1rem);margin-bottom:12px}.sh p{color:var(--soft);font-size:1.04rem}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.split.rev>:first-child{order:2}
+@media(max-width:900px){.split{grid-template-columns:1fr;gap:32px}.split.rev>:first-child{order:0}}
+.big{font:700 4.5rem/1 var(--f-head);color:var(--accent);opacity:.22;margin-bottom:4px}
+.split h2{font-size:clamp(1.6rem,3.6vw,2.2rem);margin-bottom:14px}.split .t{color:var(--soft);font-size:1.05rem;max-width:48ch}
+.ul{list-style:none;padding:0;margin:20px 0 0;display:grid;gap:10px}.ul li{display:flex;gap:10px;font-size:.96rem}.ul .ico{color:var(--accent);margin-top:3px;width:18px;height:18px}
+.card{background:var(--raised);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 10px 34px rgba(20,40,30,.08)}
+.demo{display:inline-block;font-size:.74rem;color:var(--faint);border:1px dashed var(--line);border-radius:6px;padding:2px 8px;margin-bottom:12px}
+.card h3{font-size:1.12rem;margin:10px 0 8px}.kv{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;margin-top:14px}.kv .k{font-size:.76rem;color:var(--faint)}.kv .v{font-size:.92rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-flex;gap:6px;align-items:center;padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:var(--bg);font-size:.86rem}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.match{display:grid;gap:12px}.mi{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:var(--raised)}
+.mi.yes{border-color:var(--accent);background:var(--accent-soft)}.mi.no{opacity:.65}.mi b{display:block;font-size:.94rem}.mi small{color:var(--soft);font-size:.82rem}
+.mi .ico{margin-top:2px}.mi.yes .ico{color:var(--accent)}
+.arrow{display:flex;justify-content:center;color:var(--faint)}
+.act{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:13px 0;border-top:1px solid var(--line);font-size:.92rem}.act:first-of-type{border-top:0}
+.bx{width:20px;height:20px;border-radius:6px;border:1.5px solid #8b968e;margin-top:3px;display:flex;align-items:center;justify-content:center}
+.act.done .bx{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}.act.done b{text-decoration:line-through;color:var(--faint)}.bx .ico{width:13px;height:13px;stroke-width:2.4}
+.act small{display:block;color:var(--soft);font-size:.82rem}
+.src{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:.88rem}
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}@media(max-width:860px){.steps{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.steps{grid-template-columns:1fr}}
+.step{border-top:2px solid var(--accent);padding-top:14px}.step .n{font:700 1.5rem var(--f-head);color:var(--accent)}.step h3{font-size:1.04rem;margin:8px 0 6px}.step p{font-size:.92rem;color:var(--soft)}
+/* layers */
+.layers{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:800px){.layers{grid-template-columns:1fr}}
+.layer{background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:20px 22px}.layer .lb{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:6px;background:var(--sidebar);color:var(--soft);margin-bottom:10px}
+.layer.an{background:var(--blue-soft);border-color:transparent}.layer p{font-size:.95rem}.layer .q{border-left:3px solid var(--faint);background:var(--sidebar);border-radius:8px;padding:10px 14px;font:.92rem/1.5 var(--f-head);color:var(--soft)}
+.disc{display:flex;gap:10px;margin-top:16px;padding:14px 16px;background:var(--sidebar);border-radius:12px;font-size:.88rem;color:var(--soft)}
+/* features */
+.caps{display:grid;grid-template-columns:repeat(3,1fr);gap:30px 32px}@media(max-width:860px){.caps{grid-template-columns:repeat(2,1fr)}}@media(max-width:540px){.caps{grid-template-columns:1fr}}
+.cap .ico{width:28px;height:28px;color:var(--accent);margin-bottom:12px}.cap h3{font-size:1.04rem;margin-bottom:6px}.cap p{font-size:.92rem;color:var(--soft)}
+.aud{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}@media(max-width:860px){.aud{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.aud{grid-template-columns:1fr}}
+.a{background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:18px}.a h3{font-size:1rem;margin-bottom:6px}.a p{font-size:.88rem;color:var(--soft)}
+.a .tq{margin-top:10px;font-size:.82rem;color:var(--accent);font-weight:600}
+/* phone */
+.phone{width:min(320px,100%);margin:0 auto;background:var(--panel);border-radius:30px;padding:13px;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+.scr{background:#E7EEF3;border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:380px}
+.scr .top{display:flex;gap:10px;align-items:center;color:#20303A;font-weight:600;font-size:.9rem;padding-bottom:10px;border-bottom:1px solid #0001}
+.scr .top i{width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:.75rem}
+.msg{background:#fff;color:#1c2730;border-radius:14px 14px 14px 4px;padding:11px 13px;font-size:.85rem;line-height:1.45;max-width:92%}.msg b{display:block;margin-bottom:3px}.msg .l{color:var(--accent);font-weight:600}.msg em{font-style:normal;color:#6a7a86;font-size:.72rem;display:block;text-align:right;margin-top:3px}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid var(--line);font-size:.94rem}.sw:first-child{border-top:0}.sw small{display:block;color:var(--soft);font-size:.82rem}
+.tg{position:relative;width:44px;height:25px;border-radius:999px;background:#8b968e;flex-shrink:0}.tg::after{content:"";position:absolute;left:3px;top:3px;width:19px;height:19px;border-radius:50%;background:#fff}.tg.on{background:var(--accent)}.tg.on::after{left:22px}
+/* pricing */
+.price{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}@media(max-width:1000px){.price{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.price{grid-template-columns:1fr}}
+.pl{display:flex;flex-direction:column;background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:24px}.pl.f{border:2px solid var(--accent)}
+.pl h3{font-size:1.15rem}.pl .for{color:var(--soft);font-size:.88rem;margin:4px 0 14px}.pl .pr{color:var(--soft);font:1.02rem var(--f-head);margin-bottom:14px}
+.pl ul{list-style:none;margin:0 0 22px;padding:0;display:grid;gap:9px;font-size:.92rem;flex:1}.pl li{display:flex;gap:8px}.pl li .ico{width:16px;height:16px;color:var(--accent);margin-top:4px}
+/* trust */
+.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}@media(max-width:860px){.trust{grid-template-columns:1fr}}
+.tr{background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:22px}.tr .ico{width:24px;height:24px;color:var(--accent);margin-bottom:10px}.tr h3{font-size:1rem;margin-bottom:6px}.tr p{font-size:.9rem;color:var(--soft)}
+.quote{margin-top:34px;padding:26px 30px;border-radius:16px;background:var(--panel);color:#EFF3EF;font:1.3rem/1.45 var(--f-head)}.quote small{display:block;font:.82rem var(--f-body);color:#B7C4BB;margin-top:10px}
+/* faq */
+details{border-bottom:1px solid var(--line)}summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:14px;align-items:center;min-height:56px;font-weight:600;font-size:1.02rem}
+summary::-webkit-details-marker{display:none}summary::after{content:"+";font-size:1.4rem;color:var(--accent)}details[open] summary::after{content:"–"}details p{padding:0 0 18px;color:var(--soft);max-width:68ch}
+/* final */
+.final{background:var(--panel);border-radius:20px;padding:58px 48px;color:#EFF3EF;text-align:center}
+@media(max-width:640px){.final{padding:38px 22px}}
+.final h2{color:#F4F7F4;font-size:clamp(1.5rem,3.4vw,2.1rem);max-width:24ch;margin:0 auto}.final p{color:#C7D2CB;max-width:54ch;margin:14px auto 0}
+.final .btn-p{background:#F4F7F4;color:var(--panel)}.final .btn-g{background:transparent;color:#F4F7F4;border-color:#ffffff55}.final .btn-g:hover{background:#ffffff14}
+footer .fc .logo{display:flex;padding:0;color:var(--ink)}
+footer{padding:54px 0 40px}.fc{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px;font-size:.9rem}@media(max-width:760px){.fc{grid-template-columns:1fr 1fr}}
+.fc h4{font:600 .78rem var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:10px}.fc a{display:block;padding:5px 0;color:var(--soft)}.fc a:hover{color:var(--accent)}
+.disc2{font-size:.82rem;color:var(--soft);max-width:80ch;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<header><div class="nav">
+  <a class="logo" href="#top"><i data-i="logo"></i>LawTracker</a>
+  <nav class="l" aria-label="Основная навигация"><a href="#q1">Три вопроса</a><a href="#how">Как работает</a><a href="#features">Возможности</a><a href="#pricing">Тарифы</a><a href="#faq">Вопросы</a></nav>
+  <div class="na"><a class="btn btn-g btn-sm" href="index.html#/login">Вход</a><a class="btn btn-p btn-sm" href="index.html#/register">Начать</a></div>
+</div></header>
+
+<main id="top">
+<!-- 1. HERO -->
+<section class="hero" style="border-bottom:1px solid var(--line);padding-top:76px"><div class="w">
+  <p class="eyebrow">Мониторинг изменений законодательства</p>
+  <h1>Закон изменился. Что это значит для вашего бизнеса?</h1>
+  <p class="lede">LawTracker отвечает на три вопроса, которые вы задаёте каждый раз, когда слышите о новом законе.</p>
+  <div class="cta"><a class="btn btn-p" href="index.html#/register">Начать</a><a class="btn btn-g" href="#how">Как это работает</a></div>
+  <p class="note">Профиль компании можно заполнять постепенно. Бесплатный старт — без банковской карты.</p>
+  <div class="q3">
+    <a class="qc" href="#q1"><div class="qn">1</div><h3>Что изменилось?</h3><p>Суть простыми словами, без юридического языка, с датой вступления в силу.</p><span class="more">Подробнее <i data-i="right" style="width:14px;height:14px"></i></span></a>
+    <a class="qc" href="#q2"><div class="qn">2</div><h3>Касается ли это нас?</h3><p>Показываем, какие данные профиля компании привели к показу материала.</p><span class="more">Подробнее <i data-i="right" style="width:14px;height:14px"></i></span></a>
+    <a class="qc" href="#q3"><div class="qn">3</div><h3>Что сделать?</h3><p>Предполагаемые шаги, ответственные, сроки и ссылка на официальный источник.</p><span class="more">Подробнее <i data-i="right" style="width:14px;height:14px"></i></span></a>
+  </div>
+</div></section>
+
+<!-- 2. Q1 -->
+<section id="q1"><div class="w split">
+  <div><div class="big">01</div><p class="eyebrow">Вопрос первый</p><h2>Что изменилось?</h2>
+    <p class="t">Юридический текст мы разделяем на краткое резюме, подробное объяснение и первоисточник. Главное можно понять за 30 секунд — остальное открывается по желанию.</p>
+    <ul class="ul"><li><i data-i="check"></i>Суть изменения простым языком</li><li><i data-i="check"></i>Дата публикации и дата вступления в силу</li><li><i data-i="check"></i>Статус документа: принят, действует или проект</li></ul></div>
+  <div class="card"><span class="demo">Пример · без данных реального клиента</span>
+    <div class="chips"><span class="tag amber">Высокий уровень влияния</span><span class="tag">Персональные данные</span><span class="tag blue"><i data-i="clock"></i>Принят, вступает в силу</span></div>
+    <h3>Согласие на обработку персональных данных — только отдельным документом</h3>
+    <p style="color:var(--soft);font-size:.95rem">Согласие клиента больше нельзя «прятать» внутри оферты или пользовательского соглашения — это должен быть отдельный документ.</p>
+    <div class="kv"><div><div class="k">Опубликовано</div><div class="v">10 сентября</div></div><div><div class="k">Вступает в силу</div><div class="v"><b>через 14 дней</b></div></div></div></div>
+</div></section>
+
+<!-- 3. Q2 -->
+<section id="q2" style="background:var(--sidebar)"><div class="w split rev">
+  <div><div class="big">02</div><p class="eyebrow">Вопрос второй</p><h2>Касается ли это нас?</h2>
+    <p class="t">Вы видите не общую ленту новостей, а только то, что относится к вашей компании. И всегда понятно, почему материал показан именно вам.</p>
+    <ul class="ul"><li><i data-i="check"></i>Совпадения с отраслью, регионами, структурой, кадрами и сервисами</li><li><i data-i="check"></i>Уровень влияния объясним, а не «тревожный»</li><li><i data-i="check"></i>Управляйте данными профиля и доступом к ним</li></ul></div>
+  <div class="card"><span class="demo">Пример · как работает подбор</span>
+    <div style="font-size:.8rem;color:var(--faint);margin-bottom:8px">Профиль компании</div>
+    <div class="chips"><span class="chip on">Интернет-магазин</span><span class="chip on">Данные клиентов</span><span class="chip">Москва и область</span><span class="chip">Экспорт</span></div>
+    <div class="arrow" style="margin:14px 0"><i data-i="down"></i></div>
+    <div class="match">
+      <div class="mi yes"><i data-i="target"></i><div><b>Согласие на обработку данных — отдельным документом</b><small>Показано: в профиле «Собираем данные клиентов», есть интернет-магазин</small></div></div>
+      <div class="mi no"><i data-i="info"></i><div><b>Лицензионные требования к медицинской деятельности</b><small>Не показано: нет совпадений с профилем</small></div></div>
+    </div></div>
+</div></section>
+
+<!-- 4. Q3 -->
+<section id="q3"><div class="w split">
+  <div><div class="big">03</div><p class="eyebrow">Вопрос третий</p><h2>Что сделать?</h2>
+    <p class="t">Не просто новость, а понятные следующие шаги: что сделать, кому поручить и к какому сроку. Сведения о действиях показываем, если они доступны.</p>
+    <ul class="ul"><li><i data-i="check"></i>Предполагаемые действия со сроками и ответственными</li><li><i data-i="check"></i>Статусы выполнения прямо в карточке</li><li><i data-i="check"></i>Ссылка на официальный источник для проверки</li></ul></div>
+  <div class="card"><span class="demo">Пример · без данных реального клиента</span>
+    <h3 style="margin-top:0">Что сделать по изменению</h3><p style="color:var(--soft);font-size:.86rem;margin-bottom:8px">Вступает в силу через 14 дней</p>
+    <div class="act done"><span class="bx"><i data-i="check"></i></span><div><b>Проверить текущие формы сбора данных</b><small>Юрист · выполнено</small></div></div>
+    <div class="act"><span class="bx"></span><div><b>Оформить согласие отдельно от оферты</b><small>Юрист, руководитель маркетинга · до 10 октября</small></div></div>
+    <div class="act"><span class="bx"></span><div><b>Обновить формы сбора данных на сайте</b><small>Маркетинг, разработка · до 12 октября</small></div></div>
+    <div class="src"><span><b>ФЗ № 156-ФЗ (пример)</b><br><span style="color:var(--soft)">Официальная публикация</span></span><a class="btn btn-g btn-sm" href="https://publication.pravo.gov.ru/" target="_blank" rel="noopener">Открыть источник <i data-i="ext" style="width:14px;height:14px"></i></a></div></div>
+</div></section>
+
+<!-- 5. HOW -->
+<section id="how" style="background:var(--sidebar)"><div class="w"><div class="sh"><p class="eyebrow">Как работает</p><h2>От профиля компании до конкретных действий</h2><p>Четыре шага. Профиль можно заполнять постепенно — начните с основного.</p></div>
+  <div class="steps"><div class="step"><div class="n">1</div><h3>Профиль компании</h3><p>Отрасль, регионы, структура, кадры, сервисы — по шагам, необязательное можно пропустить.</p></div><div class="step"><div class="n">2</div><h3>Анализ изменений</h3><p>Сервис сопоставляет новые акты и поправки с профилем вашей компании.</p></div><div class="step"><div class="n">3</div><h3>Персональный дайджест</h3><p>Что изменилось, кого касается и почему показано именно вам.</p></div><div class="step"><div class="n">4</div><h3>Действия и контроль</h3><p>Шаги, ответственные, сроки и напоминания — в кабинете и Telegram.</p></div></div></div></section>
+
+<!-- 6. LAYERS -->
+<section id="card"><div class="w"><div class="sh"><p class="eyebrow">Карточка изменения</p><h2>Каждый материал разделён на слои</h2><p>Мы чётко отделяем текст акта от краткого изложения, аналитики платформы и рекомендаций — чтобы автоматический вывод не выглядел как юридическое заключение.</p></div>
+  <div class="layers">
+    <div class="layer"><span class="lb">Краткое изложение</span><p>Согласие на обработку данных клиента оформляется отдельным документом. Формы на сайте и в оферте нужно пересмотреть.</p></div>
+    <div class="layer an"><span class="lb">Комментарий платформы</span><p>Самый быстрый шаг — вынести согласие в отдельный текст и отдельную галочку на формах заказа и обратной связи.</p><div class="chips" style="margin-top:12px"><span class="tag"><i data-i="shield"></i>Уверенность анализа: высокая</span><span class="tag"><i data-i="check"></i>Проверено юристом</span></div></div>
+    <div class="layer"><span class="lb">Рекомендуемые действия</span><p>Оформить согласие отдельно · обновить формы сбора данных. Срок — до вступления в силу, ответственный — юрист.</p></div>
+    <div class="layer"><span class="lb">Первоисточник</span><div class="q">«Согласие на обработку персональных данных оформляется отдельно от иных информации и (или) документов…»</div></div>
+  </div>
+  <div class="disc"><i data-i="info"></i><span>Материалы носят информационный характер и не заменяют индивидуальную юридическую консультацию. Точная формулировка оговорки согласуется с юристом проекта.</span></div></div></section>
+
+<!-- 7. FEATURES -->
+<section id="features" style="background:var(--sidebar)"><div class="w"><div class="sh"><p class="eyebrow">Возможности</p><h2>Что вы получаете</h2></div>
+  <div class="caps">
+    <div class="cap"><i data-i="target"></i><h3>Персонализация</h3><p>Для каждого материала видно, почему он попал в вашу ленту.</p></div>
+    <div class="cap"><i data-i="book"></i><h3>Понятные пояснения</h3><p>Краткое резюме, подробное объяснение и первоисточник отдельно.</p></div>
+    <div class="cap"><i data-i="calendar"></i><h3>Сроки вступления в силу</h3><p>Даты и напоминания о приближающихся сроках.</p></div>
+    <div class="cap"><i data-i="doc"></i><h3>Официальный источник</h3><p>Реквизиты документа и ссылка на официальную публикацию.</p></div>
+    <div class="cap"><i data-i="send"></i><h3>Telegram и почта</h3><p>Дайджесты там, где удобно. Каждый канал отключается отдельно.</p></div>
+    <div class="cap"><i data-i="list"></i><h3>Рекомендации к действию</h3><p>Предполагаемые шаги, ответственные и статусы выполнения.</p></div>
+  </div></div></section>
+
+<!-- 8. AUDIENCE -->
+<section id="audience"><div class="w"><div class="sh"><p class="eyebrow">Для кого</p><h2>Понятно не только юристам</h2><p>Один и тот же материал — разные приоритеты для разных ролей.</p></div>
+  <div class="aud">
+    <div class="a"><h3>Руководителям</h3><p>Быстро понять, что важно для бизнеса, без погружения в текст закона.</p><div class="tq">Вопрос 1 и 3</div></div>
+    <div class="a"><h3>Юристам</h3><p>Экономия времени на мониторинг; источники и уровень уверенности под рукой.</p><div class="tq">Вопрос 2 и 3</div></div>
+    <div class="a"><h3>Специалистам по комплаенсу</h3><p>Единая лента изменений по вашим направлениям и сроки адаптации.</p><div class="tq">Вопрос 2 и 3</div></div>
+    <div class="a"><h3>Бухгалтерам и финансистам</h3><p>Налоги и отчётность с датами вступления в силу.</p><div class="tq">Вопрос 1 и 3</div></div>
+    <div class="a"><h3>HR-специалистам</h3><p>Кадровые нормы, влияющие на договоры и локальные акты.</p><div class="tq">Вопрос 2 и 3</div></div>
+    <div class="a"><h3>Руководителям направлений</h3><p>Только те изменения, что касаются вашей зоны ответственности.</p><div class="tq">Вопрос 2</div></div>
+  </div></div></section>
+
+<!-- 9. CHANNELS -->
+<section id="channels" style="background:var(--sidebar)"><div class="w split">
+  <div><p class="eyebrow">Кабинет и Telegram</p><h2>Узнавайте там, где вам удобно</h2><p class="t">Основной канал — личный кабинет. Telegram и почта — дополнительные: подключите их за минуту и настройте частоту, категории и порог значимости.</p>
+    <div class="card" style="margin-top:22px;padding:8px 22px"><div class="sw"><span>В личном кабинете<small>Новые изменения и задачи</small></span><span class="tg on"></span></div><div class="sw"><span>По электронной почте<small>Раз в день, в 09:00</small></span><span class="tg on"></span></div><div class="sw"><span>В Telegram<small>Подключение по одноразовому коду</small></span><span class="tg"></span></div><div class="sw"><span>Приостановить все уведомления<small>Материалы продолжат накапливаться в кабинете</small></span><span class="tg"></span></div></div></div>
+  <div class="phone" role="img" aria-label="Пример сообщений LawTracker в Telegram"><div class="scr"><div class="top"><i>LT</i>LawTracker</div>
+    <div class="msg"><b>Высокий уровень влияния</b>Согласие на обработку персональных данных — только отдельным документом. Вступает в силу через 14 дней.<br><span class="l">Открыть в кабинете →</span><em>09:00</em></div>
+    <div class="msg"><b>Напоминание о сроке</b>До 10 октября: оформить согласие отдельно от оферты. Ответственный: юрист.<em>09:00</em></div>
+    <div class="msg"><b>Дайджест недели</b>5 новых изменений, 2 требуют внимания.<br><span class="l">Посмотреть →</span><em>Пн, 09:00</em></div></div></div>
+</div></section>
+
+<!-- 10. PRICING -->
+<section id="pricing"><div class="w"><div class="sh"><p class="eyebrow">Тарифы</p><h2>Подписка, которая растёт вместе с бизнесом</h2><p>Уровень зависит от размера компании. Окончательные тарифы и цены утверждаются — оставьте заявку, и мы сообщим о запуске.</p></div>
+  <div class="price">
+    <div class="pl"><h3>Бесплатный старт</h3><p class="for">Знакомство с сервисом</p><div class="pr">Бесплатно</div><ul><li><i data-i="check"></i>Профиль компании</li><li><i data-i="check"></i>Общий дайджест раз в месяц</li></ul><a class="btn btn-g" href="index.html#/register">Начать</a></div>
+    <div class="pl"><h3>Базовый</h3><p class="for">ИП и микробизнес</p><div class="pr">Стоимость уточняется</div><ul><li><i data-i="check"></i>Персональный дайджест</li><li><i data-i="check"></i>Уведомления в Telegram</li><li><i data-i="check"></i>Напоминания о сроках</li><li><i data-i="check"></i>Ссылки на источники</li></ul><a class="btn btn-g" href="index.html#/register">Запросить доступ</a></div>
+    <div class="pl f"><span class="tag" style="align-self:flex-start;margin-bottom:10px">Для большинства компаний</span><h3>Профессиональный</h3><p class="for">Малый и средний бизнес</p><div class="pr">Стоимость уточняется</div><ul><li><i data-i="check"></i>Больше сфер мониторинга</li><li><i data-i="check"></i>Рекомендации к действию</li><li><i data-i="check"></i>Архив изменений</li><li><i data-i="check"></i>Несколько пользователей</li></ul><a class="btn btn-p" href="index.html#/register">Запросить доступ</a></div>
+    <div class="pl"><h3>Корпоративный</h3><p class="for">Группы компаний</p><div class="pr">По запросу</div><ul><li><i data-i="check"></i>Несколько юрлиц</li><li><i data-i="check"></i>Задачи, сроки, отчёты</li><li><i data-i="check"></i>API и интеграции</li><li><i data-i="check"></i>Персональный менеджер</li></ul><a class="btn btn-g" href="#contacts">Связаться</a></div>
+  </div></div></section>
+
+<!-- 11. TRUST -->
+<section id="trust" style="background:var(--sidebar)"><div class="w"><div class="sh"><p class="eyebrow">Доверие</p><h2>Инструмент мониторинга, а не замена юриста</h2></div>
+  <div class="trust">
+    <div class="tr"><i data-i="doc"></i><h3>Ссылка на первоисточник</h3><p>В каждой карточке — название документа, реквизиты и ссылка на официальную публикацию.</p></div>
+    <div class="tr"><i data-i="shield"></i><h3>Уровень уверенности</h3><p>Мы отмечаем, насколько надёжен вывод, и показываем, проверял ли материал юрист.</p></div>
+    <div class="tr"><i data-i="lock"></i><h3>Контроль над данными</h3><p>Вы решаете, какие сведения о компании указывать, и управляете доступом к ним.</p></div>
+  </div>
+  <div class="quote">«Законодательство меняется каждый день. Мы показываем, что именно изменилось для вашей компании и что нужно сделать.»<small>LawTracker</small></div></div></section>
+
+<!-- 12. FAQ -->
+<section id="faq"><div class="w" style="max-width:860px"><div class="sh"><p class="eyebrow">Вопросы</p><h2>Частые вопросы</h2></div>
+  <details open><summary>Это юридическая консультация?</summary><p>Нет. Материалы носят информационный характер и не заменяют индивидуальную юридическую консультацию.</p></details>
+  <details><summary>Как определяется, что изменение относится к моей компании?</summary><p>Сервис сопоставляет содержание изменения с данными профиля: отрасль, регионы, структуру, кадры и сервисы. В карточке всегда указано, какие параметры привели к показу.</p></details>
+  <details><summary>Нужно ли заполнять профиль целиком сразу?</summary><p>Нет. Профиль заполняется по шагам, необязательные вопросы можно пропустить. Чем полнее профиль, тем точнее персонализация.</p></details>
+  <details><summary>Можно ли отключить уведомления?</summary><p>Да. Кабинет, почта и Telegram настраиваются отдельно. Можно выбрать частоту, категории, порог значимости и временно приостановить все уведомления.</p></details>
+  <details><summary>Как подключить Telegram?</summary><p>В кабинете нажмите «Подключить Telegram», откройте бота и отправьте одноразовый код. После подтверждения дайджесты будут приходить в мессенджер.</p></details></div></section>
+
+<!-- 13. FINAL CTA -->
+<section id="contacts" style="border-bottom:0"><div class="w"><div class="final"><h2>Узнавайте об изменениях, которые действительно важны вашему бизнесу</h2><p>Создайте аккаунт и заполните профиль компании — можно начать сейчас и продолжить позже.</p>
+  <div class="cta"><a class="btn btn-p" href="index.html#/register">Создать аккаунт</a><a class="btn btn-g" href="mailto:hello@lawtracker.example">Написать нам</a></div></div></div></section>
+</main>
+
+<footer><div class="w"><div class="fc">
+  <div><a class="logo" href="#top"><i data-i="logo"></i>LawTracker</a><p style="margin-top:12px;color:var(--soft);font-size:.88rem;max-width:30ch">Персональный мониторинг изменений законодательства для бизнеса.</p></div>
+  <div><h4>Сервис</h4><a href="#how">Как работает</a><a href="#features">Возможности</a><a href="#pricing">Тарифы</a></div>
+  <div><h4>Помощь</h4><a href="#faq">Вопросы и ответы</a><a href="index.html#/login">Вход</a><a href="index.html#/register">Регистрация</a></div>
+  <div><h4>Документы</h4><a href="index.html#/privacy">Политика конфиденциальности</a><a href="index.html#/terms">Пользовательское соглашение</a><a href="mailto:hello@lawtracker.example">hello@lawtracker.example</a></div></div>
+  <p class="disc2">Материалы платформы носят информационный характер и не заменяют индивидуальную юридическую консультацию. Автоматизированный анализ может содержать неточности — важные выводы проверяйте по первоисточнику.</p></div></footer>
+
+<script>
+const P={logo:'<circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3.5 6-7.5"/>',check:'<path d="M5 12.5l4.200 4.200L19 7"/>',right:'<path d="M9 5l7 7-7 7"/>',down:'<path d="M12 5v14M6 13l6 6 6-6"/>',clock:'<circle cx="12" cy="12" r="9.500"/><path d="M12 7v5l3.200 2"/>',info:'<circle cx="12" cy="12" r="9.500"/><path d="M12 11v5.500M12 7.700v.1"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.500"/>',ext:'<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/>',shield:'<path d="M12 3l8 3v6c0 4.500-3.300 8-8 9-4.700-1-8-4.500-8-9V6l8-3z"/><path d="M8.500 12l2.500 2.500 4.500-5"/>',book:'<path d="M4 5.500A2.500 2.500 0 016.500 3H20v15H6.500A2.500 2.500 0 004 20.500v-15zM4 20.500A2.500 2.500 0 006.500 23H20"/>',calendar:'<rect x="3.500" y="5" width="17" height="15.500" rx="2"/><path d="M3.500 10h17M8 3v4M16 3v4"/>',doc:'<path d="M6 3h8l4 4v14H6V3z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',send:'<path d="M21 4L3 11l6 2.500L11 20l2.800-4.600L21 4z"/><path d="M9 13.500l12-9.500"/>',list:'<path d="M4 6h16M4 12h16M4 18h10"/>',lock:'<rect x="5" y="10.500" width="14" height="10" rx="2"/><path d="M8 10.500V7.500a4 4 0 018 0v3"/>'};
+document.querySelectorAll('[data-i]').forEach(e=>{const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('aria-hidden','true');s.setAttribute('class','ico');s.innerHTML=P[e.dataset.i]||'';if(e.getAttribute('style'))s.setAttribute('style',e.getAttribute('style'));e.replaceWith(s)});
+</script>
+</body>
+</html>

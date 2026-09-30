@@ -462,23 +462,6 @@ html,body{overflow-x:clip}
 .top-actions{flex-wrap:wrap;margin-left:auto}
 @media (max-width:640px){.nav-row{padding:10px 16px;gap:8px}.nav-actions .icon-only:not(.menu-btn){display:none}.logo{font-size:1rem}}
 .table-wrap{position:relative}
-/* ===== hero variants ===== */
-.hero-c{text-align:center}.hero-c h1{max-width:20ch;margin:0 auto}.hero-c .lede{margin:18px auto 0}.hero-c .hero-cta{justify-content:center}
-.q3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px;text-align:left}@media(max-width:800px){.q3{grid-template-columns:1fr}}
-.q3 .qc{background:var(--bg-raised);border:1px solid var(--line);border-radius:14px;padding:20px 22px}.q3 .qn{font-family:var(--f-head);font-size:1.5rem;color:var(--accent)}.q3 h3{font-size:1.1rem;margin:6px 0}.q3 p{font-size:.92rem;color:var(--ink-soft)}
-.plan-card{background:var(--bg-raised);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:0 8px 30px rgba(20,40,30,.08)}
-.plan-card h3{font-size:1.05rem;margin-bottom:4px}.plan-card .row{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);font-size:.92rem}.plan-card .row:first-of-type{border-top:none}
-.plan-card .bx{width:20px;height:20px;border-radius:6px;border:1.5px solid #8b968e;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center}.plan-card .row.done .bx{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.plan-card .row.done b{text-decoration:line-through;color:var(--ink-faint)}.plan-card .row small{display:block;color:var(--ink-soft)}
-.phone{width:min(330px,100%);margin:0 auto;background:var(--panel);border-radius:30px;padding:14px;box-shadow:0 18px 50px rgba(0,0,0,.22)}
-.phone .scr{background:#E7EEF3;border-radius:20px;padding:14px;min-height:400px;display:flex;flex-direction:column;gap:10px}
-.phone .top{display:flex;gap:10px;align-items:center;color:#20303A;font-weight:600;font-size:.9rem;padding-bottom:10px;border-bottom:1px solid #0001}.phone .top i{width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font-style:normal}
-.phone .m{background:#fff;color:#1c2730;border-radius:14px 14px 14px 4px;padding:11px 13px;font-size:.86rem;line-height:1.45;max-width:92%}.phone .m b{display:block;margin-bottom:3px}.phone .m .l{color:var(--accent);font-weight:600}.phone .m em{font-style:normal;color:#6a7a86;font-size:.74rem;display:block;text-align:right;margin-top:4px}
-.hero-form{display:flex;gap:10px;max-width:520px;margin:28px auto 0;flex-wrap:wrap;justify-content:center}.hero-form input{flex:1 1 240px;min-height:48px;padding:10px 16px;border-radius:8px;border:1px solid #8b968e;background:var(--bg-raised)}
-.trust-row{display:flex;gap:10px 26px;justify-content:center;flex-wrap:wrap;margin-top:34px;color:var(--ink-soft);font-size:.9rem}.trust-row span{display:inline-flex;gap:8px;align-items:center}.trust-row .ico{color:var(--accent)}
-.role-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:26px}
-.hero-c h1{max-width:26ch}
-
 /* ===== tariffs ===== */
 .plan .amount{font-family:var(--f-head);margin-top:2px}.plan .amount .a{font-size:1.9rem;font-weight:700}.plan .amount .u{font-size:.95rem;color:var(--ink-soft);font-family:var(--f-body)}
 .plan .per{font-size:.82rem;color:var(--ink-soft);margin-bottom:16px;min-height:1.3em}
@@ -492,6 +475,82 @@ html,body{overflow-x:clip}
 .plan-use .u{background:var(--sidebar);border-radius:10px;padding:12px 14px;font-size:.88rem}.plan-use .u b{display:block;font-size:1.05rem;font-family:var(--f-head)}
 .navlink .ptag{margin-left:auto;font-size:.68rem;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:0 7px}
 .plan ul{align-content:start}
+
+/* ===== home page: three questions ===== */
+/* hero */
+.hq-hero{text-align:center;padding:76px 0 70px;border-bottom:1px solid var(--line)}
+.hq-hero h1{font-size:clamp(2rem,5vw,3.2rem);max-width:19ch;margin:0 auto}
+.hq-hero .hq-lede{font-size:1.14rem;color:var(--ink-soft);max-width:54ch;margin:20px auto 0}
+.hq-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:30px}
+.hq-note{font-size:.85rem;color:var(--ink-faint);margin-top:16px}
+.hq-q3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:52px;text-align:left}
+@media(max-width:820px){.hq-q3{grid-template-columns:1fr}.hq-hero{padding:48px 0 52px}}
+.hq-qc{display:block;background:var(--bg-raised);border:1px solid var(--line);border-radius:14px;padding:22px 24px;transition:border-color .15s,transform .15s}
+.hq-qc:hover{border-color:var(--accent);transform:translateY(-2px)}
+.hq-qn{font:700 1.7rem var(--f-head);color:var(--accent)}.hq-qc h3{font-size:1.15rem;margin:6px 0}.hq-qc p{font-size:.93rem;color:var(--ink-soft)}
+.hq-qc .hq-more{display:inline-flex;gap:6px;align-items:center;margin-top:12px;font-size:.86rem;font-weight:600;color:var(--accent)}
+/* sections */
+.hq-sec{padding:84px 0;border-bottom:1px solid var(--line)}
+@media(max-width:700px){.hq-sec{padding:56px 0}}
+.hq-sh{max-width:660px;margin-bottom:40px}.hq-sh h2{font-size:clamp(1.6rem,3.6vw,2.1rem);margin-bottom:12px}.hq-sh p{color:var(--ink-soft);font-size:1.04rem}
+.hq-split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.hq-split.hq-rev>:first-child{order:2}
+@media(max-width:900px){.hq-split{grid-template-columns:1fr;gap:32px}.hq-split.hq-rev>:first-child{order:0}}
+.hq-big{font:700 4.5rem/1 var(--f-head);color:var(--accent);opacity:.22;margin-bottom:4px}
+.hq-split h2{font-size:clamp(1.6rem,3.6vw,2.2rem);margin-bottom:14px}.hq-split .hq-t{color:var(--ink-soft);font-size:1.05rem;max-width:48ch}
+.hq-ul{list-style:none;padding:0;margin:20px 0 0;display:grid;gap:10px}.hq-ul li{display:flex;gap:10px;font-size:.96rem}.hq-ul .ico{color:var(--accent);margin-top:3px;width:18px;height:18px}
+.hq-card{background:var(--bg-raised);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 10px 34px rgba(20,40,30,.08)}
+.hq-demo{display:inline-block;font-size:.74rem;color:var(--ink-faint);border:1px dashed var(--line);border-radius:6px;padding:2px 8px;margin-bottom:12px}
+.hq-card h3{font-size:1.12rem;margin:10px 0 8px}.hq-kv{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;margin-top:14px}.hq-kv .hq-k{font-size:.76rem;color:var(--ink-faint)}.hq-kv .hq-v{font-size:.92rem}
+.hq-chips{display:flex;flex-wrap:wrap;gap:8px}.hq-chip{display:inline-flex;gap:6px;align-items:center;padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:var(--bg);font-size:.86rem}
+.hq-chip.hq-on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.hq-match{display:grid;gap:12px}.hq-mi{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:var(--bg-raised)}
+.hq-mi.hq-yes{border-color:var(--accent);background:var(--accent-soft)}.hq-mi.hq-no{opacity:.65}.hq-mi b{display:block;font-size:.94rem}.hq-mi small{color:var(--ink-soft);font-size:.82rem}
+.hq-mi .ico{margin-top:2px}.hq-mi.hq-yes .ico{color:var(--accent)}
+.hq-arrow{display:flex;justify-content:center;color:var(--ink-faint)}
+.hq-act{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:13px 0;border-top:1px solid var(--line);font-size:.92rem}.hq-act:first-of-type{border-top:0}
+.hq-bx{width:20px;height:20px;border-radius:6px;border:1.5px solid #8b968e;margin-top:3px;display:flex;align-items:center;justify-content:center}
+.hq-act.hq-done .hq-bx{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}.hq-act.hq-done b{text-decoration:line-through;color:var(--ink-faint)}.hq-bx .ico{width:13px;height:13px;stroke-width:2.4}
+.hq-act small{display:block;color:var(--ink-soft);font-size:.82rem}
+.hq-src{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:.88rem}
+/* steps */
+.hq-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}@media(max-width:860px){.hq-steps{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.hq-steps{grid-template-columns:1fr}}
+.hq-step{border-top:2px solid var(--accent);padding-top:14px}.hq-step .hq-n{font:700 1.5rem var(--f-head);color:var(--accent)}.hq-step h3{font-size:1.04rem;margin:8px 0 6px}.hq-step p{font-size:.92rem;color:var(--ink-soft)}
+/* layers */
+.hq-layers{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:800px){.hq-layers{grid-template-columns:1fr}}
+.hq-layer{background:var(--bg-raised);border:1px solid var(--line);border-radius:14px;padding:20px 22px}.hq-layer .hq-lb{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:6px;background:var(--sidebar);color:var(--ink-soft);margin-bottom:10px}
+.hq-layer.hq-an{background:var(--blue-soft);border-color:transparent}.hq-layer p{font-size:.95rem}.hq-layer .hq-q{border-left:3px solid var(--ink-faint);background:var(--sidebar);border-radius:8px;padding:10px 14px;font:.92rem/1.5 var(--f-head);color:var(--ink-soft)}
+.hq-disc{display:flex;gap:10px;margin-top:16px;padding:14px 16px;background:var(--sidebar);border-radius:12px;font-size:.88rem;color:var(--ink-soft)}
+/* features */
+.hq-caps{display:grid;grid-template-columns:repeat(3,1fr);gap:30px 32px}@media(max-width:860px){.hq-caps{grid-template-columns:repeat(2,1fr)}}@media(max-width:540px){.hq-caps{grid-template-columns:1fr}}
+.hq-cap .ico{width:28px;height:28px;color:var(--accent);margin-bottom:12px}.hq-cap h3{font-size:1.04rem;margin-bottom:6px}.hq-cap p{font-size:.92rem;color:var(--ink-soft)}
+.hq-aud{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}@media(max-width:860px){.hq-aud{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.hq-aud{grid-template-columns:1fr}}
+.hq-a{background:var(--bg-raised);border:1px solid var(--line);border-radius:12px;padding:18px}.hq-a h3{font-size:1rem;margin-bottom:6px}.hq-a p{font-size:.88rem;color:var(--ink-soft)}
+.hq-a .hq-tq{margin-top:10px;font-size:.82rem;color:var(--accent);font-weight:600}
+/* phone */
+.hq-phone{width:min(320px,100%);margin:0 auto;background:var(--panel);border-radius:30px;padding:13px;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+.hq-scr{background:#E7EEF3;border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:380px}
+.hq-scr .hq-top{display:flex;gap:10px;align-items:center;color:#20303A;font-weight:600;font-size:.9rem;padding-bottom:10px;border-bottom:1px solid #0001}
+.hq-scr .hq-top i{width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:.75rem}
+.hq-msg{background:#fff;color:#1c2730;border-radius:14px 14px 14px 4px;padding:11px 13px;font-size:.85rem;line-height:1.45;max-width:92%}.hq-msg b{display:block;margin-bottom:3px}.hq-msg .hq-l{color:var(--accent);font-weight:600}.hq-msg em{font-style:normal;color:#6a7a86;font-size:.72rem;display:block;text-align:right;margin-top:3px}
+.hq-sw{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid var(--line);font-size:.94rem}.hq-sw:first-child{border-top:0}.hq-sw small{display:block;color:var(--ink-soft);font-size:.82rem}
+.hq-tg{position:relative;width:44px;height:25px;border-radius:999px;background:#8b968e;flex-shrink:0}.hq-tg::after{content:"";position:absolute;left:3px;top:3px;width:19px;height:19px;border-radius:50%;background:#fff}.hq-tg.hq-on{background:var(--accent)}.hq-tg.hq-on::after{left:22px}
+/* pricing */
+.hq-price{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}@media(max-width:1000px){.hq-price{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.hq-price{grid-template-columns:1fr}}
+.hq-pl{display:flex;flex-direction:column;background:var(--bg-raised);border:1px solid var(--line);border-radius:14px;padding:24px}.hq-pl.hq-f{border:2px solid var(--accent)}
+.hq-pl h3{font-size:1.15rem}.hq-pl .hq-for{color:var(--ink-soft);font-size:.88rem;margin:4px 0 14px}.hq-pl .hq-pr{color:var(--ink-soft);font:1.02rem var(--f-head);margin-bottom:14px}
+.hq-pl ul{list-style:none;margin:0 0 22px;padding:0;display:grid;gap:9px;font-size:.92rem;flex:1}.hq-pl li{display:flex;gap:8px}.hq-pl li .ico{width:16px;height:16px;color:var(--accent);margin-top:4px}
+/* trust */
+.hq-trust{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}@media(max-width:860px){.hq-trust{grid-template-columns:1fr}}
+.hq-tr{background:var(--bg-raised);border:1px solid var(--line);border-radius:12px;padding:22px}.hq-tr .ico{width:24px;height:24px;color:var(--accent);margin-bottom:10px}.hq-tr h3{font-size:1rem;margin-bottom:6px}.hq-tr p{font-size:.9rem;color:var(--ink-soft)}
+.hq-quote{margin-top:34px;padding:26px 30px;border-radius:16px;background:var(--panel);color:#EFF3EF;font:1.3rem/1.45 var(--f-head)}.hq-quote small{display:block;font:.82rem var(--f-body);color:#B7C4BB;margin-top:10px}
+/* final */
+.hq-final{background:var(--panel);border-radius:20px;padding:58px 48px;color:#EFF3EF;text-align:center}
+@media(max-width:640px){.hq-final{padding:38px 22px}}
+.hq-final h2{color:#F4F7F4;font-size:clamp(1.5rem,3.4vw,2.1rem);max-width:24ch;margin:0 auto}.hq-final p{color:#C7D2CB;max-width:54ch;margin:14px auto 0}
+.hq-final .btn-primary{background:#F4F7F4;color:var(--panel)}.hq-final .btn-ghost{background:transparent;color:#F4F7F4;border-color:#ffffff55}.hq-final .btn-ghost:hover{background:#ffffff14}
+footer .hq-fc .hq-logo{display:flex;padding:0;color:var(--ink)}
+.hq-sec,.hq-hero{scroll-margin-top:70px}.hq-hero{padding:76px 0 70px;border-bottom:1px solid var(--line)}
 /* ===== alternative palettes ===== */
 :root[data-palette="navy"]{--bg:#F3F5F9;--bg-raised:#FFFFFF;--sidebar:#E9EDF4;--panel:#13284B;--ink:#131C2B;--ink-soft:#485468;--ink-faint:#647086;--line:#D8DEE8;--accent:#1F4E8C;--accent-ink:#FFFFFF;--accent-soft:#E3EAF5;--blue:#3B6A8F;--blue-soft:#E1ECF4;--panel-2:#1B3663;--panel-line:#2B4A7C;--panel-accent:#8DB4E8;--panel-tag-bg:#2B4A7C;--panel-tag-ink:#BBD3F5;--panel-soft:#B8C4D8;--amber:#8A5A20;--amber-soft:#F2E7D5;--red:#A23B2E;--red-soft:#F5E4E0;--focus:#1B6FD8;}
 @media (prefers-color-scheme:dark){:root[data-palette="navy"]:not([data-theme="light"]){--bg:#0E131C;--bg-raised:#161D29;--sidebar:#121824;--panel:#0B1424;--ink:#E7ECF4;--ink-soft:#A6B1C3;--ink-faint:#8793A7;--line:#263042;--accent:#7FAAE6;--accent-ink:#0B1424;--accent-soft:#1C2A42;--blue:#8DB6D6;--blue-soft:#1C2A36;--panel-2:#1B3663;--panel-line:#2B4A7C;--panel-accent:#8DB4E8;--panel-tag-bg:#2B4A7C;--panel-tag-ink:#BBD3F5;--panel-soft:#B8C4D8;--amber:#D8AE72;--amber-soft:#2E2618;--red:#E39A8D;--red-soft:#33211E;--focus:#7DB2FF;}}
@@ -571,6 +630,7 @@ const ICONS = {
   chat: '<path d="M4 5h16v11H9l-5 4V5z"/>',
   dl: '<path d="M12 4v11M7.500 10.500L12 15l4.500-4.500M5 20h14"/>',
   more: '<circle cx="5" cy="12" r="1.200"/><circle cx="12" cy="12" r="1.200"/><circle cx="19" cy="12" r="1.200"/>',
+  down: '<path d="M12 5v14M6 13l6 6 6-6"/>',
   card: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>',
   layers: '<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/>'
 };
@@ -718,7 +778,7 @@ const money = n => n.toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' ₽';
 const KEY = 'lawtracker.demo.v1';
 const emptyCompany = () => ({ name: '', inn: '', form: '', size: '', industry: '', activities: [], desc: '', regions: [], branches: '', foreignShare: false, entities: '1', headcount: '', remote: false, foreignStaff: false, licenses: [], pdCustomers: false, pdEmployees: false, pdExternal: false, pdCross: false, vedExport: false, vedImport: false, digital: [], contactName: '', contactEmail: '', contactRole: '', recipients: '', topics: [], saved: {}, skipped: {} });
 const defState = () => ({
-  user: null, onboarded: false, company: emptyCompany(), read: [], saved: [], acts: {}, welcomed: false, theme: '', palette: 'forest', font: 'classic', hero: 'personal', plan: 'free', profileStep: 1, shareProfile: true, joined: false,
+  user: null, onboarded: false, company: emptyCompany(), read: [], saved: [], acts: {}, welcomed: false, theme: '', palette: 'forest', font: 'classic', plan: 'free', profileStep: 1, shareProfile: true, joined: false,
   notif: { cabinet: true, email: true, emailFreq: 'daily', tg: true, topics: [], minImpact: 'med', days: [1, 2, 3, 4, 5], time: '09:00', pause: false, pauseUntil: '' },
   tg: { status: 'none', code: '', username: '' }, team: []
 });
@@ -872,50 +932,127 @@ function pubShell(body, cur = '') {
     <p class="footer-disclaimer">Материалы платформы носят информационный характер и не заменяют индивидуальную юридическую консультацию. Автоматизированный анализ может содержать неточности — проверяйте важные выводы по первоисточнику.</p></div></footer>`;
 }
 
-/* sample (demo) card */
-function sampleCard(full = false) {
-  return `<div class="digest-card"><span class="demo-label">Пример · без данных реального клиента</span>
-    <div class="meta-row">${impactTag('high')}<span class="tag">Персональные данные</span><span class="tag amber">${ic('clock')}Осталось 14 дней</span></div>
-    <h3>Согласие на обработку персональных данных — только отдельным документом</h3>
-    <p class="muted" style="font-size:.88rem;margin-bottom:12px">Официальный портал правовой информации · вступает в силу через 14 дней</p>
-    <p style="font-size:.95rem">Согласие клиента нельзя «прятать» внутри оферты — это должен быть отдельный документ.</p>
-    ${full ? `<div class="kv"><div><div class="k">Кого касается</div><div class="v">Всех, кто собирает данные клиентов</div></div><div><div class="k">Что сделать</div><div class="v">Оформить согласие отдельно от оферты</div></div><div><div class="k">Ответственный</div><div class="v">Юрист и руководитель маркетинга</div></div><div><div class="k">Источник</div><div class="v">Официальная публикация акта</div></div></div>` : ''}
-    <div class="why" style="margin-top:14px"><b>Почему это показано вашей компании</b><ul><li>В профиле: «Собираем данные клиентов»</li><li>У компании есть интернет-магазин</li></ul></div>
-    <div class="conf" style="margin-top:14px">${ic('info')}<span>Анализ автоматизированный, не является юридическим заключением. Уровень уверенности и ссылка на источник — в карточке.</span></div></div>`;
-}
-
 /* =====================  PUBLIC VIEWS  ===================== */
 function viewHome() {
-  const problems = [['Поток изменений', 'Законов и подзаконных актов меняется больше, чем можно уследить вручную.'], ['Легко пропустить главное', 'Норма, которая влияет именно на вашу компанию, теряется среди десятков неважных.'], ['Непонятно, ваше ли это', 'Юридический язык сложен, а применимость к конкретному бизнесу нужно ещё определить.']];
-  const steps = [['Профиль компании', 'Расскажите об отрасли, регионах и особенностях работы — постепенно, без длинной анкеты.'], ['Анализ изменений', 'Сервис сопоставляет новые акты и поправки с профилем вашей компании.'], ['Персональный дайджест', 'Вы получаете то, что относится к вам: суть, сроки и объяснение простыми словами.'], ['Действия и контроль', 'Видите, что сделать, кому поручить и к какому сроку.']];
-  const caps = [['target', 'Персонализация', 'Для каждого материала видно, почему он попал в вашу ленту и какие данные профиля к нему относятся.'], ['book', 'Понятные пояснения', 'Краткое резюме, подробное объяснение и первоисточник — отдельными блоками.'], ['calendar', 'Сроки вступления в силу', 'Каждая карточка показывает дату вступления и напоминает о приближающихся сроках.'], ['doc', 'Официальный источник', 'Ссылка на документ, реквизиты и статус — чтобы проверить вывод самостоятельно.'], ['send', 'Telegram и почта', 'Дайджесты там, где удобнее. Каждый канал включается и отключается отдельно.'], ['list', 'Рекомендации к действию', 'Предполагаемые шаги, ответственные и сроки — если такие сведения доступны.']];
-  const aud = [['Руководители', 'Быстро понять, что важно для бизнеса, без погружения в текст закона.'], ['Юристы', 'Экономия времени на мониторинг и подготовка первичной оценки с источниками.'], ['Комплаенс', 'Единая лента изменений по вашим направлениям и сроки адаптации.'], ['Бухгалтеры и финансисты', 'Изменения по налогам и отчётности с датами вступления.'], ['HR-специалисты', 'Кадровые и трудовые нормы, влияющие на договоры и документы.'], ['Руководители направлений', 'Только те изменения, что касаются вашей зоны ответственности.']];
-  const trust = [['doc', 'Ссылка на первоисточник', 'В каждой карточке — название документа, реквизиты и ссылка на официальную публикацию.'], ['shield', 'Уровень уверенности анализа', 'Мы отмечаем, насколько надёжен вывод, и показываем, проверял ли материал юрист.'], ['lock', 'Защита данных', 'Вы сами решаете, какие сведения о компании указывать, и можете управлять доступом к ним.']];
-  return pubShell(`
-  ${heroHTML()}
+  return pubShell(`<!-- 1. HERO -->
+<section class="hq-hero"><div class="wrap">
+  <p class="eyebrow">Мониторинг изменений законодательства</p>
+  <h1>Закон изменился. Что это значит для вашего бизнеса?</h1>
+  <p class="hq-lede">LawTracker отвечает на три вопроса, которые вы задаёте каждый раз, когда слышите о новом законе.</p>
+  <div class="hq-cta"><a class="btn btn-primary" href="#/register">Начать</a><a class="btn btn-ghost" href="#/" data-scroll="how">Как это работает</a></div>
+  <p class="hq-note">Профиль компании можно заполнять постепенно. Бесплатный старт — без банковской карты.</p>
+  <div class="hq-q3">
+    <a class="hq-qc" href="#/" data-scroll="q1"><div class="hq-qn">1</div><h3>Что изменилось?</h3><p>Суть простыми словами, без юридического языка, с датой вступления в силу.</p><span class="hq-more">Подробнее ${ic('right')}</span></a>
+    <a class="hq-qc" href="#/" data-scroll="q2"><div class="hq-qn">2</div><h3>Касается ли это нас?</h3><p>Показываем, какие данные профиля компании привели к показу материала.</p><span class="hq-more">Подробнее ${ic('right')}</span></a>
+    <a class="hq-qc" href="#/" data-scroll="q3"><div class="hq-qn">3</div><h3>Что сделать?</h3><p>Предполагаемые шаги, ответственные, сроки и ссылка на официальный источник.</p><span class="hq-more">Подробнее ${ic('right')}</span></a>
+  </div>
+</div></section>
 
-  <section class="pub" id="problem"><div class="wrap"><div class="section-head"><h2>Законов меняется больше, чем можно уследить</h2><p>Большинство компаний отслеживают изменения вручную — и рискуют пропустить важное.</p></div>
-    <div class="problem-grid">${problems.map((p, i) => `<div class="problem"><div class="n">0${i + 1}</div><h3>${p[0]}</h3><p>${p[1]}</p></div>`).join('')}</div></div></section>
+<!-- 2. Q1 -->
+<section id="q1" class="hq-sec"><div class="wrap hq-split">
+  <div><div class="hq-big">01</div><p class="eyebrow">Вопрос первый</p><h2>Что изменилось?</h2>
+    <p class="hq-t">Юридический текст мы разделяем на краткое резюме, подробное объяснение и первоисточник. Главное можно понять за 30 секунд — остальное открывается по желанию.</p>
+    <ul class="hq-ul"><li>${ic('check')}Суть изменения простым языком</li><li>${ic('check')}Дата публикации и дата вступления в силу</li><li>${ic('check')}Статус документа: принят, действует или проект</li></ul></div>
+  <div class="hq-card"><span class="hq-demo">Пример · без данных реального клиента</span>
+    <div class="hq-chips"><span class="tag amber">Высокий уровень влияния</span><span class="tag">Персональные данные</span><span class="tag blue">${ic('clock')}Принят, вступает в силу</span></div>
+    <h3>Согласие на обработку персональных данных — только отдельным документом</h3>
+    <p style="color:var(--ink-soft);font-size:.95rem">Согласие клиента больше нельзя «прятать» внутри оферты или пользовательского соглашения — это должен быть отдельный документ.</p>
+    <div class="hq-kv"><div><div class="hq-k">Опубликовано</div><div class="hq-v">10 сентября</div></div><div><div class="hq-k">Вступает в силу</div><div class="hq-v"><b>через 14 дней</b></div></div></div></div>
+</div></section>
 
-  <section class="pub" id="how"><div class="wrap"><div class="section-head"><h2>Как работает сервис</h2><p>От заполнения профиля до конкретных действий — четыре шага.</p></div>
-    <div class="steps">${steps.map((s, i) => `<div class="step"><div class="num">${i + 1}</div><h3>${s[0]}</h3><p>${s[1]}</p></div>`).join('')}</div></div></section>
+<!-- 3. Q2 -->
+<section id="q2" class="hq-sec" style="background:var(--sidebar)"><div class="wrap hq-split hq-rev">
+  <div><div class="hq-big">02</div><p class="eyebrow">Вопрос второй</p><h2>Касается ли это нас?</h2>
+    <p class="hq-t">Вы видите не общую ленту новостей, а только то, что относится к вашей компании. И всегда понятно, почему материал показан именно вам.</p>
+    <ul class="hq-ul"><li>${ic('check')}Совпадения с отраслью, регионами, структурой, кадрами и сервисами</li><li>${ic('check')}Уровень влияния объясним, а не «тревожный»</li><li>${ic('check')}Управляйте данными профиля и доступом к ним</li></ul></div>
+  <div class="hq-card"><span class="hq-demo">Пример · как работает подбор</span>
+    <div style="font-size:.8rem;color:var(--ink-faint);margin-bottom:8px">Профиль компании</div>
+    <div class="hq-chips"><span class="hq-chip hq-on">Интернет-магазин</span><span class="hq-chip hq-on">Данные клиентов</span><span class="hq-chip">Москва и область</span><span class="hq-chip">Экспорт</span></div>
+    <div class="hq-arrow" style="margin:14px 0">${ic('down')}</div>
+    <div class="hq-match">
+      <div class="hq-mi hq-yes">${ic('target')}<div><b>Согласие на обработку данных — отдельным документом</b><small>Показано: в профиле «Собираем данные клиентов», есть интернет-магазин</small></div></div>
+      <div class="hq-mi hq-no">${ic('info')}<div><b>Лицензионные требования к медицинской деятельности</b><small>Не показано: нет совпадений с профилем</small></div></div>
+    </div></div>
+</div></section>
 
-  <section class="pub" id="sample"><div class="wrap sample-grid"><div><div class="section-head" style="margin-bottom:24px"><h2>Так выглядит персональный дайджест</h2><p>Не новость, а понятный сценарий: что изменилось, касается ли вас, что делать и где проверить.</p></div>
-    <ol class="tg-steps"><li><span><b>Суть за 30 секунд.</b> Без юридического языка: что изменилось и с какого числа.</span></li><li><span><b>Почему это вам.</b> Видно, какие данные профиля привели к показу материала.</span></li><li><span><b>Конкретные шаги.</b> Что сделать, кому поручить и до какого срока.</span></li><li><span><b>Ссылка на закон.</b> Кликабельный переход к официальной публикации.</span></li></ol></div>${sampleCard(true)}</div></section>
+<!-- 4. Q3 -->
+<section id="q3" class="hq-sec"><div class="wrap hq-split">
+  <div><div class="hq-big">03</div><p class="eyebrow">Вопрос третий</p><h2>Что сделать?</h2>
+    <p class="hq-t">Не просто новость, а понятные следующие шаги: что сделать, кому поручить и к какому сроку. Сведения о действиях показываем, если они доступны.</p>
+    <ul class="hq-ul"><li>${ic('check')}Предполагаемые действия со сроками и ответственными</li><li>${ic('check')}Статусы выполнения прямо в карточке</li><li>${ic('check')}Ссылка на официальный источник для проверки</li></ul></div>
+  <div class="hq-card"><span class="hq-demo">Пример · без данных реального клиента</span>
+    <h3 style="margin-top:0">Что сделать по изменению</h3><p style="color:var(--ink-soft);font-size:.86rem;margin-bottom:8px">Вступает в силу через 14 дней</p>
+    <div class="hq-act hq-done"><span class="hq-bx">${ic('check')}</span><div><b>Проверить текущие формы сбора данных</b><small>Юрист · выполнено</small></div></div>
+    <div class="hq-act"><span class="hq-bx"></span><div><b>Оформить согласие отдельно от оферты</b><small>Юрист, руководитель маркетинга · до 10 октября</small></div></div>
+    <div class="hq-act"><span class="hq-bx"></span><div><b>Обновить формы сбора данных на сайте</b><small>Маркетинг, разработка · до 12 октября</small></div></div>
+    <div class="hq-src"><span><b>ФЗ № 156-ФЗ (пример)</b><br><span style="color:var(--ink-soft)">Официальная публикация</span></span><a class="btn btn-ghost btn-sm" href="https://publication.pravo.gov.ru/" target="_blank" rel="noopener">Открыть источник ${ic('ext')}</a></div></div>
+</div></section>
 
-  <section class="pub" id="features"><div class="wrap"><div class="section-head"><h2>Что вы получаете</h2></div>
-    <div class="capgrid">${caps.map(c => `<div class="cap">${ic(c[0])}<h3>${c[1]}</h3><p>${c[2]}</p></div>`).join('')}</div></div></section>
+<!-- 5. HOW -->
+<section id="how" class="hq-sec" style="background:var(--sidebar)"><div class="wrap"><div class="hq-sh"><p class="eyebrow">Как работает</p><h2>От профиля компании до конкретных действий</h2><p>Четыре шага. Профиль можно заполнять постепенно — начните с основного.</p></div>
+  <div class="hq-steps"><div class="hq-step"><div class="neutral">1</div><h3>Профиль компании</h3><p>Отрасль, регионы, структура, кадры, сервисы — по шагам, необязательное можно пропустить.</p></div><div class="hq-step"><div class="neutral">2</div><h3>Анализ изменений</h3><p>Сервис сопоставляет новые акты и поправки с профилем вашей компании.</p></div><div class="hq-step"><div class="neutral">3</div><h3>Персональный дайджест</h3><p>Что изменилось, кого касается и почему показано именно вам.</p></div><div class="hq-step"><div class="neutral">4</div><h3>Действия и контроль</h3><p>Шаги, ответственные, сроки и напоминания — в кабинете и Telegram.</p></div></div></div></section>
 
-  <section class="pub" id="audience"><div class="wrap"><div class="section-head"><h2>Для кого этот сервис</h2><p>Интерфейс понятен не только юристам. Первые отрасли: интернет-торговля, IT, трудовое право и персональные данные, реклама, строительство, медицина, производство.</p></div>
-    <div class="aud-grid">${aud.map(a => `<div class="aud"><h3>${a[0]}</h3><p>${a[1]}</p></div>`).join('')}</div></div></section>
+<!-- 6. LAYERS -->
+<section id="card" class="hq-sec"><div class="wrap"><div class="hq-sh"><p class="eyebrow">Карточка изменения</p><h2>Каждый материал разделён на слои</h2><p>Мы чётко отделяем текст акта от краткого изложения, аналитики платформы и рекомендаций — чтобы автоматический вывод не выглядел как юридическое заключение.</p></div>
+  <div class="hq-layers">
+    <div class="hq-layer"><span class="hq-lb">Краткое изложение</span><p>Согласие на обработку данных клиента оформляется отдельным документом. Формы на сайте и в оферте нужно пересмотреть.</p></div>
+    <div class="hq-layer hq-an"><span class="hq-lb">Комментарий платформы</span><p>Самый быстрый шаг — вынести согласие в отдельный текст и отдельную галочку на формах заказа и обратной связи.</p><div class="hq-chips" style="margin-top:12px"><span class="tag">${ic('shield')}Уверенность анализа: высокая</span><span class="tag">${ic('check')}Проверено юристом</span></div></div>
+    <div class="hq-layer"><span class="hq-lb">Рекомендуемые действия</span><p>Оформить согласие отдельно · обновить формы сбора данных. Срок — до вступления в силу, ответственный — юрист.</p></div>
+    <div class="hq-layer"><span class="hq-lb">Первоисточник</span><div class="hq-q">«Согласие на обработку персональных данных оформляется отдельно от иных информации и (или) документов…»</div></div>
+  </div>
+  <div class="hq-disc">${ic('info')}<span>Материалы носят информационный характер и не заменяют индивидуальную юридическую консультацию. Точная формулировка оговорки согласуется с юристом проекта.</span></div></div></section>
 
-  <section class="pub" id="trust"><div class="wrap"><div class="section-head"><h2>Доверие — в основе продукта</h2><p>LawTracker — инструмент мониторинга и предварительного анализа, а не замена юридической консультации.</p></div>
-    <div class="trust-grid">${trust.map(t => `<div class="trust">${ic(t[0])}<h3>${t[1]}</h3><p>${t[2]}</p></div>`).join('')}</div>
-    <p class="muted" style="margin-top:22px;font-size:.92rem">Вопросы по методологии и защите данных — <a class="link" href="#/contacts">напишите команде</a>.</p></div></section>
+<!-- 7. FEATURES -->
+<section id="features" class="hq-sec" style="background:var(--sidebar)"><div class="wrap"><div class="hq-sh"><p class="eyebrow">Возможности</p><h2>Что вы получаете</h2></div>
+  <div class="hq-caps">
+    <div class="hq-cap">${ic('target')}<h3>Персонализация</h3><p>Для каждого материала видно, почему он попал в вашу ленту.</p></div>
+    <div class="hq-cap">${ic('book')}<h3>Понятные пояснения</h3><p>Краткое резюме, подробное объяснение и первоисточник отдельно.</p></div>
+    <div class="hq-cap">${ic('calendar')}<h3>Сроки вступления в силу</h3><p>Даты и напоминания о приближающихся сроках.</p></div>
+    <div class="hq-cap">${ic('doc')}<h3>Официальный источник</h3><p>Реквизиты документа и ссылка на официальную публикацию.</p></div>
+    <div class="hq-cap">${ic('send')}<h3>Telegram и почта</h3><p>Дайджесты там, где удобно. Каждый канал отключается отдельно.</p></div>
+    <div class="hq-cap">${ic('list')}<h3>Рекомендации к действию</h3><p>Предполагаемые шаги, ответственные и статусы выполнения.</p></div>
+  </div></div></section>
 
-  <section class="pub" id="faq"><div class="wrap"><div class="section-head"><h2>Частые вопросы</h2></div>${faqList(4)}<p style="margin-top:20px"><a class="link" href="#/faq">Все вопросы и ответы →</a></p></div></section>
+<!-- 8. AUDIENCE -->
+<section id="audience" class="hq-sec"><div class="wrap"><div class="hq-sh"><p class="eyebrow">Для кого</p><h2>Понятно не только юристам</h2><p>Один и тот же материал — разные приоритеты для разных ролей.</p></div>
+  <div class="hq-aud">
+    <div class="hq-a"><h3>Руководителям</h3><p>Быстро понять, что важно для бизнеса, без погружения в текст закона.</p><div class="hq-tq">Вопрос 1 и 3</div></div>
+    <div class="hq-a"><h3>Юристам</h3><p>Экономия времени на мониторинг; источники и уровень уверенности под рукой.</p><div class="hq-tq">Вопрос 2 и 3</div></div>
+    <div class="hq-a"><h3>Специалистам по комплаенсу</h3><p>Единая лента изменений по вашим направлениям и сроки адаптации.</p><div class="hq-tq">Вопрос 2 и 3</div></div>
+    <div class="hq-a"><h3>Бухгалтерам и финансистам</h3><p>Налоги и отчётность с датами вступления в силу.</p><div class="hq-tq">Вопрос 1 и 3</div></div>
+    <div class="hq-a"><h3>HR-специалистам</h3><p>Кадровые нормы, влияющие на договоры и локальные акты.</p><div class="hq-tq">Вопрос 2 и 3</div></div>
+    <div class="hq-a"><h3>Руководителям направлений</h3><p>Только те изменения, что касаются вашей зоны ответственности.</p><div class="hq-tq">Вопрос 2</div></div>
+  </div></div></section>
 
-  <section class="pub" style="border-bottom:none"><div class="wrap"><div class="final-cta"><h2>Начните отслеживать изменения, важные для вашего бизнеса</h2><p>Создайте аккаунт и заполните профиль компании — можно начать сейчас и продолжить позже.</p><a class="btn btn-primary" href="#/register">Создать аккаунт</a></div></div></section>`, '/');
+<!-- 9. CHANNELS -->
+<section id="channels" class="hq-sec" style="background:var(--sidebar)"><div class="wrap hq-split">
+  <div><p class="eyebrow">Кабинет и Telegram</p><h2>Узнавайте там, где вам удобно</h2><p class="hq-t">Основной канал — личный кабинет. Telegram и почта — дополнительные: подключите их за минуту и настройте частоту, категории и порог значимости.</p>
+    <div class="hq-card" style="margin-top:22px;padding:8px 22px"><div class="hq-sw"><span>В личном кабинете<small>Новые изменения и задачи</small></span><span class="hq-tg hq-on"></span></div><div class="hq-sw"><span>По электронной почте<small>Раз в день, в 09:00</small></span><span class="hq-tg hq-on"></span></div><div class="hq-sw"><span>В Telegram<small>Подключение по одноразовому коду</small></span><span class="hq-tg"></span></div><div class="hq-sw"><span>Приостановить все уведомления<small>Материалы продолжат накапливаться в кабинете</small></span><span class="hq-tg"></span></div></div></div>
+  <div class="hq-phone" role="img" aria-label="Пример сообщений LawTracker в Telegram"><div class="hq-scr"><div class="hq-top"><i>LT</i>LawTracker</div>
+    <div class="hq-msg"><b>Высокий уровень влияния</b>Согласие на обработку персональных данных — только отдельным документом. Вступает в силу через 14 дней.<br><span class="hq-l">Открыть в кабинете →</span><em>09:00</em></div>
+    <div class="hq-msg"><b>Напоминание о сроке</b>До 10 октября: оформить согласие отдельно от оферты. Ответственный: юрист.<em>09:00</em></div>
+    <div class="hq-msg"><b>Дайджест недели</b>5 новых изменений, 2 требуют внимания.<br><span class="hq-l">Посмотреть →</span><em>Пн, 09:00</em></div></div></div>
+</div></section>
+
+<!-- 10. PRICING -->
+<section id="pricing" class="hq-sec"><div class="wrap"><div class="hq-sh"><p class="eyebrow">Тарифы</p><h2>Подписка, которая растёт вместе с бизнесом</h2><p>Уровень зависит от размера компании. Цены ориентировочные: тарифы утверждаются — оставьте заявку, и мы сообщим о запуске. <a class="link" href="#/pricing">Все тарифы и сравнение →</a></p></div>
+  <div class="hq-price">${PLANS.map(p => `<div class="hq-pl ${p.featured ? 'hq-f' : ''}">${p.featured ? '<span class="tag" style="align-self:flex-start;margin-bottom:10px">Для большинства компаний</span>' : ''}<h3>${p.name}</h3><p class="hq-for">${p.for}</p><div class="hq-pr">${p.m === null ? 'По запросу' : p.m === 0 ? '<b>0 ₽</b>' : `<b>${money(p.m)}</b> / мес`}</div><ul>${p.feat.map(x => `<li>${ic('check', 'sm')}<span>${x}</span></li>`).join('')}</ul><a class="btn ${p.featured ? 'btn-primary' : 'btn-ghost'}" href="#/${p.id === 'corp' ? 'contacts' : 'register'}">${p.cta}</a></div>`).join('')}</div></div></section>
+
+<!-- 11. TRUST -->
+<section id="trust" class="hq-sec" style="background:var(--sidebar)"><div class="wrap"><div class="hq-sh"><p class="eyebrow">Доверие</p><h2>Инструмент мониторинга, а не замена юриста</h2></div>
+  <div class="hq-trust">
+    <div class="hq-tr">${ic('doc')}<h3>Ссылка на первоисточник</h3><p>В каждой карточке — название документа, реквизиты и ссылка на официальную публикацию.</p></div>
+    <div class="hq-tr">${ic('shield')}<h3>Уровень уверенности</h3><p>Мы отмечаем, насколько надёжен вывод, и показываем, проверял ли материал юрист.</p></div>
+    <div class="hq-tr">${ic('lock')}<h3>Контроль над данными</h3><p>Вы решаете, какие сведения о компании указывать, и управляете доступом к ним.</p></div>
+  </div>
+  <div class="hq-quote">«Законодательство меняется каждый день. Мы показываем, что именно изменилось для вашей компании и что нужно сделать.»<small>LawTracker</small></div></div></section>
+
+<!-- 12. FAQ -->
+<section id="faq" class="hq-sec" class="hq-hq-sec"><div class="wrap hq-wrap" style="max-width:860px"><div class="hq-hq-sh"><p class="eyebrow">Вопросы</p><h2>Частые вопросы</h2></div>${faqList(5)}<p style="margin-top:20px"><a class="hq-link" href="#/faq">Все вопросы и ответы →</a></p></div></section>
+
+<!-- 13. FINAL CTA -->
+<section id="contacts" class="hq-sec" style="border-bottom:0"><div class="wrap"><div class="hq-final"><h2>Узнавайте об изменениях, которые действительно важны вашему бизнесу</h2><p>Создайте аккаунт и заполните профиль компании — можно начать сейчас и продолжить позже.</p>
+  <div class="hq-cta"><a class="btn btn-primary" href="#/register">Создать аккаунт</a><a class="btn btn-ghost" href="mailto:hello@lawtracker.example">Написать нам</a></div></div></div></section>`, '/');
 }
 
 const FAQ = [
@@ -1047,53 +1184,6 @@ function viewOnboarding() {
     <form id="obTopics"><div class="chip-group" style="margin-bottom:26px" role="group" aria-label="Тематики">${Object.entries(TOPICS).map(([k, t]) => `<button type="button" class="chip" data-obtopic="${k}" aria-pressed="${OB.tmp.topics.includes(k)}">${t}</button>`).join('')}</div>
       <button class="btn btn-primary btn-block" type="submit">Перейти в кабинет</button><p class="switch-note"><button class="btn-text" type="button" data-act="obskip" style="display:inline">Пропустить</button></p></form>`;
   return authShell(inner);
-}
-
-/* =====================  HERO VARIANTS  ===================== */
-const HERO = {
-  personal: 'Персонализация', questions: 'Три вопроса', plan: 'План действий', telegram: 'Telegram', access: 'Запросить доступ', roles: 'По ролям'
-};
-let heroRole = 0;
-const HERO_ROLES = [
-  ['Руководителю', 'Новые требования к хранению персональных данных сотрудников', 'Что это значит для бизнеса и кому поручить. Без чтения текста закона.', 'Персональные данные'],
-  ['Юристу', 'Согласие на обработку данных — только отдельным документом', 'Реквизиты акта, текст нормы, ссылка на официальный источник и уровень уверенности анализа.', 'Персональные данные'],
-  ['Бухгалтеру', 'Изменены пороги дохода для упрощённой системы налогообложения', 'Что меняется по налогам и отчётности, с датами вступления в силу.', 'Налоги и отчётность'],
-  ['HR-специалисту', 'Новые правила оформления дистанционной работы', 'Какие договоры и локальные акты нужно обновить и к какому сроку.', 'Трудовое право']
-];
-const heroCta = (a = 'Начать') => `<a class="btn btn-primary" href="#/register">${a}</a><a class="btn btn-ghost" href="#/" data-scroll="how">Как это работает</a>`;
-function heroHTML() {
-  const v = HERO[S.hero] ? S.hero : 'personal';
-  if (v === 'questions') return `<section class="hero hero-c"><div class="wrap"><p class="eyebrow">Мониторинг изменений законодательства</p><h1>Закон изменился. Что это значит для вашего бизнеса?</h1>
-    <p class="lede">LawTracker отвечает на три вопроса, которые вы задаёте каждый раз, когда слышите о новом законе.</p><div class="hero-cta">${heroCta()}</div>
-    <div class="q3"><div class="qc"><div class="qn">1</div><h3>Что изменилось?</h3><p>Суть простыми словами, без юридического языка, с датой вступления в силу.</p></div><div class="qc"><div class="qn">2</div><h3>Касается ли это нас?</h3><p>Показываем, какие данные профиля компании привели к показу материала.</p></div><div class="qc"><div class="qn">3</div><h3>Что сделать?</h3><p>Предполагаемые шаги, ответственные, сроки и ссылка на официальный источник.</p></div></div></div></section>`;
-  if (v === 'plan') return `<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">Персональный регуляторный мониторинг</p><h1>Не новость, а понятный план действий</h1>
-    <p class="lede">LawTracker превращает изменения законодательства в конкретные шаги для вашей компании: что сделать, кому поручить и к какому сроку.</p><div class="hero-cta">${heroCta('Попробовать')}</div><p class="hero-note">Предполагаемые действия подбираются автоматически и не заменяют консультацию юриста.</p></div>
-    <div class="plan-card"><span class="demo-label">Пример · без данных реального клиента</span><h3>Что сделать по изменению «Согласие на обработку данных»</h3><p class="muted" style="font-size:.86rem;margin-bottom:8px">Вступает в силу через 14 дней</p>
-    <div class="row done"><span class="bx">${ic('check', 'sm')}</span><div><b>Проверить текущие формы сбора данных</b><small>Юрист · выполнено</small></div></div><div class="row"><span class="bx"></span><div><b>Оформить согласие отдельно от оферты</b><small>Юрист, маркетинг · до 10 октября</small></div></div><div class="row"><span class="bx"></span><div><b>Обновить формы на сайте</b><small>Маркетинг, разработка · до 12 октября</small></div></div></div></div></section>`;
-  if (v === 'telegram') return `<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">Кабинет и Telegram</p><h1>Следите за бизнесом, а не за законами</h1>
-    <p class="lede">Мы отслеживаем изменения законодательства и присылаем только то, что касается вашей компании, — в личный кабинет и Telegram. Каждый канал отключается отдельно.</p><div class="hero-cta">${heroCta()}</div><p class="hero-note">Telegram — дополнительный канал: основной кабинет остаётся полноценным.</p></div>
-    <div class="phone" role="img" aria-label="Пример сообщений LawTracker в Telegram"><div class="scr"><div class="top"><i>LT</i>LawTracker</div>
-    <div class="m"><b>Высокий уровень влияния</b>Согласие на обработку персональных данных — только отдельным документом.<br>Вступает в силу через 14 дней.<br><span class="l">Открыть в кабинете →</span><em>09:00</em></div>
-    <div class="m"><b>Напоминание о сроке</b>До 10 октября: оформить согласие отдельно от оферты. Ответственный: юрист.<em>09:00</em></div>
-    <div class="m"><b>Дайджест недели</b>5 новых изменений, 2 требуют внимания.<br><span class="l">Посмотреть →</span><em>Пн, 09:00</em></div></div></div></div></section>`;
-  if (v === 'access') return `<section class="hero hero-c"><div class="wrap"><p class="eyebrow">Ранний доступ</p><h1>Законы меняются. LawTracker расскажет, что важно именно вам</h1>
-    <p class="lede">Оставьте почту — мы откроем доступ к персональным дайджестам, как только сервис запустится.</p>
-    <form class="hero-form" id="heroForm" novalidate><label class="sr-only" for="hero-mail">Рабочая почта</label><input type="email" id="hero-mail" placeholder="you@company.ru" autocomplete="email"><button class="btn btn-primary" type="submit">Запросить доступ</button></form>
-    <p class="hero-note">Без спама. Только информация о запуске. <a class="link" href="#/register">Или создать аккаунт сейчас</a></p>
-    <div class="trust-row"><span>${ic('doc')}Ссылка на первоисточник</span><span>${ic('calendar')}Сроки вступления в силу</span><span>${ic('shield')}Уровень уверенности анализа</span></div></div></section>`;
-  if (v === 'roles') { const r = HERO_ROLES[heroRole]; return `<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">Для бизнеса без лишнего шума</p><h1>Только те изменения в законах, что касаются вашей сферы</h1>
-    <p class="lede">Руководителям, юристам, бухгалтерам и HR — свой взгляд на одно и то же изменение: коротко, по делу и со ссылкой на источник.</p>
-    <div class="role-tabs" role="group" aria-label="Выберите вашу роль">${HERO_ROLES.map((x, i) => `<button class="chip" data-act="heroRole" data-v="${i}" aria-pressed="${i === heroRole}">${x[0]}</button>`).join('')}</div>
-    <div class="hero-cta">${heroCta()}</div></div>
-    <div class="digest-card" aria-live="polite"><span class="demo-label">Пример для роли: ${esc(HERO_ROLES[heroRole][0].toLowerCase())}</span><div class="meta-row"><span class="tag">${esc(r[3])}</span></div><h3>${esc(r[1])}</h3><p style="margin:10px 0 14px;font-size:.95rem">${esc(r[2])}</p>
-    <div class="why"><b>Почему это показано вашей компании</b><ul><li>Совпадение с данными профиля компании</li><li>Вы выбрали эту тематику в уведомлениях</li></ul></div></div></div></section>`; }
-  return `<section class="hero"><div class="wrap hero-grid"><div>
-    <p class="eyebrow">Мониторинг изменений законодательства</p>
-    <h1>Изменения в законах, которые касаются именно вашей компании</h1>
-    <p class="lede">LawTracker следит за законодательством и присылает только то, что относится к вашему бизнесу — простыми словами, со сроками и ссылкой на первоисточник.</p>
-    <div class="hero-cta">${heroCta()}</div>
-    <p class="hero-note">Профиль компании можно заполнять постепенно. Бесплатный старт — без банковской карты.</p></div>
-    ${sampleCard()}</div></section>`;
 }
 
 /* =====================  APP SHELL  ===================== */
@@ -1494,7 +1584,7 @@ function renderDemo() {
     <h4>Быстрый старт</h4>${b('fill', 'Открыть кабинет с демо-компанией')}${b('emptyprofile', 'Пустой профиль (сбросить компанию)')}
     <h4>Состояния экранов</h4>${b('loading', 'Показать загрузку')}${b('error', 'Ошибка загрузки дайджестов', D.error)}${b('empty', 'Нет новых изменений', D.empty)}${b('session', 'Истёкшая сессия')}
     <h4>Telegram</h4>${[['none', 'Не подключён'], ['pending', 'Ожидается подтверждение'], ['connected', 'Подключён'], ['error', 'Ошибка подключения'], ['disabled', 'Отключён']].map(([k, t]) => b('tg:' + k, t, S.tg.status === k)).join('')}
-    <h4>Цветовая гамма</h4>${PALETTES.map(p => b('pal:' + p[0], p[1], S.palette === p[0])).join('')}<h4>Тариф</h4>${PLANS.map(p => b('plan:' + p.id, p.name, S.plan === p.id)).join('')}<h4>Первый экран</h4>${Object.entries(HERO).map(([k, t]) => b('hero:' + k, t, S.hero === k)).join('')}<h4>Шрифты</h4>${Object.entries(FONTS).map(([k, f]) => b('font:' + k, f[2] + ' — ' + f[0], S.font === k)).join('')}<h4>Прочее</h4>${b('reset', 'Сбросить все демо-данные')}</div>` : ''}</div>`;
+    <h4>Цветовая гамма</h4>${PALETTES.map(p => b('pal:' + p[0], p[1], S.palette === p[0])).join('')}<h4>Тариф</h4>${PLANS.map(p => b('plan:' + p.id, p.name, S.plan === p.id)).join('')}<h4>Шрифты</h4>${Object.entries(FONTS).map(([k, f]) => b('font:' + k, f[2] + ' — ' + f[0], S.font === k)).join('')}<h4>Прочее</h4>${b('reset', 'Сбросить все демо-данные')}</div>` : ''}</div>`;
 }
 function ensureUser() {
   if (!S.user) S.user = { name: 'Анна Ковалёва', email: 'a.kovaleva@nordwood.ru' };
@@ -1511,7 +1601,6 @@ function demoAction(id) {
   if (id === 'session') { sessionExpired(); return; }
   if (id.startsWith('tg:')) { ensureUser(); const st = id.slice(3); S.tg.status = st; if (st === 'pending') S.tg.code = genCode(); if (st === 'connected') S.tg.username = '@anna_kovaleva'; persist(); getPath() === '/app/telegram' ? render({ keep: true }) : go('/app/telegram'); return; }
   if (id.startsWith('plan:')) { ensureUser(); S.plan = id.slice(5); persist(); getPath() === '/app/billing' ? render({ keep: true }) : go('/app/billing'); return; }
-  if (id.startsWith('hero:')) { S.hero = id.slice(5); persist(); getPath() === '/' ? render({ keep: true }) : go('/'); return; }
   if (id.startsWith('font:')) { S.font = id.slice(5); applyTheme(); persist(); render({ keep: true }); return; }
   if (id.startsWith('pal:')) { S.palette = id.slice(4); applyTheme(); persist(); render({ keep: true }); return; }
   if (id === 'reset') { try { localStorage.removeItem(KEY); } catch (e) { } S = defState(); D.loading = D.error = D.empty = false; OB.step = 1; Object.assign(F, { q: '', period: 'all', topic: '', impact: '', status: 'all', sort: 'date', personal: false, page: 1 }); applyTheme(); toast('Демо-данные сброшены'); getPath() === '/' ? render() : go('/'); }
@@ -1564,7 +1653,6 @@ const ACT = {
   resetfilters() { Object.assign(F, { q: '', period: 'all', topic: '', impact: '', status: 'all', personal: false, page: 1 }); render({ keep: true }); },
   retry() { D.error = false; D.loading = true; render({ keep: true }); setTimeout(() => { D.loading = false; render({ keep: true }); }, 700); },
   openfilters() { const m = modal({ title: 'Фильтры', drawer: true, body: `<div style="display:grid;gap:14px">${filterFields()}</div><button class="btn btn-primary btn-block" style="margin-top:20px" data-close id="drawerCount">Показать результаты (${filterChanges(false).length})</button><button class="btn btn-text btn-block" data-act="resetfilters" data-close>Сбросить фильтры</button>` }); },
-  heroRole(t) { heroRole = +t.dataset.v; render({ keep: true }); },
   bill(t) { BILL = t.dataset.v; render({ keep: true }); },
   addpay() { modal({ title: 'Недоступно в демо', body: 'Приём платежей ещё не подключён. Способы оплаты будут доступны перед запуском платных тарифов.', actions: [{ label: 'Понятно', cls: 'btn-primary' }] }); },
   chooseplan(t) {
@@ -1655,7 +1743,6 @@ document.addEventListener('submit', e => {
     S.user = S.user && S.user.email === v.email ? S.user : { name: S.user?.name || nm, email: v.email }; persist(); viewErr = {}; go(S.onboarded ? '/app' : '/onboarding'); return;
   }
   if (id === 'forgotForm') { if (!validEmail(val('email'))) { toast('Проверьте адрес почты', 'err'); return; } forgotSent = true; render(); return; }
-  if (id === 'heroForm') { if (!validEmail($('#hero-mail').value.trim())) { toast('Проверьте адрес почты', 'err'); $('#hero-mail').focus(); return; } f.reset(); toast('Спасибо! Сообщим о запуске на эту почту'); return; }
   if (id === 'contactForm') { if (val('name').length < 2 || !validEmail(val('email')) || val('msg').length < 5) { toast('Заполните имя, почту и сообщение', 'err'); return; } f.reset(); toast('Сообщение отправлено. Мы скоро ответим'); return; }
   if (id === 'obVerify') { const code = $$('[data-code]').map(x => x.value).join(''); if (code.length < 6) { OB.err = { code: 'Введите все 6 цифр' }; render({ keep: true }); $('#code-0').focus(); return; } OB.err = {}; OB.step = 2; render(); return; }
   if (id === 'obCompany') { OB.tmp.name = $('#ob-name').value.trim(); OB.tmp.form = $('#ob-form').value; if (!OB.tmp.name) { OB.err = { name: 'Укажите название компании' }; render({ keep: true }); focusInvalid(); return; } OB.err = {}; S.company.name = OB.tmp.name; S.company.form = OB.tmp.form; persist(); OB.step = 3; render(); return; }

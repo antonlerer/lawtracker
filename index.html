@@ -574,6 +574,7 @@ footer .hq-fc .hq-logo{display:flex;padding:0;color:var(--ink)}
 .bp-quote{margin:0;font:1.55rem/1.4 var(--f-head);color:#F4F7F4;max-width:26ch}
 .bp-trust{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:16px}.bp-trust li{display:flex;gap:14px;align-items:flex-start}.bp-trust .ico{color:var(--panel-accent);width:24px;height:24px;margin-top:2px}
 @media(max-width:900px){.brand-panel .bp-extra,.brand-panel .bp-steps,.brand-panel .bp-q,.brand-panel .bp-card,.brand-panel .bp-phone,.brand-panel .bp-trust,.brand-panel .bp-quote,.brand-panel .bp-sub{display:none}.brand-panel .bp-main{gap:0}.brand-panel[class*="bp-"] {gap:12px}.brand-panel.bpv-trust .bp-main::before{content:"Законодательство меняется каждый день. Мы показываем, что важно именно вам.";font:1.15rem/1.4 var(--f-head);color:#F4F7F4}}
+.bp-steps .bp-next .bp-dot{border-style:dashed}.bp-steps .bp-next b{color:var(--panel-soft);font-weight:600}
 /* ===== alternative palettes ===== */
 :root[data-palette="navy"]{--bg:#F3F5F9;--bg-raised:#FFFFFF;--sidebar:#E9EDF4;--panel:#13284B;--ink:#131C2B;--ink-soft:#485468;--ink-faint:#647086;--line:#D8DEE8;--accent:#1F4E8C;--accent-ink:#FFFFFF;--accent-soft:#E3EAF5;--blue:#3B6A8F;--blue-soft:#E1ECF4;--panel-2:#1B3663;--panel-line:#2B4A7C;--panel-accent:#8DB4E8;--panel-tag-bg:#2B4A7C;--panel-tag-ink:#BBD3F5;--panel-soft:#B8C4D8;--amber:#8A5A20;--amber-soft:#F2E7D5;--red:#A23B2E;--red-soft:#F5E4E0;--focus:#1B6FD8;}
 @media (prefers-color-scheme:dark){:root[data-palette="navy"]:not([data-theme="light"]){--bg:#0E131C;--bg-raised:#161D29;--sidebar:#121824;--panel:#0B1424;--ink:#E7ECF4;--ink-soft:#A6B1C3;--ink-faint:#8793A7;--line:#263042;--accent:#7FAAE6;--accent-ink:#0B1424;--accent-soft:#1C2A42;--blue:#8DB6D6;--blue-soft:#1C2A36;--panel-2:#1B3663;--panel-line:#2B4A7C;--panel-accent:#8DB4E8;--panel-tag-bg:#2B4A7C;--panel-tag-ink:#BBD3F5;--panel-soft:#B8C4D8;--amber:#D8AE72;--amber-soft:#2E2618;--red:#E39A8D;--red-soft:#33211E;--focus:#7DB2FF;}}
@@ -1147,7 +1148,7 @@ function viewLegal(kind) {
 }
 
 /* =====================  AUTH & ONBOARDING  ===================== */
-const AUTH_PANELS = { current: 'Как сейчас', questions: 'Три вопроса', steps: 'Путь за 4 шага', sample: 'Пример дайджеста', telegram: 'Telegram и кабинет', trust: 'Доверие' };
+const AUTH_PANELS = { current: 'Как сейчас', questions: 'Три вопроса', steps: 'Три шага до дайджеста', sample: 'Пример дайджеста', telegram: 'Telegram и кабинет', trust: 'Доверие' };
 function authVariant() {
   const q = (location.hash.split('?')[1] || ''), v = new URLSearchParams(q).get('panel') || S.authPanel || 'current';
   return AUTH_PANELS[v] ? v : 'current';
@@ -1158,8 +1159,9 @@ function authBrand() {
   if (v === 'questions') return wrap(`<div class="brand-copy"><h2>Закон изменился. Что это значит для вашей компании?</h2></div>
     <div class="bp-q">${[['Что изменилось?', 'Суть простыми словами и дата вступления в силу'], ['Касается ли это нас?', 'Видно, какие данные профиля привели к показу'], ['Что сделать?', 'Шаги, ответственные, сроки и ссылка на источник']].map((x, i) => `<div class="bp-qi"><span class="bp-n">${i + 1}</span><div><b>${x[0]}</b><small>${x[1]}</small></div></div>`).join('')}</div>`,
     '<p class="bp-note">Регистрация займёт пару минут. Профиль компании можно заполнить позже — по шагам.</p>');
-  if (v === 'steps') return wrap(`<div class="brand-copy"><h2>Четыре шага до первого дайджеста</h2></div>
-    <ol class="bp-steps">${[['Создать аккаунт', 'Вы здесь — это займёт минуту', 1], ['Профиль компании', 'Заполняйте по шагам, необязательное можно пропустить', 0], ['Персональный дайджест', 'Только изменения, которые касаются вас', 0], ['Действия и напоминания', 'Шаги, сроки и уведомления в Telegram', 0]].map((x, i) => `<li class="${x[2] ? 'now' : ''}"><span class="bp-dot">${x[2] ? ic('check', 'sm') : i + 1}</span><div><b>${x[0]}</b><small>${x[1]}</small></div></li>`).join('')}</ol>`,
+  if (v === 'steps') return wrap(`<div class="brand-copy"><h2>Три шага до первого дайджеста</h2></div>
+    <ol class="bp-steps">${[['Создать аккаунт', 'Вы здесь — это займёт минуту', 1], ['Заполнить профиль компании', 'По шагам, необязательное можно пропустить', 0], ['Получить персональный дайджест', 'Только изменения, которые касаются вас', 0]].map((x, i) => `<li class="${x[2] ? 'now' : ''}"><span class="bp-dot">${x[2] ? ic('check', 'sm') : i + 1}</span><div><b>${x[0]}</b><small>${x[1]}</small></div></li>`).join('')}
+    <li class="bp-next"><span class="bp-dot">${ic('right', 'sm')}</span><div><b>Дальше: действия и напоминания</b><small>Шаги, сроки и уведомления в Telegram</small></div></li></ol>`,
     '<p class="bp-note">Бесплатный старт — без банковской карты.</p>');
   if (v === 'sample') return wrap(`<div class="brand-copy"><h2>Так выглядит ваш персональный дайджест</h2></div>
     <div class="bp-card"><span class="bp-demo">Пример · без данных реального клиента</span><div class="bp-tags"><span>Высокий уровень влияния</span><span>Персональные данные</span></div><h3>Согласие на обработку данных — только отдельным документом</h3><p>Вступает в силу через 14 дней. Оформить согласие отдельно от оферты — юрист, до 10 октября.</p><div class="bp-why"><b>Почему это показано вам</b>В профиле: «Собираем данные клиентов»</div></div>`,

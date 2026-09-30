@@ -551,6 +551,29 @@ html,body{overflow-x:clip}
 .hq-final .btn-primary{background:#F4F7F4;color:var(--panel)}.hq-final .btn-ghost{background:transparent;color:#F4F7F4;border-color:#ffffff55}.hq-final .btn-ghost:hover{background:#ffffff14}
 footer .hq-fc .hq-logo{display:flex;padding:0;color:var(--ink)}
 .hq-sec,.hq-hero{scroll-margin-top:70px}.hq-hero{padding:76px 0 70px;border-bottom:1px solid var(--line)}
+
+/* ===== auth left panel variants ===== */
+.brand-panel .bp-main{display:flex;flex-direction:column;justify-content:center;gap:20px}
+.brand-panel .brand-copy h2{margin-bottom:0}.bp-sub{color:var(--panel-soft);margin-top:12px;font-size:.95rem}
+.bp-note{color:var(--panel-soft);font-size:.86rem;max-width:44ch}
+.bp-q{display:grid;gap:14px;margin-top:6px}.bp-qi{display:flex;gap:14px;align-items:flex-start}
+.bp-n{width:30px;height:30px;border-radius:50%;background:var(--panel-2);border:1px solid var(--panel-line);color:var(--panel-accent);font:700 .95rem var(--f-head);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bp-qi b,.bp-steps b,.bp-trust b{display:block;color:#F4F7F4;font-size:.98rem}.bp-qi small,.bp-steps small,.bp-trust small{display:block;color:var(--panel-soft);font-size:.86rem;margin-top:2px}
+.bp-steps{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:0}.bp-steps li{display:flex;gap:16px;padding-bottom:22px;position:relative}
+.bp-steps li:not(:last-child)::before{content:"";position:absolute;left:14px;top:32px;bottom:2px;width:2px;background:var(--panel-line)}
+.bp-dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--panel-line);color:var(--panel-soft);font-weight:700;font-size:.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--panel)}
+.bp-steps .now .bp-dot{background:var(--panel-accent);border-color:var(--panel-accent);color:var(--panel)}.bp-steps .now b{color:#fff}
+.bp-card{background:#fff;color:#16201B;border-radius:16px;padding:22px 24px;box-shadow:0 18px 50px rgba(0,0,0,.28);max-width:460px}
+.bp-demo{display:inline-block;font-size:.72rem;color:#67726A;border:1px dashed #C9CFC6;border-radius:6px;padding:2px 8px;margin-bottom:12px}
+.bp-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.bp-tags span{font-size:.75rem;font-weight:600;padding:3px 10px;border-radius:999px;background:#F2E7D5;color:#8A5A20}.bp-tags span+span{background:#E4EBE6;color:#22574A}
+.bp-card h3{color:#16201B;font-size:1.1rem;margin-bottom:8px}.bp-card p{font-size:.92rem;color:#4A554E}
+.bp-why{margin-top:14px;background:#E4EBE6;border-radius:10px;padding:10px 14px;font-size:.86rem}.bp-why b{display:block;color:#22574A;font-size:.76rem;margin-bottom:2px}
+.bp-phone{width:min(320px,100%);background:var(--panel-2);border:1px solid var(--panel-line);border-radius:26px;padding:14px;display:grid;gap:10px}
+.bp-top{display:flex;gap:10px;align-items:center;color:#F4F7F4;font-weight:600;font-size:.9rem;padding-bottom:10px;border-bottom:1px solid var(--panel-line)}.bp-top i{width:30px;height:30px;border-radius:50%;background:var(--panel-accent);color:var(--panel);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:.72rem}
+.bp-msg{background:#fff;color:#1c2730;border-radius:14px 14px 14px 4px;padding:11px 13px;font-size:.84rem;line-height:1.45}.bp-msg b{display:block;margin-bottom:3px}.bp-msg em{font-style:normal;display:block;text-align:right;color:#6a7a86;font-size:.72rem;margin-top:3px}
+.bp-quote{margin:0;font:1.55rem/1.4 var(--f-head);color:#F4F7F4;max-width:26ch}
+.bp-trust{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:16px}.bp-trust li{display:flex;gap:14px;align-items:flex-start}.bp-trust .ico{color:var(--panel-accent);width:24px;height:24px;margin-top:2px}
+@media(max-width:900px){.brand-panel .bp-extra,.brand-panel .bp-steps,.brand-panel .bp-q,.brand-panel .bp-card,.brand-panel .bp-phone,.brand-panel .bp-trust,.brand-panel .bp-quote,.brand-panel .bp-sub{display:none}.brand-panel .bp-main{gap:0}.brand-panel[class*="bp-"] {gap:12px}.brand-panel.bpv-trust .bp-main::before{content:"Законодательство меняется каждый день. Мы показываем, что важно именно вам.";font:1.15rem/1.4 var(--f-head);color:#F4F7F4}}
 /* ===== alternative palettes ===== */
 :root[data-palette="navy"]{--bg:#F3F5F9;--bg-raised:#FFFFFF;--sidebar:#E9EDF4;--panel:#13284B;--ink:#131C2B;--ink-soft:#485468;--ink-faint:#647086;--line:#D8DEE8;--accent:#1F4E8C;--accent-ink:#FFFFFF;--accent-soft:#E3EAF5;--blue:#3B6A8F;--blue-soft:#E1ECF4;--panel-2:#1B3663;--panel-line:#2B4A7C;--panel-accent:#8DB4E8;--panel-tag-bg:#2B4A7C;--panel-tag-ink:#BBD3F5;--panel-soft:#B8C4D8;--amber:#8A5A20;--amber-soft:#F2E7D5;--red:#A23B2E;--red-soft:#F5E4E0;--focus:#1B6FD8;}
 @media (prefers-color-scheme:dark){:root[data-palette="navy"]:not([data-theme="light"]){--bg:#0E131C;--bg-raised:#161D29;--sidebar:#121824;--panel:#0B1424;--ink:#E7ECF4;--ink-soft:#A6B1C3;--ink-faint:#8793A7;--line:#263042;--accent:#7FAAE6;--accent-ink:#0B1424;--accent-soft:#1C2A42;--blue:#8DB6D6;--blue-soft:#1C2A36;--panel-2:#1B3663;--panel-line:#2B4A7C;--panel-accent:#8DB4E8;--panel-tag-bg:#2B4A7C;--panel-tag-ink:#BBD3F5;--panel-soft:#B8C4D8;--amber:#D8AE72;--amber-soft:#2E2618;--red:#E39A8D;--red-soft:#33211E;--focus:#7DB2FF;}}
@@ -1124,10 +1147,33 @@ function viewLegal(kind) {
 }
 
 /* =====================  AUTH & ONBOARDING  ===================== */
-const authBrand = () => `<div class="brand-panel"><div>${logo()}</div>
+const AUTH_PANELS = { current: 'Как сейчас', questions: 'Три вопроса', steps: 'Путь за 4 шага', sample: 'Пример дайджеста', telegram: 'Telegram и кабинет', trust: 'Доверие' };
+function authVariant() {
+  const q = (location.hash.split('?')[1] || ''), v = new URLSearchParams(q).get('panel') || S.authPanel || 'current';
+  return AUTH_PANELS[v] ? v : 'current';
+}
+function authBrand() {
+  const v = authVariant(), head = `<div>${logo()}</div>`;
+  const wrap = (main, extra = '') => `<div class="brand-panel bpv-${v}">${head}<div class="bp-main">${main}</div>${extra ? `<div class="bp-extra">${extra}</div>` : ''}</div>`;
+  if (v === 'questions') return wrap(`<div class="brand-copy"><h2>Закон изменился. Что это значит для вашей компании?</h2></div>
+    <div class="bp-q">${[['Что изменилось?', 'Суть простыми словами и дата вступления в силу'], ['Касается ли это нас?', 'Видно, какие данные профиля привели к показу'], ['Что сделать?', 'Шаги, ответственные, сроки и ссылка на источник']].map((x, i) => `<div class="bp-qi"><span class="bp-n">${i + 1}</span><div><b>${x[0]}</b><small>${x[1]}</small></div></div>`).join('')}</div>`,
+    '<p class="bp-note">Регистрация займёт пару минут. Профиль компании можно заполнить позже — по шагам.</p>');
+  if (v === 'steps') return wrap(`<div class="brand-copy"><h2>Четыре шага до первого дайджеста</h2></div>
+    <ol class="bp-steps">${[['Создать аккаунт', 'Вы здесь — это займёт минуту', 1], ['Профиль компании', 'Заполняйте по шагам, необязательное можно пропустить', 0], ['Персональный дайджест', 'Только изменения, которые касаются вас', 0], ['Действия и напоминания', 'Шаги, сроки и уведомления в Telegram', 0]].map((x, i) => `<li class="${x[2] ? 'now' : ''}"><span class="bp-dot">${x[2] ? ic('check', 'sm') : i + 1}</span><div><b>${x[0]}</b><small>${x[1]}</small></div></li>`).join('')}</ol>`,
+    '<p class="bp-note">Бесплатный старт — без банковской карты.</p>');
+  if (v === 'sample') return wrap(`<div class="brand-copy"><h2>Так выглядит ваш персональный дайджест</h2></div>
+    <div class="bp-card"><span class="bp-demo">Пример · без данных реального клиента</span><div class="bp-tags"><span>Высокий уровень влияния</span><span>Персональные данные</span></div><h3>Согласие на обработку данных — только отдельным документом</h3><p>Вступает в силу через 14 дней. Оформить согласие отдельно от оферты — юрист, до 10 октября.</p><div class="bp-why"><b>Почему это показано вам</b>В профиле: «Собираем данные клиентов»</div></div>`,
+    '<p class="bp-note">Суть, срок, ответственный и ссылка на источник — в одной карточке.</p>');
+  if (v === 'telegram') return wrap(`<div class="brand-copy"><h2>Кабинет и Telegram — там, где вам удобно</h2><p class="bp-sub">Каждый канал включается и отключается отдельно.</p></div>
+    <div class="bp-phone" role="img" aria-label="Пример сообщений LawTracker в Telegram"><div class="bp-top"><i>LT</i>LawTracker</div><div class="bp-msg"><b>Высокий уровень влияния</b>Согласие на обработку данных — только отдельным документом. Осталось 14 дней.<em>09:00</em></div><div class="bp-msg"><b>Напоминание о сроке</b>До 10 октября: оформить согласие. Ответственный: юрист.<em>09:00</em></div></div>`);
+  if (v === 'trust') return wrap(`<blockquote class="bp-quote">«Законодательство меняется каждый день. Мы показываем, что именно изменилось для вашей компании и что нужно сделать.»</blockquote>
+    <ul class="bp-trust">${[['doc', 'Ссылка на первоисточник', 'Реквизиты и переход к официальной публикации'], ['shield', 'Уровень уверенности анализа', 'Видно, проверял ли материал юрист'], ['lock', 'Контроль над данными', 'Вы решаете, что указывать о компании']].map(x => `<li>${ic(x[0])}<div><b>${x[1]}</b><small>${x[2]}</small></div></li>`).join('')}</ul>`,
+    '<p class="bp-note">Материалы носят информационный характер и не заменяют юридическую консультацию.</p>');
+  return `<div class="brand-panel"><div>${logo()}</div>
   <div><div class="brand-copy"><h2>Изменения в законах, которые касаются именно вашей компании</h2></div>
   <div class="benefit-list">${['Персональный дайджест под профиль компании', 'Понятные сроки и ссылка на источник', 'Уведомления в кабинете, почте или Telegram'].map(t => `<div class="benefit">${ic('check')}<p>${t}</p></div>`).join('')}</div></div>
   <div class="card-preview"><span class="tag">Персональные данные</span><h3>Новые требования к хранению персональных данных сотрудников</h3><p>Показано из-за раздела профиля «Работа с персональными данными»</p></div></div>`;
+}
 const authShell = inner => `<a class="skip" href="#main" data-skip>К содержимому</a><div class="auth-screen">${authBrand()}<main class="form-side" id="main" tabindex="-1"><div class="form-wrap">${inner}</div></main></div>`;
 const authTabs = cur => `<div class="tabs" role="tablist" aria-label="Вход или регистрация" style="margin-bottom:26px"><a role="tab" href="#/register" aria-selected="${cur === 'r'}" style="display:flex;align-items:center;justify-content:center">Регистрация</a><a role="tab" href="#/login" aria-selected="${cur === 'l'}" style="display:flex;align-items:center;justify-content:center">Вход</a></div>`;
 const fieldErr = m => m ? `<div class="err" role="alert">${ic('alert', 'sm')}${esc(m)}</div>` : '';

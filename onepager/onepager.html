@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>LawTracker — one-pager</title>
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=Inter:wght@400;500;600;700&display=swap&subset=cyrillic" rel="stylesheet">
+<style>
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{width:210mm;height:297mm;background:#F2F4F0;color:#16201B;font:400 9.4pt/1.42 Inter,"Segoe UI",sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;overflow:hidden}
+h1,h2,h3{font-family:"PT Serif",Georgia,serif;margin:0;line-height:1.2}
+.page{width:210mm;height:297mm;display:flex;flex-direction:column}
+/* header */
+.hd{background:#17352C;color:#EFF3EF;padding:11mm 13mm 9mm}
+.brand{display:flex;align-items:center;gap:8px;font:700 13pt "PT Serif",serif;color:#F4F7F4}
+.brand svg{width:26px;height:26px;color:#6FAE97}
+.hd h1{font-size:22pt;color:#F4F7F4;margin-top:5mm;max-width:24ch}
+.hd p{color:#C7D2CB;font-size:10.2pt;margin-top:3mm;max-width:58ch}
+/* body */
+.bd{flex:1;padding:8mm 13mm 0;display:grid;grid-template-columns:1fr 1fr;gap:6mm 8mm;align-content:start}
+.blk h2{font-size:11.5pt;color:#22574A;display:flex;align-items:center;gap:6px;margin-bottom:2.4mm}
+.blk h2 i{display:inline-flex;width:6mm;height:6mm;border-radius:50%;background:#22574A;color:#F4F7F4;font:700 8pt Inter,sans-serif;align-items:center;justify-content:center;font-style:normal}
+.blk ul{list-style:none;margin:0;padding:0;display:grid;gap:1.8mm}
+.blk li{position:relative;padding-left:4.2mm}
+.blk li::before{content:"";position:absolute;left:0;top:.52em;width:1.6mm;height:1.6mm;border-radius:50%;background:#22574A}
+.blk li b{font-weight:600}
+.blk.bad h2{color:#8A5A20}.blk.bad h2 i{background:#8A5A20}.blk.bad li::before{background:#8A5A20}
+.card{background:#fff;border:1px solid #DBDFD7;border-radius:3mm;padding:4.5mm 5mm}
+.tags{display:flex;flex-wrap:wrap;gap:1.5mm;margin-top:2.4mm}
+.tags span{font-size:8pt;font-weight:600;padding:.6mm 2.4mm;border-radius:999px;background:#E4EBE6;color:#22574A}
+/* value band */
+.val{margin:6mm 13mm 0;background:#E4EBE6;border-radius:3.5mm;padding:5mm 6mm;display:grid;grid-template-columns:1fr 38mm;gap:7mm;align-items:center}
+.val h2{font-size:12pt;color:#17352C;margin-bottom:2.2mm}
+.val .q{font:400 9.6pt/1.4 "PT Serif",serif;color:#16201B}
+.steps{display:flex;gap:2mm;margin-top:3.2mm;align-items:stretch}
+.steps div{flex:1;background:#fff;border-radius:2.4mm;padding:2.2mm 2.6mm;font-size:8.4pt;line-height:1.3}
+.steps b{display:block;font:700 9pt "PT Serif",serif;color:#22574A;margin-bottom:.6mm}
+.qr{display:flex;flex-direction:column;align-items:center;gap:2mm}
+.qr .box{width:38mm;height:38mm;background:#fff;border:1.2px solid #22574A;border-radius:2.4mm}
+.qr small{font-size:7.8pt;color:#17352C;font-weight:600;text-align:center;line-height:1.25}
+/* footer */
+.ft{padding:4.5mm 13mm 6mm;font-size:7.6pt;color:#4A554E;display:flex;justify-content:space-between;gap:10mm;align-items:flex-end}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="hd">
+    <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3.5 6-7.5"/></svg>LawTracker</div>
+    <h1>Изменения в законах, которые касаются именно вашей компании</h1>
+    <p>Персональный мониторинг законодательства для малого и среднего бизнеса: что изменилось, касается ли это вас и что нужно сделать.</p>
+  </header>
+
+  <main class="bd">
+    <section class="blk">
+      <h2><i>1</i>Проблема</h2>
+      <ul>
+        <li><b>Закон меняется постоянно,</b> а у малого бизнеса нет отдельного юридического подразделения.</li>
+        <li><b>Избыток информации:</b> важные изменения теряются среди неактуальных новостей.</li>
+        <li><b>Сложный язык:</b> мало увидеть акт, нужно понять, что он значит на практике.</li>
+        <li><b>Нет персонализации:</b> одна поправка по-разному важна интернет-магазину, IT-компании и стройфирме.</li>
+        <li><b>Ручной мониторинг</b> отнимает время, и всё равно есть риск что-то пропустить.</li>
+      </ul>
+    </section>
+
+    <section class="blk bad">
+      <h2><i>2</i>Последствия нерешения</h2>
+      <ul>
+        <li><b>Пропущенные нормы и сроки</b> — риск штрафов и претензий.</li>
+        <li><b>Срочные и дорогие переделки</b> документов и процессов «в последний момент».</li>
+        <li><b>Потерянное время</b> руководителей, бухгалтеров и юристов на ручной поиск.</li>
+        <li><b>Неуверенность:</b> компания не знает, что к ней применимо, а что нет.</li>
+      </ul>
+    </section>
+
+    <section class="blk">
+      <h2><i>3</i>Целевая аудитория</h2>
+      <ul>
+        <li><b>ИП, микро- и малый бизнес</b> без собственного юриста.</li>
+        <li><b>Средний бизнес,</b> где есть юрист, бухгалтер, HR или комплаенс.</li>
+        <li><b>Бухгалтерские и юридические фирмы,</b> которые ведут десятки клиентов.</li>
+      </ul>
+      <div class="tags"><span>Интернет-торговля</span><span>IT</span><span>Персональные данные</span><span>Трудовое право</span><span>Реклама</span></div>
+    </section>
+
+    <section class="blk">
+      <h2><i>4</i>Конкурентные преимущества</h2>
+      <ul>
+        <li><b>Только своё:</b> показываем изменения по профилю компании и объясняем, почему.</li>
+        <li><b>Понятно и применимо:</b> суть за 30 секунд, шаги, ответственные и сроки.</li>
+        <li><b>Проверяемо:</b> ссылка на первоисточник, уровень уверенности, проверка юристом.</li>
+        <li><b>Удобно:</b> личный кабинет, e-mail и Telegram.</li>
+        <li><b>Доступно:</b> бесплатный старт, платные тарифы от 690 ₽ в месяц*.</li>
+      </ul>
+    </section>
+  </main>
+
+  <section class="val">
+    <div>
+      <h2>5&nbsp; Ценность</h2>
+      <div class="q">Не новость, а понятный план действий: клиент экономит время, заранее готовится к изменениям, не пропускает сроки и уверен, что учтено главное.</div>
+      <div class="steps"><div><b>1. Что изменилось?</b>Суть простыми словами и дата вступления в силу</div><div><b>2. Касается ли нас?</b>Показано по профилю, причина указана</div><div><b>3. Что сделать?</b>Шаги, ответственные, сроки, источник</div></div>
+    </div>
+    <div class="qr"><div class="box" aria-label="Место для QR-кода"></div><small>Демо-версия сайта</small></div>
+  </section>
+
+  <footer class="ft">
+    <span>* Предварительные тарифы. Материалы носят информационный характер и не заменяют индивидуальную юридическую консультацию.</span>
+    <span style="white-space:nowrap;font-weight:600;color:#22574A">LawTracker</span>
+  </footer>
+</div>
+</body>
+</html>

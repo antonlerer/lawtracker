@@ -18,7 +18,7 @@ UNSAFE = {"POST", "PUT", "PATCH", "DELETE"}
 
 
 def create_app(settings: Settings | None = None, *, mailer: Mailer | None = None, telegram: Sender | None = None,
-               today: Callable[[], date] | None = None) -> FastAPI:
+               today: Callable[[], date] | None = None, llm=None) -> FastAPI:
     settings = settings or get_settings()
     app = FastAPI(title="LawTracker API", version="1.0.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
     engine = make_engine(settings.database_url)
@@ -32,6 +32,8 @@ def create_app(settings: Settings | None = None, *, mailer: Mailer | None = None
                                   if settings.smtp_host else ConsoleMailer())
     app.state.telegram = telegram or BotApiSender(settings.bot_token)
     app.state.today = today
+    from ingest.llm import make_llm
+    app.state.llm = llm if llm is not None else make_llm(settings)      # None — модель не настроена
     install_error_handlers(app)
 
     @app.middleware("http")

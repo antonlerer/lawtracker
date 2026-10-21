@@ -138,7 +138,7 @@ def mock_portal():
 def test_run_ingest_adds_relevant_and_is_idempotent(env):
     with env.app.state.session_factory() as db:
         stats = run_ingest(db, env.settings, http=mock_portal())
-        assert stats == {"seen": 2, "new": 2, "added": 1, "skipped": 1, "errors": 0}
+        assert stats == {"seen": 2, "new": 2, "added": 1, "skipped": 1, "errors": 0, "analyzed": 0, "fallback": 1}
         ch = db.get(Change, "pravo-0001202610150001")
         assert ch.topic == "pd" and ch.published_at.isoformat() == "2026-10-15" and not ch.reviewed
         assert ch.source_url.endswith("/document/0001202610150001")

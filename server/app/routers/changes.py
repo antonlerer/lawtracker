@@ -95,7 +95,7 @@ def mark_saved(change_id: str, request: Request, body: SaveBody = SaveBody(), ct
 
 class ActionBody(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    state: Literal["todo", "done"]
+    state: Literal["todo", "doing", "done"]
 
 
 @router.put("/changes/{change_id}/actions/{idx}")

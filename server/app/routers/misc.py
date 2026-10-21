@@ -230,6 +230,42 @@ def admin_upsert_change(change_id: str, body: ChangeIn, db: Session = Depends(ge
     return {"id": ch.id, "status": ch.status}
 
 
+class AnalyzeIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    text: str = Field(min_length=80, max_length=400000)
+    apply: bool = False
+
+
+@router.post("/admin/changes/{change_id}/analyze", dependencies=[Depends(admin_only)])
+def admin_analyze(change_id: str, body: AnalyzeIn, request: Request, db: Session = Depends(get_db),
+                  settings: Settings = Depends(get_settings)):
+    """ИИ-разбор текста акта для существующего изменения. apply=false — только показать результат (черновик для юриста)."""
+    from fastapi.encoders import jsonable_encoder
+
+    from ingest.analyze import Analyzer
+    from ingest.pravo import RawAct
+    llm = request.app.state.llm
+    if llm is None:
+        raise ApiError(503, "llm_not_configured", "Модель не настроена (GIGACHAT_AUTH_KEY или LLM_BASE_URL + LLM_MODEL)")
+    ch = db.get(Change, change_id)
+    if ch is None:
+        raise ApiError(404, "not_found", "Материал не найден")
+    raw = RawAct(ch.source_key or ch.id, ch.doc, ch.published_at.isoformat(), "", ch.title, ch.source_url)
+    clock = getattr(request.app.state, "today", None)
+    res = Analyzer(llm, settings.analysis_passes).analyze(raw, body.text, clock() if clock else None)
+    applied = False
+    if body.apply and res.fields:
+        keep = {"source_key", "related", "status", "agency"}
+        for k, v in res.fields.items():
+            if k not in keep:
+                setattr(ch, k, v)
+        ch.reviewed = False
+        db.commit()
+        applied = True
+    return jsonable_encoder({"relevant": res.relevant, "applied": applied, "notes": res.notes, "report": res.report,
+                             "fields": res.fields})
+
+
 class PlanSet(BaseModel):
     model_config = ConfigDict(extra="forbid")
     plan: Literal["free", "basic", "pro", "corp"]

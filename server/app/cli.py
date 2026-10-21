@@ -27,6 +27,15 @@ def main() -> None:
     n = sub.add_parser("notify", help="рассылка дайджестов")
     n.add_argument("--loop", type=int, default=0, help="повторять каждые N секунд (0 — один проход)")
     sub.add_parser("ingest", help="забрать новые акты с pravo.gov.ru")
+    an = sub.add_parser("analyze", help="ИИ-разбор акта из текстового файла (проверка промпта и модели)")
+    an.add_argument("--file", required=True, help="файл с текстом акта (UTF-8)")
+    an.add_argument("--title", required=True)
+    an.add_argument("--type", default="Федеральный закон")
+    an.add_argument("--number", default="")
+    an.add_argument("--published", default="", help="дата публикации ГГГГ-ММ-ДД")
+    ev = sub.add_parser("evaluate", help="измерить качество ИИ-разбора на выборке, размеченной юристом")
+    ev.add_argument("--gold", required=True, help="файл JSON Lines (пример: eval/gold_example.jsonl)")
+    ev.add_argument("--json", action="store_true", help="вывести полный отчёт в JSON")
     args = ap.parse_args()
     settings = get_settings()
     factory = _factory(settings)
@@ -40,6 +49,26 @@ def main() -> None:
         with factory() as db:
             load_demo_changes(db)
             print(create_demo_account(db))
+    elif args.cmd in ("analyze", "evaluate"):
+        import json
+        from pathlib import Path
+
+        from ingest.analyze import Analyzer
+        from ingest.evaluate import evaluate, format_report, load_gold
+        from ingest.llm import make_llm
+        from ingest.pravo import RawAct
+        llm = make_llm(settings)
+        if llm is None:
+            raise SystemExit("Модель не настроена: задайте GIGACHAT_AUTH_KEY или LLM_BASE_URL + LLM_MODEL (+ LLM_API_KEY)")
+        analyzer = Analyzer(llm, settings.analysis_passes)
+        if args.cmd == "analyze":
+            raw = RawAct("cli", args.type, args.published, args.number, args.title, "")
+            res = analyzer.analyze(raw, Path(args.file).read_text(encoding="utf-8"))
+            print(json.dumps({"relevant": res.relevant, "notes": res.notes, "report": res.report,
+                              "fields": res.fields}, ensure_ascii=False, indent=2, default=str))
+        else:
+            rep = evaluate(load_gold(args.gold), analyzer)
+            print(json.dumps(rep, ensure_ascii=False, indent=2, default=str) if args.json else format_report(rep))
     elif args.cmd == "notify":
         from .notify import dispatch
         mailer = (SmtpMailer(settings.smtp_host, settings.smtp_port, settings.smtp_user, settings.smtp_password,

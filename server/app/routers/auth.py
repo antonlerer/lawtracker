@@ -48,13 +48,22 @@ def user_public(user: User) -> dict:
             "email_verified": user.email_verified}
 
 
-def send_code(request: Request, db: Session, user: User) -> None:
+def send_code(request: Request, db: Session, user: User) -> str:
     code = numeric_code()
     user.verify_code_hash, user.verify_attempts = hash_token(code), 0
     user.verify_expires = utcnow() + timedelta(minutes=15)
     db.commit()
     request.app.state.mailer.send(user.email, "Код подтверждения LawTracker",
                                   f"Ваш код подтверждения: {code}\nОн действует 15 минут.")
+    return code
+
+
+def dev_code(request: Request, code: str, settings: Settings) -> dict:
+    """Режим показа без почты: код возвращается в ответе, чтобы можно было пройти регистрацию без SMTP."""
+    from ..mailer import ConsoleMailer
+    if settings.demo_mode and isinstance(request.app.state.mailer, ConsoleMailer):
+        return {"dev_code": code}
+    return {}
 
 
 @router.post("/register", status_code=201)
@@ -79,9 +88,9 @@ def register(body: Register, request: Request, response: Response, db: Session =
                 consent_at=utcnow())
     db.add(user)
     db.commit()
-    send_code(request, db, user)
+    code = send_code(request, db, user)
     open_session(db, request, response, user, settings)
-    return {"user": user_public(user)}
+    return {"user": user_public(user), **dev_code(request, code, settings)}
 
 
 @router.post("/login")
@@ -141,13 +150,14 @@ def verify_email(body: Code, auth: Auth = Depends(current_auth), db: Session = D
 
 
 @router.post("/resend-code")
-def resend_code(request: Request, auth: Auth = Depends(current_auth), db: Session = Depends(get_db)):
+def resend_code(request: Request, auth: Auth = Depends(current_auth), db: Session = Depends(get_db),
+                settings: Settings = Depends(get_settings)):
     if auth.user.email_verified:
         return {"ok": True}
     throttle(db, f"user:{auth.user.id}", "resend", 5, 60)
     record_attempt(db, f"user:{auth.user.id}", "resend")
-    send_code(request, db, auth.user)
-    return {"ok": True}
+    code = send_code(request, db, auth.user)
+    return {"ok": True, **dev_code(request, code, settings)}
 
 
 class Forgot(BaseModel):

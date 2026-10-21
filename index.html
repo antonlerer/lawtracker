@@ -826,6 +826,7 @@ const MATRIX = [
 const money = n => n.toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' ₽';
 
 /* =====================  STATE  ===================== */
+let LIVE = false, META = null, BOOTING = true;   // LIVE: сайт открыт с сервера LawTracker и работает через /api
 const KEY = 'lawtracker.demo.v1';
 const emptyCompany = () => ({ name: '', inn: '', form: '', size: '', industry: '', activities: [], desc: '', regions: [], branches: '', foreignShare: false, entities: '1', headcount: '', remote: false, foreignStaff: false, licenses: [], pdCustomers: false, pdEmployees: false, pdExternal: false, pdCross: false, vedExport: false, vedImport: false, digital: [], contactName: '', contactEmail: '', contactRole: '', recipients: '', topics: [], saved: {}, skipped: {} });
 const defState = () => ({
@@ -835,7 +836,7 @@ const defState = () => ({
 });
 let S = defState();
 try { const r = localStorage.getItem(KEY); if (r) S = Object.assign(defState(), JSON.parse(r)); } catch (e) { }
-const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } };
+const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(LIVE ? { theme: S.theme, palette: S.palette, font: S.font, profileStep: S.profileStep, welcomed: S.welcomed } : S)); } catch (e) { } };
 const D = { loading: false, error: false, empty: false };   // demo-only flags, not persisted
 const PALETTES = [['forest', 'Лес', '#22574A', '#17352C', '#F2F4F0'], ['navy', 'Синий «Доверие»', '#1F4E8C', '#13284B', '#F3F5F9'], ['burgundy', 'Бордо «Классика»', '#7B2D3E', '#3A1620', '#F7F4F0'], ['teal', 'Бирюза «Современный»', '#0B7A84', '#0B3A40', '#F0F6F6'], ['indigo', 'Индиго «Технологичный»', '#4B45B2', '#1E1B4B', '#F4F4FA']];
 const FONTS = {
@@ -869,8 +870,8 @@ const STEPS = [
 const stepDone = s => !!(S.company.saved[s.id] || S.company.skipped[s.id]);
 const profilePct = () => Math.round(STEPS.filter(stepDone).length / STEPS.length * 100);
 const profileStarted = () => Object.keys(S.company.saved).length > 0;
-const matchesOf = c => profileStarted() ? c.reasons.filter(r => { try { return r[0](S.company); } catch (e) { return false; } }).map(r => typeof r[1] === 'function' ? r[1](S.company) : r[1]) : [];
-const isPersonal = c => matchesOf(c).length > 0;
+const matchesOf = c => LIVE ? (c._reasons || []) : profileStarted() ? c.reasons.filter(r => { try { return r[0](S.company); } catch (e) { return false; } }).map(r => typeof r[1] === 'function' ? r[1](S.company) : r[1]) : [];
+const isPersonal = c => LIVE ? !!c._personal : matchesOf(c).length > 0;
 const isRead = c => S.read.includes(c.id);
 const isSaved = c => S.saved.includes(c.id);
 const actState = (c, i) => S.acts[c.id + ':' + i] || 'todo';
@@ -1206,13 +1207,17 @@ function viewLogin(err = {}, v = {}) {
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:10px;flex-wrap:wrap"><label class="check" style="font-size:.88rem;color:var(--ink-soft)"><input type="checkbox">Запомнить меня</label><a class="link" href="#/forgot" style="font-size:.88rem">Забыли пароль?</a></div>
     <button class="btn btn-primary btn-block" type="submit">Войти</button></form>
   <div class="divider">или</div>${oauthBtn}<p class="switch-note">Ещё нет аккаунта? <a class="link" href="#/register">Зарегистрироваться</a></p>
-  <p class="note" style="text-align:center;margin-top:14px">Демо: подойдёт любая почта и пароль от 8 символов.</p>`);
+  ${LIVE ? '' : '<p class="note" style="text-align:center;margin-top:14px">Демо: подойдёт любая почта и пароль от 8 символов.</p>'}`);
 }
 function viewForgot(sent) {
   return authShell(sent ? `<div class="banner" style="margin-bottom:20px">${ic('mail')}<div class="b-body"><strong>Проверьте почту</strong>Если аккаунт с таким адресом существует, мы отправили ссылку для сброса пароля.</div></div><a class="btn btn-ghost btn-block" href="#/login">Вернуться ко входу</a>`
     : `<h1>Восстановление пароля</h1><p class="form-sub">Укажите почту — отправим ссылку для создания нового пароля.</p><form id="forgotForm" novalidate><div class="field"><label for="f-mail">Рабочая почта</label><input type="email" id="f-mail" name="email" autocomplete="email"></div><button class="btn btn-primary btn-block" type="submit">Отправить ссылку</button></form><p class="switch-note"><a class="link" href="#/login">← Назад ко входу</a></p>`);
 }
 
+function viewReset() {
+  const token = new URLSearchParams(location.hash.split('?')[1] || '').get('token') || '';
+  return authShell(`<h1>Новый пароль</h1><p class="form-sub">Придумайте новый пароль для входа.</p><form id="resetForm" novalidate><input type="hidden" name="token" value="${esc(token)}"><div class="field"><label for="rs-pass">Новый пароль</label><input type="password" id="rs-pass" name="pass" autocomplete="new-password" placeholder="Минимум 8 символов" ${viewErr.pass ? 'aria-invalid="true"' : ''}><div class="note">Минимум 8 символов, буква и цифра</div>${fieldErr(viewErr.pass)}</div><button class="btn btn-primary btn-block" type="submit">Сохранить пароль</button></form><p class="switch-note"><a class="link" href="#/login">Вернуться ко входу</a></p>`);
+}
 const OB = { step: 1, err: {}, mode: 'create', tmp: { form: 'ООО', name: '', size: '', industry: '', topics: [] } };
 function viewOnboarding() {
   if (!S.user) return null;
@@ -1220,7 +1225,7 @@ function viewOnboarding() {
   const e = OB.err;
   let inner;
   if (st === 1) inner = `${bar}<h1>Подтвердите почту</h1><p class="form-sub">Мы отправили 6-значный код на <b>${esc(S.user.email)}</b>.</p>
-    <form id="obVerify" novalidate><div class="field"><label for="code-0">Код из письма</label><div class="code-inputs" role="group" aria-label="Код подтверждения">${[0, 1, 2, 3, 4, 5].map(i => `<input inputmode="numeric" maxlength="1" id="code-${i}" data-code="${i}" aria-label="Цифра ${i + 1}" autocomplete="${i ? 'off' : 'one-time-code'}">`).join('')}</div>${fieldErr(e.code)}<p class="note">Демо: введите любые 6 цифр.</p></div>
+    <form id="obVerify" novalidate><div class="field"><label for="code-0">Код из письма</label><div class="code-inputs" role="group" aria-label="Код подтверждения">${[0, 1, 2, 3, 4, 5].map(i => `<input inputmode="numeric" maxlength="1" id="code-${i}" data-code="${i}" aria-label="Цифра ${i + 1}" autocomplete="${i ? 'off' : 'one-time-code'}">`).join('')}</div>${fieldErr(e.code)}${LIVE ? (OB.devCode ? `<p class="note">Режим показа: ваш код — <b>${OB.devCode}</b></p>` : '<p class="note">Код отправлен на почту и действует 15 минут.</p>') : '<p class="note">Демо: введите любые 6 цифр.</p>'}</div>
     <button class="btn btn-primary btn-block" type="submit">Подтвердить</button></form><p class="switch-note"><button class="btn-text" data-act="resend" style="display:inline">Отправить код ещё раз</button></p>`;
   else if (st === 2) inner = `${bar}<h1>Ваша компания</h1><p class="form-sub">Создайте профиль компании или присоединитесь к существующему.</p>
     <div class="tabs" role="tablist" style="margin-bottom:22px"><button role="tab" aria-selected="${OB.mode === 'create'}" data-act="obmode" data-v="create">Создать</button><button role="tab" aria-selected="${OB.mode === 'join'}" data-act="obmode" data-v="join">Присоединиться</button></div>
@@ -1340,7 +1345,7 @@ function viewChange(id) {
   const used = [];
   const P = S.company; if (profileStarted()) { if (P.industry) used.push('Отрасль: ' + P.industry); if (P.headcount) used.push('Численность: ' + P.headcount); }
   const tl = c.draft ? '' : `<div class="timeline" aria-label="Хронология"><div class="on">Опубликовано<br>${fmtS(dayOff(c.pub))}</div><div class="on">Сегодня<br>${fmtS(TODAY)}</div><div class="${c.eff <= 0 ? 'on' : ''}">${c.eff <= 0 ? 'Вступило' : 'Вступает'}<br>${fmtS(dayOff(c.eff))}</div></div>`;
-  const acts = c.actions.length ? `<div class="act-list">${c.actions.map((a, i) => { const st = actState(c, i); return `<div class="act ${st === 'done' ? 'done' : ''}"><input type="checkbox" class="chk" data-actcheck="${c.id}:${i}" ${st === 'done' ? 'checked' : ''} aria-label="Выполнено: ${esc(a[0])}" style="width:22px;height:22px;accent-color:var(--accent)"><div class="txt"><span class="k">Действие</span>${esc(a[0])}</div><div><span class="k">Рекомендуемый срок</span>до ${fmtS(dayOff(a[1]))}</div><div><span class="k">Возможный ответственный</span>${esc(a[2])}</div><div><span class="k">Статус</span><select data-actstatus="${c.id}:${i}" aria-label="Статус: ${esc(a[0])}">${[['todo', 'Не начато'], ['doing', 'В работе'], ['done', 'Выполнено']].map(([v, t]) => opt(v, t, st)).join('')}</select></div></div>`; }).join('')}</div><p class="note" style="margin-top:10px">Действия предположительные и подобраны автоматически. Ответственных и сроки можно скорректировать с юристом.</p>` : '<p class="muted">По этому материалу конкретных действий не требуется — достаточно следить за развитием событий.</p>';
+  const acts = LIVE && c._locked ? `<div class="banner blue">${ic('info')}<div class="b-body"><strong>Рекомендации к действию — на тарифе «Профессиональный»</strong>Шаги, сроки и ответственные видны с этого тарифа. <a class="link" href="#/app/billing">Сменить тариф</a></div></div>` : c.actions.length ? `<div class="act-list">${c.actions.map((a, i) => { const st = actState(c, i); return `<div class="act ${st === 'done' ? 'done' : ''}"><input type="checkbox" class="chk" data-actcheck="${c.id}:${i}" ${st === 'done' ? 'checked' : ''} aria-label="Выполнено: ${esc(a[0])}" style="width:22px;height:22px;accent-color:var(--accent)"><div class="txt"><span class="k">Действие</span>${esc(a[0])}</div><div><span class="k">Рекомендуемый срок</span>до ${fmtS(dayOff(a[1]))}</div><div><span class="k">Возможный ответственный</span>${esc(a[2])}</div><div><span class="k">Статус</span><select data-actstatus="${c.id}:${i}" aria-label="Статус: ${esc(a[0])}">${[['todo', 'Не начато'], ['doing', 'В работе'], ['done', 'Выполнено']].map(([v, t]) => opt(v, t, st)).join('')}</select></div></div>`; }).join('')}</div><p class="note" style="margin-top:10px">Действия предположительные и подобраны автоматически. Ответственных и сроки можно скорректировать с юристом.</p>` : '<p class="muted">По этому материалу конкретных действий не требуется — достаточно следить за развитием событий.</p>';
   const rel = c.related.map(x => CH[x]).filter(Boolean);
   return appShell('digests', {
     title: '', sub: '', body: `<article class="detail">
@@ -1440,7 +1445,7 @@ function viewProfile() {
       <div class="step-actions"><div class="l">${i > 0 ? '<button type="button" class="btn btn-ghost" data-act="pback">Назад</button>' : ''}${s.opt ? '<button type="button" class="btn-text" data-act="pskip">Пропустить вопрос</button>' : ''}</div><button class="btn btn-primary" type="submit">${i === STEPS.length - 1 ? 'Сохранить и завершить' : 'Сохранить и продолжить'}</button></div>
       <p class="note" style="display:flex;gap:8px;align-items:center;margin-top:18px">${ic('lock', 'sm')}Эти данные видны только вашей команде в LawTracker.</p></form>
     <section class="card" aria-labelledby="dacc"><h2 id="dacc" style="font-size:1.1rem;margin-bottom:6px">Данные и доступ</h2><p class="muted" style="font-size:.9rem;margin-bottom:8px">Мы используем сведения профиля только для подбора изменений. Вы решаете, кто в команде их видит.</p>
-      <div class="tog-row"><div><div class="t" id="t-share">Показывать профиль участникам и наблюдателям</div><div class="s">Если выключено, профиль видят только владелец и администраторы</div></div><label class="switch"><input type="checkbox" id="shareProfile" aria-labelledby="t-share" ${shared ? 'checked' : ''}><span class="track"></span></label></div>
+      ${LIVE ? '' : `<div class="tog-row"><div><div class="t" id="t-share">Показывать профиль участникам и наблюдателям</div><div class="s">Если выключено, профиль видят только владелец и администраторы</div></div><label class="switch"><input type="checkbox" id="shareProfile" aria-labelledby="t-share" ${shared ? 'checked' : ''}><span class="track"></span></label></div>`}
       <div class="tog-row"><div><div class="t">Скачать данные профиля</div><div class="s">Файл с ответами в формате JSON</div></div><button class="btn btn-ghost btn-sm" data-act="exportprofile">${ic('dl', 'sm')}Скачать</button></div>
       <div class="tog-row"><div><div class="t">Очистить данные профиля</div><div class="s">Персонализация перестанет работать, пока вы не заполните профиль заново</div></div><button class="btn btn-danger-ghost btn-sm" data-act="resetprofile">Очистить</button></div></section></div></div>`
   });
@@ -1455,6 +1460,7 @@ function viewNotifications() {
   const sw = (k, label) => `<label class="switch"><input type="checkbox" data-n="${k}" aria-label="${label}" ${n[k] ? 'checked' : ''}><span class="track"></span></label>`;
   return appShell('notifications', {
     title: 'Настройки уведомлений', sub: 'Каждый канал можно включить и настроить отдельно', actions: '', body: `<div class="narrow">
+    ${LIVE && S.notifEditable === false ? `<div class="banner blue" style="margin-bottom:22px">${ic('info')}<div class="b-body"><strong>Настройка уведомлений — на тарифе «Базовый» и выше</strong>Сейчас действуют настройки по умолчанию.</div></div>` : ''}
     ${n.pause ? `<div class="banner amber" style="margin-bottom:22px">${ic('clock')}<div class="b-body"><strong>Уведомления приостановлены</strong>Материалы продолжают накапливаться в кабинете${n.pauseUntil ? '. Возобновим ' + fmtD(n.pauseUntil) : ''}.</div></div>` : ''}
     ${allOff && !n.pause ? `<div class="banner blue" style="margin-bottom:22px">${ic('info')}<div class="b-body"><strong>Все каналы отключены</strong>Вы не получите ни одного уведомления. Изменения по-прежнему видны в разделе «Дайджесты».</div></div>` : ''}
     <div class="group"><div class="group-head"><h2>Каналы получения</h2><p>Отключить можно любой канал — остальные продолжат работать.</p></div>
@@ -1477,7 +1483,7 @@ function viewNotifications() {
 }
 
 /* =====================  TELEGRAM  ===================== */
-const BOT = 'LawTrackerBot';
+let BOT = 'LawTrackerBot';
 function viewTelegram() {
   const st = S.tg.status; let body;
   const steps = `<ol class="tg-steps"><li><span>Нажмите «Подключить Telegram» — мы создадим одноразовый код.</span></li><li><span>Откройте нашего бота <b>@${BOT}</b> и нажмите «Запустить».</span></li><li><span>Отправьте боту код — и вернитесь в кабинет.</span></li></ol>`;
@@ -1489,7 +1495,7 @@ function viewTelegram() {
     <div class="tg-msg"><b>LawTracker · Дайджест недели</b>${unreadCount()} новых изменений, ${attention().length} требуют внимания.<br><span class="link">Открыть кабинет →</span></div><p class="muted" style="font-size:.9rem;margin-top:16px">Тип и частоту сообщений можно настроить в разделе <a class="link" href="#/app/notifications">«Уведомления»</a>.</p></div>`;
   if (st === 'error') body = `<div class="banner red" role="alert">${ic('alert')}<div class="b-body"><strong>Не удалось подтвердить подключение</strong>Возможные причины: код устарел, бот был заблокирован или код введён с ошибкой.<div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" data-act="tgconnect">Получить новый код</button><a class="btn btn-ghost btn-sm" href="#/app/support">Написать в поддержку</a></div></div></div>`;
   if (st === 'disabled') body = `<div class="card"><span class="tag neutral" style="margin-bottom:12px">Отключён</span><h2 style="font-size:1.3rem;margin-bottom:8px">Telegram отключён</h2><p class="muted" style="margin-bottom:16px">Сообщения больше не отправляются. Дайджесты по-прежнему доступны в кабинете и по почте.</p><button class="btn btn-primary" data-act="tgconnect">Подключить снова</button></div>`;
-  return appShell('telegram', { title: 'Подключение Telegram', sub: 'Дополнительный канал уведомлений', body: `<div class="narrow stack-lg">${S.plan === 'free' ? `<div class="banner blue">${ic('info')}<div class="b-body">В демо Telegram доступен на всех тарифах. В боевой версии уведомления в Telegram входят в тариф «Базовый» и выше.</div></div>` : ''}${body}<div class="note">Вы можете отключить Telegram в любой момент — остальные каналы продолжат работать.</div></div>` });
+  return appShell('telegram', { title: 'Подключение Telegram', sub: 'Дополнительный канал уведомлений', body: `<div class="narrow stack-lg">${S.plan === 'free' ? `<div class="banner blue">${ic('info')}<div class="b-body">${LIVE ? 'Уведомления в Telegram входят в тариф «Базовый» и выше.' : 'В демо Telegram доступен на всех тарифах. В боевой версии уведомления в Telegram входят в тариф «Базовый» и выше.'}</div></div>` : ''}${body}<div class="note">Вы можете отключить Telegram в любой момент — остальные каналы продолжат работать.</div></div>` });
 }
 
 /* =====================  TEAM  ===================== */
@@ -1574,7 +1580,7 @@ const upRow = x => { const d = dayOff(x.eff); return `<a class="list-row" href="
 
 function viewOverview() {
   const d = ovData(), att = attention().slice(0, 3), attList = att.length ? att : (d.top ? [d.top] : []), rest = d.fresh.filter(x => !attList.includes(x)).slice(0, 4);
-  return ovShell(d, `${!profileStarted() ? `<div class="banner amber" style="margin-bottom:6px">${ic('info')}<div class="b-body"><strong>Профиль компании пока не заполнен</strong>Пока показываем общие изменения. Ответьте на несколько вопросов — и мы отберём то, что касается именно вас.</div><a class="btn btn-primary btn-sm" href="#/app/profile">Заполнить</a></div>` : ''}<p class="ov-line" style="margin-top:0">За неделю: <b>${d.un}</b> новых изменений, <b>${d.attn}</b> требуют внимания.</p>
+  return ovShell(d, `${LIVE && S.plan === 'free' && profileStarted() ? `<div class="banner blue" style="margin-bottom:6px">${ic('info')}<div class="b-body"><strong>Персональный подбор — на тарифе «Базовый» и выше</strong>На бесплатном тарифе показывается общий дайджест. <a class="link" href="#/app/billing">Сменить тариф</a></div></div>` : ''}${!profileStarted() ? `<div class="banner amber" style="margin-bottom:6px">${ic('info')}<div class="b-body"><strong>Профиль компании пока не заполнен</strong>Пока показываем общие изменения. Ответьте на несколько вопросов — и мы отберём то, что касается именно вас.</div><a class="btn btn-primary btn-sm" href="#/app/profile">Заполнить</a></div>` : ''}<p class="ov-line" style="margin-top:0">За неделю: <b>${d.un}</b> новых изменений, <b>${d.attn}</b> требуют внимания.</p>
   <div class="layout-grid"><div class="stack-lg">${D.loading ? skeletons(3) : D.empty ? ovEmpty() : `<section aria-labelledby="ova"><div class="col-heading"><h2 id="ova">Требует внимания</h2></div><div class="list-card">${attList.map(changeRow).join('')}</div></section>
     <section aria-labelledby="ovn"><div class="col-heading"><h2 id="ovn">Новое</h2><a href="#/app/digests">Все (${CHANGES.length})</a></div><div class="list-card">${rest.map(changeRow).join('')}</div></section>`}</div>
   <div class="stack"><section aria-labelledby="ovs"><div class="col-heading"><h2 id="ovs">Ближайшие сроки</h2></div><div class="list-card">${d.upcoming.slice(0, 3).map(upRow).join('')}</div></section>${ovSetup(d)}</div></div>`);
@@ -1583,7 +1589,7 @@ function viewOverview() {
 /* =====================  ROUTER  ===================== */
 const root = $('#root');
 let curPath = null, pendingScroll = null, demoOpen = false, viewErr = {}, viewVals = {}, forgotSent = false;
-const TITLES = { '/': 'Мониторинг изменений законодательства для бизнеса', '/faq': 'Вопросы и ответы', '/pricing': 'Тарифы', '/about': 'О сервисе', '/contacts': 'Контакты', '/privacy': 'Политика конфиденциальности', '/terms': 'Пользовательское соглашение', '/login': 'Вход', '/register': 'Регистрация', '/forgot': 'Восстановление пароля', '/onboarding': 'Настройка аккаунта', '/app': 'Обзор', '/app/digests': 'Дайджесты', '/app/saved': 'Сохранённое', '/app/profile': 'Профиль компании', '/app/notifications': 'Настройки уведомлений', '/app/telegram': 'Подключение Telegram', '/app/team': 'Команда и доступы', '/app/billing': 'Тариф и оплата', '/app/plan': 'Персональный план', '/app/account': 'Настройки аккаунта', '/app/support': 'Поддержка' };
+const TITLES = { '/reset': 'Новый пароль', '/': 'Мониторинг изменений законодательства для бизнеса', '/faq': 'Вопросы и ответы', '/pricing': 'Тарифы', '/about': 'О сервисе', '/contacts': 'Контакты', '/privacy': 'Политика конфиденциальности', '/terms': 'Пользовательское соглашение', '/login': 'Вход', '/register': 'Регистрация', '/forgot': 'Восстановление пароля', '/onboarding': 'Настройка аккаунта', '/app': 'Обзор', '/app/digests': 'Дайджесты', '/app/saved': 'Сохранённое', '/app/profile': 'Профиль компании', '/app/notifications': 'Настройки уведомлений', '/app/telegram': 'Подключение Telegram', '/app/team': 'Команда и доступы', '/app/billing': 'Тариф и оплата', '/app/plan': 'Персональный план', '/app/account': 'Настройки аккаунта', '/app/support': 'Поддержка' };
 const getPath = () => (location.hash.replace(/^#/, '') || '/').split('?')[0];
 const go = p => { location.hash = '#' + p; };
 
@@ -1597,7 +1603,7 @@ function resolve(path) {
   if (path === '/onboarding') { if (!S.user) return { redirect: '/register' }; if (S.onboarded) return { redirect: '/app' }; }
   const T = {
     '/': viewHome, '/faq': viewFaq, '/pricing': viewPricing, '/about': viewAbout, '/contacts': viewContacts, '/privacy': () => viewLegal('privacy'), '/terms': () => viewLegal('terms'),
-    '/login': () => viewLogin(viewErr, viewVals), '/register': () => viewRegister(viewErr, viewVals), '/forgot': () => viewForgot(forgotSent), '/onboarding': viewOnboarding,
+    '/reset': viewReset, '/login': () => viewLogin(viewErr, viewVals), '/register': () => viewRegister(viewErr, viewVals), '/forgot': () => viewForgot(forgotSent), '/onboarding': viewOnboarding,
     '/app': viewOverview, '/app/digests': viewDigests, '/app/saved': viewSaved, '/app/profile': viewProfile, '/app/notifications': viewNotifications, '/app/telegram': viewTelegram, '/app/team': viewTeam, '/app/billing': viewBilling, '/app/plan': viewPlan, '/app/account': viewAccount, '/app/support': viewSupport
   };
   if (T[path]) return { html: T[path](), title: TITLES[path] };
@@ -1606,6 +1612,7 @@ function resolve(path) {
 }
 
 function render({ keep = false } = {}) {
+  if (BOOTING) return;
   const path = getPath(), r = resolve(path);
   if (r.redirect) { go(r.redirect); return; }
   const changed = path !== curPath, y = window.scrollY;
@@ -1623,10 +1630,12 @@ function render({ keep = false } = {}) {
   else { window.scrollTo(0, 0); if (changed) $('#main')?.focus({ preventScroll: true }); }
   pendingScroll = null; curPath = path;
   renderDemo();
+  if (LIVE) liveAfterRender(path);
 }
 
 /* =====================  DEMO PANEL  ===================== */
 function renderDemo() {
+  if (LIVE) return renderDemoLive();
   const host = $('#demo-root'), p = getPath();
   if (['/login', '/register', '/forgot', '/onboarding'].includes(p)) { host.innerHTML = ''; return; }
   const b = (id, label, on) => `<button data-demo="${id}" ${on !== undefined ? `aria-pressed="${on}"` : ''}>${label}</button>`;
@@ -1641,7 +1650,8 @@ function ensureUser() {
   if (!S.user) S.user = { name: 'Анна Ковалёва', email: 'a.kovaleva@nordwood.ru' };
   S.onboarded = true;
 }
-function demoAction(id) {
+function demoAction(id, orig) {
+  if (LIVE && !orig) return demoActionLive(id);
   demoOpen = false;
   const inApp = getPath().startsWith('/app') && S.user;
   if (id === 'fill') { ensureUser(); loadDemoCompany(); S.team = []; toast('Загружена демо-компания «Нордвуд Логистика»'); getPath() === '/app' ? render() : go('/app'); return; }
@@ -1664,6 +1674,7 @@ function sessionExpired() {
 /* =====================  CLICK ACTIONS  ===================== */
 const toggleIn = (arr, v) => { const i = arr.indexOf(v); i > -1 ? arr.splice(i, 1) : arr.push(v); };
 function finishOnboarding() {
+  if (LIVE) { finishOnboardingLive(); return; }
   S.company.topics = OB.tmp.topics.slice(); S.notif.topics = OB.tmp.topics.slice(); S.onboarded = true; persist(); toast('Аккаунт создан. Добро пожаловать в LawTracker!'); go('/app');
 }
 const ACT = {
@@ -1715,9 +1726,360 @@ const ACT = {
   demo() { demoOpen = !demoOpen; renderDemo(); }
 };
 
+
+/* =====================  LIVE: РАБОТА С СЕРВЕРОМ  =====================
+   Если сайт открыт с сервера LawTracker, данные берутся из /api и хранятся в базе.
+   На GitHub Pages и при открытии файла сервера нет — тогда работает демо в браузере (код выше). */
+const SNAKE = { pdCustomers: 'pd_customers', pdEmployees: 'pd_employees', pdExternal: 'pd_external', pdCross: 'pd_cross', foreignShare: 'foreign_share', foreignStaff: 'foreign_staff', vedExport: 'ved_export', vedImport: 'ved_import', contactName: 'contact_name', contactEmail: 'contact_email', contactRole: 'contact_role' };
+const CAMEL = Object.fromEntries(Object.entries(SNAKE).map(([c, s]) => [s, c]));
+const toCamel = k => CAMEL[k] || k;
+let expiredShown = false;
+
+async function api(method, url, body, ms = 15000) {
+  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), ms);
+  try {
+    const r = await fetch('/api' + url, { method, credentials: 'same-origin', signal: ctl.signal, headers: body !== undefined ? { 'Content-Type': 'application/json' } : { 'X-Requested-With': 'lawtracker' }, body: body !== undefined ? JSON.stringify(body) : undefined });
+    let data = null; try { data = await r.json(); } catch (e) { }
+    if (r.status === 401 && LIVE && S.user && !/^\/auth\/(login|register)/.test(url)) handleExpired();
+    return { ok: r.ok, status: r.status, data, err: data && data.error ? data.error : null };
+  } catch (e) {
+    return { ok: false, status: 0, data: null, err: { code: 'network', message: 'Нет связи с сервером. Проверьте подключение', fields: {} } };
+  } finally { clearTimeout(timer); }
+}
+const failToast = r => toast((r.err && r.err.message) || 'Не удалось выполнить действие', 'err');
+function handleExpired() { if (expiredShown) return; expiredShown = true; sessionExpired(); }
+const dayDiff = iso => Math.round((new Date(iso + 'T00:00:00') - new Date(META.today + 'T00:00:00')) / 864e5);
+
+function companyFromApi(c) {
+  const comp = emptyCompany();
+  for (const [k, v] of Object.entries(c.profile || {})) { const key = toCamel(k); if (key in comp) comp[key] = v; }
+  comp.entities = String((c.profile || {}).entities || 1);
+  comp.recipients = ((c.profile || {}).recipients || []).join(', ');
+  comp.saved = {}; comp.skipped = {};
+  for (const s of c.completeness.steps) { if (s.state === 'saved') comp.saved[s.id] = 1; if (s.state === 'skipped') comp.skipped[s.id] = 1; }
+  return comp;
+}
+function stepToApi(stepId) {
+  const out = {};
+  for (const f of META.steps.find(s => s.id === stepId).fields) {
+    const v = S.company[toCamel(f)];
+    out[f] = f === 'entities' ? (parseInt(v, 10) || 1) : f === 'recipients' ? String(v || '').split(/[,;\n]+/).map(x => x.trim()).filter(Boolean) : f === 'inn' ? String(v || '').trim() : v;
+  }
+  return out;
+}
+const fieldsFromApi = fl => Object.fromEntries(Object.entries(fl || {}).map(([k, v]) => [toCamel(k), v]));
+function changeFromApi(d) {
+  const pub = dayDiff(d.published_at);
+  return { id: d.id, topic: d.topic, impact: d.impact, pub, eff: d.effective_at ? dayDiff(d.effective_at) : null, draft: d.is_draft, agency: d.agency, doc: d.doc, docRef: 'Опубликован ' + fmtD(dayOff(pub)), conf: d.confidence, reviewed: d.reviewed,
+    title: d.title, summary: d.summary, what: d.what || '', who: d.who || '', comment: d.comment || '', quote: d.quote || '', reasons: [], _reasons: d.reasons || [], _personal: !!d.personal, _locked: !!d.actions_locked, sourceUrl: d.source_url || '',
+    actions: (d.actions || []).map(a => [a.title, a.due_in_days, a.responsible]), related: (d.related || []).map(r => r.id) };
+}
+const notifFromApi = d => ({ cabinet: d.settings.cabinet, email: d.settings.email, emailFreq: d.settings.email_freq, tg: d.settings.tg, topics: d.settings.topics, minImpact: d.settings.min_impact, days: d.settings.days, time: d.settings.time, pause: d.settings.pause, pauseUntil: d.settings.pause_until || '' });
+const notifToApi = n => ({ cabinet: n.cabinet, email: n.email, email_freq: n.emailFreq, tg: n.tg, topics: n.topics, min_impact: n.minImpact, days: n.days, time: n.time, pause: n.pause, pause_until: n.pauseUntil || null });
+const tgFromApi = d => { if (d.bot) BOT = d.bot; return { status: d.status, code: d.code || '', username: d.username || '' }; };
+const teamFromApi = d => d.members.map(m => ({ id: m.is_me ? 'me' : String(m.id), apiId: m.id, name: m.name, email: m.email, role: m.role, status: m.status }));
+function describeSession(s) {
+  const ua = s.user_agent || '', br = /Edg\//.test(ua) ? 'Edge' : /OPR\//.test(ua) ? 'Opera' : /Firefox\//.test(ua) ? 'Firefox' : /Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : 'Браузер';
+  const os = /Windows/.test(ua) ? 'Windows' : /Android/.test(ua) ? 'Android' : /iPhone|iPad/.test(ua) ? 'iOS' : /Mac OS/.test(ua) ? 'macOS' : /Linux/.test(ua) ? 'Linux' : '';
+  const t = s.current ? 'сейчас' : new Date(s.last_seen + 'Z').toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+  return br + (os ? ' · ' + os : '') + ' · ' + t;
+}
+
+async function loadChanges() {
+  let page = 1, pages = 1, all = [];
+  do { const r = await api('GET', `/changes?per_page=50&detail=true&page=${page}`); if (!r.ok) break; all = all.concat(r.data.items); pages = r.data.pages; page++; } while (page <= pages && page < 20);
+  CHANGES.length = 0; Object.keys(CH).forEach(k => delete CH[k]);
+  S.read = []; S.saved = []; S.acts = {};
+  for (const d of all) {
+    const c = changeFromApi(d); CHANGES.push(c); CH[c.id] = c;
+    if (d.is_read) S.read.push(c.id); if (d.is_saved) S.saved.push(c.id);
+    (d.actions || []).forEach(a => { S.acts[c.id + ':' + a.index] = a.state; });
+  }
+}
+async function loadSessions() {
+  const r = await api('GET', '/account/sessions'); if (!r.ok) return false;
+  sessions = r.data.sessions.map(s => ({ id: s.id, d: describeSession(s), cur: s.current })); return true;
+}
+async function loadAll() {
+  const me = await api('GET', '/auth/me');
+  if (!me.ok) { S.user = null; S.onboarded = false; return; }
+  const u = me.data.user; S.user = { name: u.name, email: u.email, phone: u.phone || '', verified: u.email_verified };
+  if (!me.data.company) { S.onboarded = false; S.company = emptyCompany(); S.team = []; S.plan = 'free'; S.role = null; ND = null; return; }
+  S.onboarded = true; S.plan = me.data.company.plan; S.role = me.data.company.role;
+  const [c, n, t, tm] = await Promise.all([api('GET', '/company'), api('GET', '/notifications'), api('GET', '/telegram'), api('GET', '/team')]);
+  if (c.ok) S.company = companyFromApi(c.data);
+  if (n.ok) { S.notif = notifFromApi(n.data); S.notifEditable = n.data.editable; }
+  if (t.ok) S.tg = tgFromApi(t.data);
+  if (tm.ok) S.team = teamFromApi(tm.data);
+  await loadChanges(); ND = null;
+}
+const resetLiveState = () => { S = Object.assign(defState(), { theme: S.theme, palette: S.palette, font: S.font, profileStep: 1 }); CHANGES.length = 0; Object.keys(CH).forEach(k => delete CH[k]); ND = null; NDirty = false; expiredShown = false; persist(); };
+const obStepFor = () => !S.user ? 1 : !S.user.verified ? 1 : 2;
+
+async function bootLive() {
+  const m = await api('GET', '/meta', undefined, 2500);
+  if (!m.ok || !m.data || !m.data.steps) return;                       // сервера нет — остаёмся в демо-режиме
+  META = m.data; LIVE = true;
+  S = Object.assign(defState(), { theme: S.theme, palette: S.palette, font: S.font, profileStep: S.profileStep || 1, welcomed: S.welcomed });
+  await loadAll();
+  OB.step = obStepFor();
+}
+
+/* ---- действия (переопределяют демо, если LIVE) ---- */
+const ACT0 = Object.assign({}, ACT);
+async function toggleFlag(kind, t) {            // kind: 'save' | 'read'
+  const id = t.dataset.id, list = kind === 'save' ? S.saved : S.read, was = list.includes(id);
+  toggleIn(list, id); if (kind === 'save') toast(!was ? 'Материал сохранён' : 'Убрано из сохранённого'); render({ keep: true });
+  const r = await api('POST', `/changes/${encodeURIComponent(id)}/${kind}`, kind === 'save' ? { saved: !was } : { read: !was });
+  if (!r.ok) { toggleIn(list, id); render({ keep: true }); failToast(r); }
+}
+async function reloadProfile(r) {
+  S.company = Object.assign(S.company, { saved: companyFromApi(r.data).saved, skipped: companyFromApi(r.data).skipped });
+  await loadChanges();
+}
+async function finishOnboardingLive() {
+  const topics = OB.tmp.topics.slice();
+  const r = await api('PUT', '/company/profile/industry', { data: Object.assign(stepToApi('industry'), { topics }) });
+  if (!r.ok) { failToast(r); return; }
+  S.company.topics = topics; S.onboarded = true; await loadChanges(); toast('Аккаунт создан. Добро пожаловать в LawTracker!'); go('/app');
+}
+Object.assign(ACT, {
+  save(t) { if (!LIVE) return ACT0.save(t); toggleFlag('save', t); },
+  read(t) { if (!LIVE) return ACT0.read(t); toggleFlag('read', t); },
+  report(t) {
+    if (!LIVE) return ACT0.report(t);
+    const id = t.dataset.id;
+    modal({ title: 'Сообщить об ошибке', body: `<div class="field" style="margin:0"><label for="rep">Что не так в этом материале?</label><textarea id="rep" placeholder="Например: неверная дата или не тот круг лиц"></textarea><div id="repE"></div></div>`, actions: [{ label: 'Отмена' }, { label: 'Отправить', cls: 'btn-primary', on: (ov, close) => { const v = $('#rep', ov).value.trim(); if (v.length < 5) { $('#repE', ov).innerHTML = fieldErr('Опишите проблему хотя бы в нескольких словах'); return false; } api('POST', '/support', { topic: 'Ошибка в материале', message: `[${id}] ${v}` }).then(r => { if (r.ok) { toast('Спасибо! Юрист проверит материал'); close(); } else { $('#repE', ov).innerHTML = fieldErr(r.err.message); } }); return false; } }] });
+  },
+  async resend() {
+    if (!LIVE) return ACT0.resend();
+    const r = await api('POST', '/auth/resend-code'); if (!r.ok) return failToast(r);
+    OB.devCode = r.data.dev_code || ''; toast('Код отправлен повторно'); render({ keep: true });
+  },
+  obskip() { if (!LIVE) return ACT0.obskip(); OB.tmp.topics = []; finishOnboardingLive(); },
+  async pskip() {
+    if (!LIVE) return ACT0.pskip();
+    const s = STEPS[S.profileStep - 1], r = await api('POST', `/company/profile/${s.id}/skip`); if (!r.ok) return failToast(r);
+    S.company.skipped[s.id] = 1; PErr = {}; S.profileStep = Math.min(STEPS.length, S.profileStep + 1); persist(); render();
+  },
+  resetprofile() {
+    if (!LIVE) return ACT0.resetprofile();
+    confirmBox('Очистить данные профиля?', 'Ответы будут удалены, персонализация перестанет работать, пока вы не заполните профиль заново.', 'Очистить', 'btn-danger', (ov, close) => {
+      api('DELETE', '/company/profile').then(async r => { if (!r.ok) return failToast(r); S.company = companyFromApi(r.data); S.profileStep = 1; await loadChanges(); persist(); toast('Данные профиля очищены'); render(); }); close(); return false;
+    });
+  },
+  async tgconnect() { if (!LIVE) return ACT0.tgconnect(); const r = await api('POST', '/telegram/connect'); if (!r.ok) return failToast(r); S.tg = tgFromApi(r.data); render({ keep: true }); },
+  async tgcheck() {
+    if (!LIVE) return ACT0.tgcheck();
+    const r = await api('GET', '/telegram'); if (!r.ok) return failToast(r); S.tg = tgFromApi(r.data);
+    if (S.tg.status === 'connected') toast('Telegram подключён'); else if (S.tg.status === 'error') toast('Код устарел. Получите новый', 'err'); else toast('Код пока не получен. Отправьте его боту и нажмите ещё раз', 'err');
+    render({ keep: true });
+  },
+  async tgcancel() { if (!LIVE) return ACT0.tgcancel(); const r = await api('DELETE', '/telegram'); if (r.ok) S.tg = tgFromApi(r.data); render({ keep: true }); },
+  async tgtest() { if (!LIVE) return ACT0.tgtest(); const r = await api('POST', '/telegram/test'); r.ok ? toast('Тестовое сообщение отправлено в Telegram') : failToast(r); },
+  tgdisconnect() {
+    if (!LIVE) return ACT0.tgdisconnect();
+    confirmBox('Отключить Telegram?', 'Сообщения перестанут приходить в мессенджер. Подключить его снова можно в любой момент.', 'Отключить', 'btn-danger', (ov, close) => { api('DELETE', '/telegram').then(r => { if (!r.ok) return failToast(r); S.tg = tgFromApi(r.data); toast('Telegram отключён'); render({ keep: true }); }); close(); return false; });
+  },
+  async nsave() {
+    if (!LIVE) return ACT0.nsave();
+    const r = await api('PUT', '/notifications', notifToApi(ND)); if (!r.ok) return failToast(r);
+    S.notif = JSON.parse(JSON.stringify(ND)); NDirty = false; toast('Настройки сохранены'); render({ keep: true });
+  },
+  async waitlist() { if (!LIVE) return ACT0.waitlist(); const r = await api('POST', '/plan/waitlist'); if (!r.ok) return failToast(r); S.waitlist = true; toast('Готово! Сообщим о запуске раздела'); render({ keep: true }); },
+  async logout() { if (!LIVE) return ACT0.logout(); await api('POST', '/auth/logout'); resetLiveState(); toast('Вы вышли из аккаунта'); go('/'); },
+  delacc() {
+    if (!LIVE) return ACT0.delacc();
+    modal({ title: 'Удалить аккаунт?', body: `<p>Профиль компании, настройки и сохранённые материалы будут удалены без возможности восстановления.</p><div class="field" style="margin:16px 0 0"><label for="delc">Для подтверждения введите пароль</label><input type="password" id="delc" autocomplete="current-password"><div id="delE"></div></div>`, actions: [{ label: 'Отмена' }, { label: 'Удалить навсегда', cls: 'btn-danger', on: (ov, close) => { const pw = $('#delc', ov).value; if (!pw) { $('#delE', ov).innerHTML = fieldErr('Введите пароль'); return false; } api('DELETE', '/account', { password: pw }).then(r => { if (!r.ok) { $('#delE', ov).innerHTML = fieldErr(r.err.message); return; } close(); resetLiveState(); applyTheme(); toast('Аккаунт удалён'); go('/'); }); return false; } }] });
+  },
+  invite() {
+    if (!LIVE) return ACT0.invite();
+    const pl = PLAN(S.plan);
+    if (pl.users !== null && S.team.length >= pl.users) { modal({ title: 'Недоступно на вашем тарифе', body: `Тариф «${esc(pl.name)}» допускает участников: ${pl.users}. Чтобы пригласить коллег, перейдите на тариф «Профессиональный» или выше.`, actions: [{ label: 'Закрыть' }, { label: 'Сменить тариф', cls: 'btn-primary', on: () => { go('/app/billing'); } }] }); return; }
+    modal({ title: 'Пригласить участника', body: `<div class="field"><label for="iv-m">Рабочая почта</label><input type="email" id="iv-m" autocomplete="off"><div id="ivE"></div></div><div class="field" style="margin:0"><label for="iv-r">Роль</label><select id="iv-r">${['admin', 'member', 'viewer'].map(r => opt(r, ROLES[r] + ' — ' + ROLE_DESC[r], 'member')).join('')}</select></div>`, actions: [{ label: 'Отмена' }, { label: 'Отправить приглашение', cls: 'btn-primary', on: (ov, close) => {
+      const m = $('#iv-m', ov).value.trim(); if (!validEmail(m)) { $('#ivE', ov).innerHTML = fieldErr('Введите корректный адрес почты'); return false; }
+      api('POST', '/team/invites', { email: m, role: $('#iv-r', ov).value }).then(async r => { if (!r.ok) { $('#ivE', ov).innerHTML = fieldErr(r.err.message); return; } const tm = await api('GET', '/team'); if (tm.ok) S.team = teamFromApi(tm.data); close(); toast('Приглашение отправлено на ' + m); render({ keep: true }); }); return false; } }] });
+  },
+  chooseplan(t) {
+    if (!LIVE) return ACT0.chooseplan(t);
+    const p = PLAN(t.dataset.id);
+    if (p.id === 'corp') return ACT0.chooseplan(t);
+    const demo = META.demo_mode;
+    confirmBox((demo ? 'Перейти на' : 'Запросить') + ' тариф «' + p.name + '»?', demo ? 'Режим показа: оплата не подключена — тариф переключится для примера.' : 'Оплата ещё не подключена. Мы получим заявку и свяжемся с владельцем аккаунта.', demo ? 'Подтвердить' : 'Отправить заявку', 'btn-primary', (ov, close) => {
+      (demo ? api('PUT', '/demo/plan', { plan: p.id }) : api('POST', '/billing/request', { plan: p.id, period: BILL })).then(async r => {
+        if (!r.ok) return failToast(r);
+        if (demo) { S.plan = p.id; const c = await api('GET', '/company'); if (c.ok) S.company = companyFromApi(c.data); await loadChanges(); toast('Тариф изменён: ' + p.name); } else toast('Заявка принята. Мы свяжемся с вами');
+        render({ keep: true });
+      }); close(); return false;
+    });
+  }
+});
+
+/* ---- формы ---- */
+const LIVE_FORMS = {
+  async regForm(f, val) {
+    const v = { name: val('name'), email: val('email'), agree: f.elements.agree.checked }, pass = f.elements.pass.value, err = {};
+    if (v.name.length < 2) err.name = 'Введите имя'; if (!validEmail(v.email)) err.email = 'Проверьте адрес почты'; if (pass.length < 8 || !/[a-zа-я]/i.test(pass) || !/\d/.test(pass)) err.pass = 'Минимум 8 символов, буква и цифра'; if (!v.agree) err.agree = 'Необходимо принять условия';
+    if (Object.keys(err).length) { viewErr = err; viewVals = { ...v, pass }; render({ keep: true }); focusInvalid(); return; }
+    const r = await api('POST', '/auth/register', { name: v.name, email: v.email, password: pass, consent: v.agree });
+    if (!r.ok) { const fl = (r.err && r.err.fields) || {}; viewErr = { email: r.err && r.err.code === 'email_taken' ? r.err.message : fl.email, pass: fl.password, agree: fl.consent }; if (!Object.values(viewErr).some(Boolean)) failToast(r); viewVals = { ...v, pass }; render({ keep: true }); focusInvalid(); return; }
+    resetLiveState(); S.user = { name: r.data.user.name, email: r.data.user.email, phone: '', verified: false };
+    OB.step = 1; OB.mode = 'create'; OB.err = {}; OB.devCode = r.data.dev_code || ''; OB.tmp = { form: 'ООО', name: '', size: '', industry: '', topics: [] }; viewErr = {}; viewVals = {}; go('/onboarding');
+  },
+  async loginForm(f, val) {
+    const v = { email: val('email') }, pass = f.elements.pass.value, err = {};
+    if (!validEmail(v.email)) err.email = 'Проверьте адрес почты'; if (pass.length < 8) err.pass = 'Введите пароль (минимум 8 символов)';
+    if (Object.keys(err).length) { viewErr = err; viewVals = v; render({ keep: true }); focusInvalid(); return; }
+    const r = await api('POST', '/auth/login', { email: v.email, password: pass });
+    if (!r.ok) { viewErr = r.status === 401 ? { pass: r.err.message } : {}; if (r.status !== 401) failToast(r); viewVals = v; render({ keep: true }); focusInvalid(); return; }
+    resetLiveState(); await loadAll(); OB.step = obStepFor(); OB.err = {}; viewErr = {}; go(S.onboarded ? '/app' : '/onboarding');
+  },
+  async forgotForm(f, val) { if (!validEmail(val('email'))) { toast('Проверьте адрес почты', 'err'); return; } const r = await api('POST', '/auth/forgot', { email: val('email') }); if (!r.ok) return failToast(r); forgotSent = true; render(); },
+  async resetForm(f, val) {
+    const pass = f.elements.pass.value; if (pass.length < 8 || !/[a-zа-я]/i.test(pass) || !/\d/.test(pass)) { viewErr = { pass: 'Минимум 8 символов, буква и цифра' }; render({ keep: true }); focusInvalid(); return; }
+    const r = await api('POST', '/auth/reset', { token: val('token'), password: pass }); if (!r.ok) return failToast(r);
+    viewErr = {}; toast('Пароль изменён. Войдите с новым паролем'); go('/login');
+  },
+  async contactForm(f, val) {
+    if (val('name').length < 2 || !validEmail(val('email')) || val('msg').length < 5) { toast('Заполните имя, почту и сообщение', 'err'); return; }
+    const r = await api('POST', '/contact', { name: val('name'), email: val('email'), message: val('msg') }); if (!r.ok) return failToast(r);
+    f.reset(); toast('Сообщение отправлено. Мы скоро ответим');
+  },
+  async obVerify() {
+    const code = $$('[data-code]').map(x => x.value).join('');
+    if (code.length < 6) { OB.err = { code: 'Введите все 6 цифр' }; render({ keep: true }); $('#code-0').focus(); return; }
+    const r = await api('POST', '/auth/verify-email', { code });
+    if (!r.ok) { OB.err = { code: r.err.message }; render({ keep: true }); $('#code-0').focus(); return; }
+    S.user.verified = true; OB.err = {}; OB.step = 2; render();
+  },
+  async obCompany() {
+    OB.tmp.name = $('#ob-name').value.trim(); OB.tmp.form = $('#ob-form').value;
+    if (!OB.tmp.name) { OB.err = { name: 'Укажите название компании' }; render({ keep: true }); focusInvalid(); return; }
+    const r = await api('POST', '/company', { form: OB.tmp.form, name: OB.tmp.name });
+    if (!r.ok) { if (r.err && r.err.code === 'already_in_company') { await loadAll(); go('/app'); return; } OB.err = { name: r.err.message }; render({ keep: true }); return; }
+    S.company = companyFromApi(r.data); S.plan = r.data.plan; S.role = r.data.role; OB.err = {}; OB.step = 3; render();
+  },
+  async obJoin() {
+    const code = $('#ob-code').value.trim();
+    if (code.length < 4) { OB.err = { code: 'Введите код приглашения' }; render({ keep: true }); focusInvalid(); return; }
+    const r = await api('POST', '/company/join', { code });
+    if (!r.ok) { OB.err = { code: r.err.message }; render({ keep: true }); focusInvalid(); return; }
+    await loadAll(); S.joined = true; toast('Вы присоединились к компании «' + (S.company.name || '') + '»'); go('/app');
+  },
+  async obBasics() {
+    const err = {}; if (!OB.tmp.industry) err.industry = 'Выберите отрасль'; if (!OB.tmp.size) err.size = 'Выберите размер компании';
+    if (Object.keys(err).length) { OB.err = err; render({ keep: true }); focusInvalid(); return; }
+    Object.assign(S.company, { industry: OB.tmp.industry, size: OB.tmp.size });
+    let r = await api('PUT', '/company/profile/basics', { data: stepToApi('basics') });
+    if (r.ok) r = await api('PUT', '/company/profile/industry', { data: stepToApi('industry') });
+    if (!r.ok) { OB.err = fieldsFromApi(r.err && r.err.fields); if (!Object.keys(OB.err).length) failToast(r); render({ keep: true }); return; }
+    S.company.saved.basics = 1; S.company.saved.industry = 1; OB.err = {}; OB.step = 4; render();
+  },
+  obTopics() { finishOnboardingLive(); },
+  async profForm() {
+    const s = STEPS[S.profileStep - 1], err = validateStep(s.id);
+    if (Object.keys(err).length) { PErr = err; render({ keep: true }); focusInvalid(); return; }
+    const r = await api('PUT', `/company/profile/${s.id}`, { data: stepToApi(s.id) });
+    if (!r.ok) { PErr = fieldsFromApi(r.err && r.err.fields); if (!Object.keys(PErr).length) failToast(r); else if (r.status === 402) { toast(r.err.message, 'err'); } render({ keep: true }); focusInvalid(); return; }
+    PErr = {}; S.company.saved[s.id] = 1; delete S.company.skipped[s.id]; await reloadProfile(r);
+    const last = S.profileStep === STEPS.length; if (!last) S.profileStep++; persist();
+    toast(last ? 'Профиль сохранён' + (profilePct() < 100 ? '' : ' — заполнен на 100%') : 'Шаг сохранён'); render();
+  },
+  async accForm() {
+    const n = $('#a-name').value.trim(), m = $('#a-mail').value.trim();
+    if (n.length < 2 || !validEmail(m)) { toast('Проверьте имя и почту', 'err'); return; }
+    if (m.toLowerCase() !== S.user.email) { toast('Смена почты пока недоступна: напишите в поддержку', 'err'); return; }
+    const r = await api('PATCH', '/account', { name: n, phone: $('#a-phone').value.trim() }); if (!r.ok) return failToast(r);
+    S.user.name = r.data.user.name; S.user.phone = r.data.user.phone; toast('Данные сохранены'); render({ keep: true });
+  },
+  async pwForm(f) {
+    const a = $('#pw0').value, b = $('#pw1').value; let m = '';
+    if (!a) m = 'Введите текущий пароль'; else if (b.length < 8 || !/[a-zа-я]/i.test(b) || !/\d/.test(b)) m = 'Новый пароль: минимум 8 символов, буква и цифра';
+    if (!m) { const r = await api('POST', '/account/password', { current: a, new: b }); if (!r.ok) m = r.err.message; }
+    $('#pwErr').innerHTML = m ? fieldErr(m) : ''; if (!m) { f.reset(); toast('Пароль изменён'); await loadSessions(); render({ keep: true }); }
+  },
+  async supForm(f) {
+    if ($('#s-m').value.trim().length < 5) { $('#s-e').innerHTML = fieldErr('Опишите ваш вопрос'); return; }
+    const r = await api('POST', '/support', { topic: $('#s-t').value, message: $('#s-m').value.trim() });
+    if (!r.ok) { $('#s-e').innerHTML = fieldErr(r.err.message); return; }
+    f.reset(); $('#s-e').innerHTML = ''; toast('Сообщение отправлено. Ответим в течение рабочего дня');
+  }
+};
+const liveSubmit = e => { const f = e.target, h = LIVE_FORMS[f.id]; if (!h) return false; h(f, n => (f.elements[n]?.value || '').trim()); return true; };
+
+/* ---- смена роли, отметки задач, удаление участника, сессии ---- */
+function liveChange(e) {
+  const t = e.target;
+  if (t.dataset.actcheck) {
+    const key = t.dataset.actcheck, [cid, idx] = key.split(':'), state = t.checked ? 'done' : 'todo', prev = S.acts[key] || 'todo';
+    S.acts[key] = state; if (t.checked) toast('Задача отмечена выполненной'); render({ keep: true });
+    api('PUT', `/changes/${encodeURIComponent(cid)}/actions/${idx}`, { state }).then(r => { if (!r.ok) { S.acts[key] = prev; render({ keep: true }); failToast(r); } });
+    return true;
+  }
+  if (t.dataset.role) {
+    const m = S.team.find(x => x.id === t.dataset.role), prev = m.role; m.role = t.value;
+    api('PATCH', `/team/${m.apiId}`, { role: t.value }).then(r => { if (r.ok) toast('Роль изменена: ' + ROLES[t.value]); else { m.role = prev; render({ keep: true }); failToast(r); } });
+    return true;
+  }
+  if (t.id === 'shareProfile') return true;
+  return false;
+}
+function liveClick(e) {
+  const t = e.target; let el;
+  if ((el = t.closest('[data-remove]'))) {
+    const m = S.team.find(x => x.id === el.dataset.remove);
+    confirmBox('Удалить участника?', `${esc(m.email)} потеряет доступ к материалам компании.`, 'Удалить', 'btn-danger', (ov, close) => { api('DELETE', `/team/${m.apiId}`).then(r => { if (!r.ok) return failToast(r); S.team = S.team.filter(x => x !== m); toast('Участник удалён'); render({ keep: true }); }); close(); return false; });
+    return true;
+  }
+  if ((el = t.closest('[data-resend]'))) { const m = S.team.find(x => x.id === el.dataset.resend); api('POST', `/team/${m.apiId}/resend`).then(r => r.ok ? toast('Приглашение отправлено повторно') : failToast(r)); return true; }
+  if ((el = t.closest('[data-endsess]'))) { api('DELETE', `/account/sessions/${el.dataset.endsess}`).then(async r => { if (!r.ok) return failToast(r); await loadSessions(); toast('Сессия завершена'); render({ keep: true }); }); return true; }
+  return false;
+}
+
+/* ---- панель «Демо» в рабочем режиме ---- */
+async function fillDemoLive() {
+  if (!S.user) { toast('Сначала войдите в аккаунт', 'err'); return; }
+  if (!S.onboarded) {
+    const c = await api('POST', '/company', { form: 'ООО', name: 'Нордвуд Логистика' }); if (!c.ok) return failToast(c);
+    S.plan = c.data.plan; S.role = c.data.role; S.onboarded = true;
+  }
+  if (META.demo_mode && S.plan === 'free') { const p = await api('PUT', '/demo/plan', { plan: 'pro' }); if (p.ok) S.plan = 'pro'; }
+  const lim = PLAN(S.plan).areas, topics = ['pd', 'tax', 'labor', 'log'].slice(0, lim === null ? 4 : lim);
+  const steps = [['basics', { name: 'Нордвуд Логистика', inn: '7801234564', form: 'ООО', size: 'small' }], ['industry', { industry: 'Транспорт и логистика', activities: ['Грузоперевозки', 'Складская логистика'], desc: 'Организуем перевозки сборных грузов между регионами.', topics }],
+    ['regions', { regions: ['Санкт-Петербург и ЛО', 'Северо-Запад', 'Центральный ФО'] }], ['structure', { branches: 'yes', foreign_share: true, entities: 2 }], ['staff', { headcount: '16–100', remote: true, foreign_staff: false }],
+    ['pd', { pd_customers: true, pd_employees: true, pd_external: true, pd_cross: false }], ['digital', { digital: ['CRM', 'Облачные хранилища', 'E-mail и SMS-рассылки'] }],
+    ['contacts', { contact_name: S.user.name, contact_email: S.user.email, contact_role: 'Руководитель юридического отдела', recipients: [] }]];
+  for (const [id, data] of steps) { const r = await api('PUT', `/company/profile/${id}`, { data }); if (!r.ok) { failToast(r); break; } }
+  await loadAll(); toast('Загружена демо-компания «Нордвуд Логистика»'); go('/app'); render();
+}
+function renderDemoLive() {
+  const host = $('#demo-root'), p = getPath();
+  if (['/login', '/register', '/forgot', '/reset', '/onboarding'].includes(p)) { host.innerHTML = ''; return; }
+  const b = (id, label, on) => `<button data-demo="${id}" ${on !== undefined ? `aria-pressed="${on}"` : ''}>${label}</button>`;
+  host.innerHTML = `<div class="demo-fab"><button data-act="demo" aria-expanded="${demoOpen}" aria-controls="demoPanel">${ic('layers', 'sm')}Демо</button>
+  ${demoOpen ? `<div class="demo-panel" id="demoPanel" role="region" aria-label="Панель демонстрации">
+    <h4>Быстрый старт</h4>${b('fill', 'Заполнить профиль демо-компанией')}${b('emptyprofile', 'Очистить профиль')}
+    <h4>Состояния экранов</h4>${b('loading', 'Показать загрузку')}${b('error', 'Ошибка загрузки дайджестов', D.error)}${b('empty', 'Нет новых изменений', D.empty)}${b('session', 'Истёкшая сессия')}
+    <h4>Цветовая гамма</h4>${PALETTES.map(x => b('pal:' + x[0], x[1], S.palette === x[0])).join('')}${META.demo_mode ? `<h4>Тариф (режим показа)</h4>${PLANS.map(x => b('plan:' + x.id, x.name, S.plan === x.id)).join('')}` : ''}<h4>Шрифты</h4>${Object.entries(FONTS).map(([k, f]) => b('font:' + k, f[2] + ' — ' + f[0], S.font === k)).join('')}</div>` : ''}</div>`;
+}
+async function demoActionLive(id) {
+  demoOpen = false; renderDemoLive();
+  if (id === 'fill') return fillDemoLive();
+  if (id === 'emptyprofile') { if (!S.onboarded) { toast('Сначала создайте компанию', 'err'); return; } const r = await api('DELETE', '/company/profile'); if (!r.ok) return failToast(r); S.company = companyFromApi(r.data); await loadChanges(); toast('Профиль очищен'); render(); return; }
+  if (id === 'session') { sessionExpired(); return; }
+  if (id.startsWith('plan:')) { const p = id.slice(5); ACT.chooseplan({ dataset: { id: p } }); return; }
+  if (['loading', 'error', 'empty'].includes(id)) { if (!S.user || !S.onboarded) { toast('Сначала войдите и создайте компанию', 'err'); return; } }
+  demoAction(id, true);
+}
+async function liveAfterRender(path) {
+  if (path === '/app/account' && !liveAfterRender.sess) { liveAfterRender.sess = true; if (await loadSessions()) render({ keep: true }); }
+  if (path !== '/app/account') liveAfterRender.sess = false;
+}
+
 document.addEventListener('click', e => {
   const t = e.target;
   const pop = $('.pop'); if (pop && !t.closest('.company-pick')) pop.remove();
+  if (LIVE && liveClick(e)) return;
   let el;
   if ((el = t.closest('[data-skip]'))) { e.preventDefault(); $('#main')?.focus(); return; }
   if ((el = t.closest('[data-scroll]'))) { e.preventDefault(); const id = el.dataset.scroll; $('.overlay[class*=drawer]')?.remove(); if (getPath() === '/') $('#' + id)?.scrollIntoView(); else { pendingScroll = id; go('/'); } return; }
@@ -1753,6 +2115,7 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const t = e.target;
+  if (LIVE && liveChange(e)) return;
   if (t.dataset.f) { S.company[t.dataset.f] = t.dataset.bool ? t.checked : t.value; if (PErr[t.dataset.f]) { delete PErr[t.dataset.f]; t.removeAttribute('aria-invalid'); t.closest('.field')?.querySelector('.err')?.remove(); } persist(); return; }
   if (t.dataset.filter) { const k = t.dataset.filter, v = t.type === 'checkbox' ? t.checked : t.value; F[k] = v; F.page = 1; $$('[data-filter="' + k + '"]').forEach(x => { if (x !== t) x.type === 'checkbox' ? x.checked = v : x.value = v; }); renderDigestList(); return; }
   if (t.dataset.n) { const k = t.dataset.n; ND[k] = t.type === 'checkbox' ? t.checked : t.value; markDirty(); if (['email', 'pause', 'cabinet', 'tg'].includes(k)) { render({ keep: true }); $(`[data-n="${k}"]`)?.focus(); } return; }
@@ -1779,6 +2142,7 @@ document.addEventListener('paste', e => {
 const focusInvalid = () => setTimeout(() => $('[aria-invalid="true"]')?.focus(), 30);
 document.addEventListener('submit', e => {
   e.preventDefault();
+  if (LIVE && liveSubmit(e)) return;
   const f = e.target, id = f.id, val = n => (f.elements[n]?.value || '').trim();
   if (id === 'regForm') {
     const v = { name: val('name'), email: val('email'), agree: f.elements.agree.checked }, pass = f.elements.pass.value, err = {};
@@ -1814,7 +2178,7 @@ document.addEventListener('submit', e => {
 
 window.addEventListener('hashchange', () => render());
 matchMedia('(prefers-color-scheme:dark)').addEventListener?.('change', () => render({ keep: true }));
-render();
+(async () => { try { await bootLive(); } catch (err) { console.error(err); LIVE = false; } BOOTING = false; render(); })();
 
 </script>
 </body>

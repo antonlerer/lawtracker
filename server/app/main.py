@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from datetime import date
+from pathlib import Path
 from typing import Callable
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from .config import Settings, get_settings
 from .db import Base, make_engine, make_session_factory
@@ -55,4 +56,11 @@ def create_app(settings: Settings | None = None, *, mailer: Mailer | None = None
 
     for r in (auth.router, account.router, company.router, changes.router, notifications.router, misc.router):
         app.include_router(r)
+
+    site = Path(settings.site_file) if settings.site_file else Path(__file__).resolve().parents[2] / "index.html"
+    if site.is_file():
+        @app.get("/", include_in_schema=False)
+        def index():
+            """Сайт отдаётся тем же сервером: запросы к /api идут на тот же адрес (без CORS и сторонних cookie)."""
+            return FileResponse(site, media_type="text/html; charset=utf-8", headers={"Cache-Control": "no-cache"})
     return app

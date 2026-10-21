@@ -44,14 +44,14 @@ def get_changes(request: Request, q: str = Query("", max_length=200),
                 impact: Literal["", "high", "med", "low"] = "",
                 status: Literal["all", "new", "read", "saved", "attn"] = "all",
                 sort: Literal["date", "impact", "eff"] = "date", personal: bool = False,
-                page: int = Query(1, ge=1), per_page: int = Query(5, ge=1, le=50),
+                page: int = Query(1, ge=1), per_page: int = Query(5, ge=1, le=50), detail: bool = False,
                 ctx: Ctx = Depends(current_ctx), db: Session = Depends(get_db),
                 settings: Settings = Depends(get_settings)):
     v = vctx(request, ctx, db, settings)
     if topic and topic not in C.TOPICS:
         topic = "__none__"  # неизвестная тематика — пустой результат, а не ошибка
     return list_changes(db, v, q=q, period=period, topic=topic, impact=impact, status=status, sort=sort,
-                        personal=personal, page=page, per_page=per_page)
+                        personal=personal, page=page, per_page=per_page, detail=detail)
 
 
 @router.get("/changes/{change_id}")

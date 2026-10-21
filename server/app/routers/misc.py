@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from .. import catalog as C
 from .. import rules
 from ..config import Settings
-from ..deps import Ctx, client_ip, current_ctx, get_db, get_settings, record_attempt, throttle
+from ..deps import Ctx, client_ip, current_ctx, get_db, get_settings, need, record_attempt, throttle
 from ..errors import ApiError
 from ..models import Change, Company, PlanRequest, SupportTicket, Waitlist
 from ..security import normalize_email, valid_email
@@ -47,9 +47,11 @@ def healthz(db: Session = Depends(get_db)):
 
 
 @router.get("/meta")
-def meta():
-    """Справочники для форм: профиль, фильтры, роли."""
-    return {"topics": C.TOPICS, "industries": C.INDUSTRIES, "activities": C.ACTIVITIES, "regions": C.REGIONS,
+def meta(request: Request, settings: Settings = Depends(get_settings)):
+    """Справочники для форм: профиль, фильтры, роли. Публичный метод (по нему сайт определяет, что сервер доступен)."""
+    clock = getattr(request.app.state, "today", None)
+    return {"today": (clock() if clock else date.today()).isoformat(), "demo_mode": settings.demo_mode,
+            "enforce_plan_limits": settings.enforce_plan_limits,"topics": C.TOPICS, "industries": C.INDUSTRIES, "activities": C.ACTIVITIES, "regions": C.REGIONS,
             "licenses": C.LICENSES, "digital": C.DIGITAL, "forms": C.FORMS, "sizes": C.SIZE_NAMES,
             "headcounts": C.HEADCOUNTS, "roles": C.ROLES, "steps": C.STEPS,
             "impact": C.IMPACT_NAMES}
@@ -126,6 +128,30 @@ def waitlist(ctx: Ctx = Depends(current_ctx), db: Session = Depends(get_db)):
         db.add(Waitlist(user_id=ctx.user.id, feature="personal_plan"))
         db.commit()
     return {"ok": True}
+
+
+class DemoPlan(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    plan: Literal["free", "basic", "pro", "corp"]
+
+
+@router.put("/demo/plan")
+def demo_plan(body: DemoPlan, ctx: Ctx = Depends(need("owner")), db: Session = Depends(get_db),
+              settings: Settings = Depends(get_settings)):
+    """Только DEMO_MODE=true: владелец переключает тариф для показа (оплаты нет). Лимиты тарифа проверяются."""
+    if not settings.demo_mode:
+        raise ApiError(404, "not_found", "Не найдено")
+    ent = C.entitlements(body.plan)
+    from sqlalchemy import func
+
+    from ..models import Member
+    n = db.scalar(select(func.count()).select_from(Member).where(Member.company_id == ctx.company.id)) or 0
+    topics = len((ctx.company.profile or {}).get("topics", []))
+    if (ent["users"] is not None and n > ent["users"]) or (ent["areas"] is not None and topics > ent["areas"]):
+        raise ApiError(409, "limits_exceeded", "Участников или сфер больше, чем разрешает тариф")
+    ctx.company.plan = body.plan
+    db.commit()
+    return {"plan": ctx.company.plan}
 
 
 # ---------- служебные методы (заголовок X-Admin-Token) ----------

@@ -154,8 +154,9 @@ REQUIRED = {
     "basics": ["name", "form", "size"],
     "industry": ["industry"],
     "regions": ["regions"],
+    "structure": ["branches"],
     "staff": ["headcount"],
-    "contacts": ["contact_name", "contact_email"],
+    "contacts": ["contact_email"],
 }
 
 

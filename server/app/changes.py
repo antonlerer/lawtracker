@@ -134,7 +134,7 @@ def get_change(db: Session, v: ViewCtx, change_id: str) -> Change:
 
 def list_changes(db: Session, v: ViewCtx, *, q: str = "", period: str = "all", topic: str = "", impact: str = "",
                  status: str = "all", sort: str = "date", personal: bool = False, page: int = 1,
-                 per_page: int = PER_PAGE_DEFAULT) -> dict:
+                 per_page: int = PER_PAGE_DEFAULT, detail: bool = False) -> dict:
     query = visible_query(v)
     if topic:
         query = query.where(Change.topic == topic)
@@ -144,12 +144,19 @@ def list_changes(db: Session, v: ViewCtx, *, q: str = "", period: str = "all", t
         query = query.where(Change.published_at >= v.today - timedelta(days=int(period)))
     needle = q.strip().casefold()   # поиск в Python: LOWER()/LIKE в SQLite не понимают кириллицу
     items = []
-    for ch in db.scalars(query).all():
+    rows = db.scalars(query).all()
+    related_map: dict[str, Change] = {}
+    if detail:
+        wanted = {r for ch in rows for r in (ch.related or [])}
+        if wanted:
+            related_map = {c.id: c for c in db.scalars(select(Change).where(Change.id.in_(wanted),
+                                                                          Change.status == "published"))}
+    for ch in rows:
         if needle:
             hay = " ".join([ch.title, ch.summary, ch.what, ch.agency, C.TOPICS.get(ch.topic, "")]).casefold()
             if needle not in hay:
                 continue
-        s = serialize(ch, v)
+        s = serialize(ch, v, detail=detail, related={r: related_map[r] for r in (ch.related or []) if r in related_map})
         if personal and not s["personal"]:
             continue
         if status == "new" and s["is_read"]:

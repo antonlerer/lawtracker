@@ -363,3 +363,53 @@ def test_read_changes_are_not_sent(env, owner):
     owner.put("/api/notifications", {**prefs, "email_freq": "now", "min_impact": "low"})
     run(env, utc(2026, 10, 20, 9))
     assert digests(env) == [] and urgent(env) == []
+
+
+# ---------------- подключение сайта ----------------
+
+def test_list_with_detail_includes_cards(owner):
+    items = owner.get("/api/changes", params={"per_page": 50, "detail": True}).json()["items"]
+    consent = next(i for i in items if i["id"] == "consent")
+    assert consent["actions"][0]["title"] and consent["quote"] and {r["id"] for r in consent["related"]} == {"pd-local", "ads-mark"}
+    plain = owner.get("/api/changes", params={"per_page": 50}).json()["items"][0]
+    assert "actions" not in plain and "quote" not in plain
+
+
+def test_meta_today_and_demo_flags(env):
+    meta = env.api.clone().get("/api/meta").json()
+    assert meta["today"] == "2026-10-20" and meta["demo_mode"] is False and "steps" in meta
+    assert any("contact_email" in s["fields"] for s in meta["steps"])
+
+
+def test_profile_required_fields_match_site(api):
+    api.signup()
+    api.make_company("pro", profile=False)
+    # как на сайте: для «Контактов» обязательна только почта, для «Структуры» — ответ про филиалы
+    assert api.put("/api/company/profile/contacts", {"data": {"contact_email": "a@b.ru"}}).status_code == 200
+    r = api.put("/api/company/profile/structure", {"data": {"foreign_share": True}})
+    assert r.status_code == 422 and "branches" in r.json()["error"]["fields"]
+
+
+def test_demo_plan_switch_only_in_demo_mode(env, owner):
+    assert owner.put("/api/demo/plan", {"plan": "basic"}).status_code == 404
+    from dataclasses import replace
+
+    from app.main import create_app
+    from app.mailer import ConsoleMailer
+    from app.telegram import FakeSender
+    from tests.conftest import Api, TODAY
+    settings = replace(env.settings, demo_mode=True)
+    app = create_app(settings, mailer=ConsoleMailer(), telegram=FakeSender(), today=lambda: TODAY)
+    from seed.load import load_demo_changes
+    with app.state.session_factory() as db:
+        load_demo_changes(db, TODAY)
+    a = Api(app, app.state.mailer, app.state.telegram)
+    r = a.post("/api/auth/register", {"name": "Анна", "email": "demo@example.org", "password": "Passw0rd!", "consent": True})
+    code = r.json()["dev_code"]                                     # без почты код возвращается в ответе
+    assert a.post("/api/auth/verify-email", {"code": code}).status_code == 200
+    a.post("/api/company", {"form": "ООО", "name": "Демо"})
+    assert a.put("/api/demo/plan", {"plan": "pro"}).json() == {"plan": "pro"}
+    assert a.get("/api/billing").json()["plan"]["id"] == "pro"
+    a.put("/api/company/profile/industry", {"data": {"industry": "Медицина", "topics": ["pd", "tax", "labor"]}})
+    assert a.put("/api/demo/plan", {"plan": "free"}).status_code == 409        # выбрано 3 сферы, на «Старте» можно 1
+    assert a.put("/api/demo/plan", {"plan": "basic"}).status_code == 200       # на «Базовом» лимит как раз 3

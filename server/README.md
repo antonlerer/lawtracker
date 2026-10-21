@@ -22,6 +22,7 @@ export COOKIE_SECURE=false                       # только для http://lo
 export ADMIN_TOKEN=$(openssl rand -hex 24)       # включает служебные методы /api/admin/*
 
 python -m app.cli seed                           # 11 демо-изменений (даты считаются от сегодняшнего дня)
+python -m app.cli demo                           # демо-пользователь demo@example.org / DemoPassw0rd1 с заполненным профилем
 uvicorn app.main:create_app --factory --port 8000
 # документация API: http://localhost:8000/api/docs
 

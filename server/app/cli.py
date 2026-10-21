@@ -23,6 +23,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(prog="lawtracker")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("seed", help="загрузить демо-изменения")
+    sub.add_parser("demo", help="создать демо-пользователя с заполненным профилем (demo@example.org)")
     n = sub.add_parser("notify", help="рассылка дайджестов")
     n.add_argument("--loop", type=int, default=0, help="повторять каждые N секунд (0 — один проход)")
     sub.add_parser("ingest", help="забрать новые акты с pravo.gov.ru")
@@ -34,6 +35,11 @@ def main() -> None:
         from seed.load import load_demo_changes
         with factory() as db:
             print("Загружено изменений:", load_demo_changes(db))
+    elif args.cmd == "demo":
+        from seed.load import create_demo_account, load_demo_changes
+        with factory() as db:
+            load_demo_changes(db)
+            print(create_demo_account(db))
     elif args.cmd == "notify":
         from .notify import dispatch
         mailer = (SmtpMailer(settings.smtp_host, settings.smtp_port, settings.smtp_user, settings.smtp_password,

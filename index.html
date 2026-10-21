@@ -8,7 +8,7 @@
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=Inter:wght@400;500;600;700&display=swap&subset=cyrillic" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Literata:wght@400;600;700&family=Golos+Text:wght@400;500;600;700&family=PT+Serif:wght@400;700&family=Inter:wght@400;500;600;700&display=swap&subset=cyrillic" rel="stylesheet">
 <style>
 :root{
   --bg:#F2F4F0;--bg-raised:#FFFFFF;--sidebar:#EBEEE8;--panel:#17352C;
@@ -16,7 +16,7 @@
   --accent:#22574A;--accent-ink:#F4F7F4;--accent-soft:#E4EBE6;--amber:#8A5A20;--amber-soft:#F2E7D5;
   --red:#A23B2E;--red-soft:#F5E4E0;--blue:#2F5573;--blue-soft:#E1EAF1;--radius:10px;
   --shadow:0 1px 2px rgba(0,0,0,.05);--focus:#1B6FD8;
-  --f-head:"PT Serif",Georgia,serif;--f-body:Inter,-apple-system,"Segoe UI",Roboto,sans-serif;--panel-2:#1E4137;--panel-line:#2C5347;--panel-accent:#6FAE97;--panel-tag-bg:#2C5347;--panel-tag-ink:#9FDBC3;--panel-soft:#C7D2CB;
+  --f-head:Literata,"PT Serif",Georgia,serif;--f-body:"Golos Text",Inter,-apple-system,"Segoe UI",Roboto,sans-serif;--panel-2:#1E4137;--panel-line:#2C5347;--panel-accent:#6FAE97;--panel-tag-bg:#2C5347;--panel-tag-ink:#9FDBC3;--panel-soft:#C7D2CB;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#12160F;--bg-raised:#1A211B;--sidebar:#171E17;--panel:#0F1D18;
@@ -591,6 +591,37 @@ footer .hq-fc .hq-logo{display:flex;padding:0;color:var(--ink)}
 :root[data-font="golos"]{--f-head:"Golos Text",system-ui,sans-serif;--f-body:"Golos Text",system-ui,sans-serif}
 :root[data-font="manrope"]{--f-head:"Manrope",system-ui,sans-serif;--f-body:Inter,system-ui,sans-serif}
 :root[data-font="golos"] h1,:root[data-font="golos"] h2,:root[data-font="golos"] h3,:root[data-font="manrope"] h1,:root[data-font="manrope"] h2,:root[data-font="manrope"] h3{letter-spacing:-.01em}
+
+/* ---------- SIGNATURE: «закладка и маркер» ---------- */
+:root{--mark:rgba(244,184,64,.5);--mark-solid:#E8A93A;--dot:rgba(23,53,44,.07)}
+:root[data-theme="dark"]{--mark:rgba(216,174,114,.3);--dot:rgba(255,255,255,.045)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--mark:rgba(216,174,114,.3);--dot:rgba(255,255,255,.045)}}
+body{background-image:radial-gradient(var(--dot) 1px,transparent 1.3px);background-size:24px 24px}
+h1,h2{letter-spacing:-.012em;text-wrap:balance}.hl{white-space:nowrap}
+.hl{background:linear-gradient(transparent 58%,var(--mark) 58% 90%,transparent 90%);color:inherit;padding:0 .08em;margin:0 -.08em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.logo{gap:11px;letter-spacing:-.01em}
+.logo-mark{position:relative;width:32px;height:32px;border-radius:9px 9px 9px 3px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:700 1.2rem/1 var(--f-head)}
+.logo-mark:after{content:"";position:absolute;right:6px;top:-4px;width:8px;height:13px;background:var(--mark-solid);clip-path:polygon(0 0,100% 0,100% 100%,50% 72%,0 100%)}
+header.site{border-bottom:4px double var(--line)}
+.eyebrow::before{content:"§";margin-right:.55em;color:var(--mark-solid);font-family:var(--f-head);font-size:1.05em}
+.hq-qn::before{content:"§\00a0";opacity:.5}
+.hq-big::before{content:"§";font-size:.45em;vertical-align:.95em;margin-right:.12em}
+.hq-card{box-shadow:7px 7px 0 var(--accent-soft),0 0 0 1px var(--line);border-color:transparent}
+.hq-qc{border-top:3px solid var(--ink)}.hq-qc:hover{border-top-color:var(--mark-solid)}
+.list-card{border-top:3px solid var(--ink)}
+.col-heading h2{font-size:1.12rem}.col-heading h2::before{content:"§";color:var(--mark-solid);margin-right:.4em}
+.crow{position:relative;padding-left:26px}
+.crow::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--line)}
+.crow.imp-high::before{background:var(--mark-solid)}.crow.imp-med::before{background:var(--accent)}
+.crow:not(.unread) .crow-main b{color:var(--ink-soft)}
+.leaf{flex:none;width:46px;border:1px solid var(--line);border-radius:8px;overflow:hidden;text-align:center;background:var(--bg-raised);line-height:1}
+.leaf i{display:block;font-style:normal;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 0 3px;background:var(--accent);color:var(--accent-ink)}
+.leaf.urgent i{background:var(--mark-solid);color:#2B1D05}
+.leaf b{display:block;font:700 1.3rem/1 var(--f-head);padding:5px 0 6px}
+.list-row .name{flex:1;min-width:0}.list-row .days-left{font-size:.8rem;margin-top:2px}.list-row:has(.leaf){justify-content:flex-start;gap:14px}
+.navlink[aria-current=page]{position:relative}.navlink[aria-current=page]::before{content:"";position:absolute;left:-14px;top:8px;bottom:8px;width:4px;border-radius:0 4px 4px 0;background:var(--mark-solid)}
+.topbar h1{letter-spacing:-.015em}
+.btn-primary{box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
 </style>
 </head>
 <body>
@@ -930,7 +961,7 @@ function modal({ title, body = '', actions = [], dismiss = true, drawer = false,
 const confirmBox = (title, body, label, cls, on) => modal({ title, body, actions: [{ label: 'Отмена' }, { label, cls, on }] });
 
 /* =====================  PUBLIC LAYOUT  ===================== */
-const logo = (href = '#/') => `<a class="logo" href="${href}" aria-label="LawTracker — на главную"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS.logo}</svg>LawTracker</a>`;
+const logo = (href = '#/') => `<a class="logo" href="${href}" aria-label="LawTracker — на главную"><span class="logo-mark" aria-hidden="true">§</span>LawTracker</a>`;
 const themeBtn = () => `<button class="btn btn-ghost icon-only" data-act="theme" aria-label="Переключить тему оформления" title="Сменить тему">${ic(document.documentElement.dataset.theme === 'dark' || (!S.theme && matchMedia('(prefers-color-scheme:dark)').matches) ? 'sun' : 'moon')}</button>`;
 const PUB_NAV = [['/#how', 'Как работает', 'how'], ['/#features', 'Возможности', 'features'], ['/pricing', 'Тарифы'], ['/about', 'О сервисе'], ['/faq', 'Вопросы'], ['/contacts', 'Контакты']];
 function pubNavLink([h, t, sc], cur) {
@@ -957,7 +988,7 @@ function viewHome() {
   return pubShell(`<!-- 1. HERO -->
 <section class="hq-hero"><div class="wrap">
   <p class="eyebrow">Мониторинг изменений законодательства</p>
-  <h1>Закон изменился. Что это значит для вашего бизнеса?</h1>
+  <h1>Закон изменился. Что это значит для <mark class="hl">вашего бизнеса</mark>?</h1>
   <p class="hq-lede">LawTracker отвечает на три вопроса, которые вы задаёте каждый раз, когда слышите о новом законе.</p>
   <div class="hq-cta"><a class="btn btn-primary" href="#/register">Начать</a><a class="btn btn-ghost" href="#/" data-scroll="how">Как это работает</a></div>
   <p class="hq-note">Профиль компании можно заполнять постепенно. Бесплатный старт — без банковской карты.</p>
@@ -1521,7 +1552,7 @@ function viewBilling() {
 const impMini = l => `<span class="mini-imp ${l}"><span class="bars" aria-hidden="true">${[1, 2, 3].map(i => `<i class="${i <= IMP[l][2] ? 'on' : ''}"></i>`).join('')}</span>${IMP_SHORT[l]}</span>`;
 function changeRow(c) {
   const cd = countdown(c), when = c.draft ? 'проект' : (c.eff <= 0 ? 'действует' : 'вступает ' + fmtS(dayOff(c.eff)));
-  return `<a class="crow ${isRead(c) ? '' : 'unread'}" href="#/app/change/${c.id}"><span class="crow-main"><b>${esc(c.title)}</b><small>${esc(TOPICS[c.topic])} · ${when}${cd ? ` · <em>${cd}</em>` : ''}</small></span>${impMini(c.impact)}${ic('right', 'sm')}</a>`;
+  return `<a class="crow imp-${c.impact} ${isRead(c) ? '' : 'unread'}" href="#/app/change/${c.id}"><span class="crow-main"><b>${esc(c.title)}</b><small>${esc(TOPICS[c.topic])} · ${when}${cd ? ` · <em>${cd}</em>` : ''}</small></span>${impMini(c.impact)}${ic('right', 'sm')}</a>`;
 }
 function ovData() {
   const pct = profilePct(), tg = S.tg.status, first = (S.user.name || '').split(' ')[0];
@@ -1538,7 +1569,8 @@ const ovShell = (d, body) => appShell('overview', { title: d.first ? 'Добры
 const ovEmpty = () => emptyState('check', 'Новых изменений нет', 'Пока ничего нового для вашей компании. Мы сообщим, когда появятся изменения — в кабинете, по почте или в Telegram.', '<a class="btn btn-ghost" href="#/app/notifications">Настроить уведомления</a>');
 const ovSetup = d => `<div class="ov-strip"><div class="ov-strip-row"><div style="flex:1;min-width:180px"><div class="ov-strip-t"><b>Профиль компании: ${d.pct}%</b></div><div class="progress" role="progressbar" aria-valuenow="${d.pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Заполненность профиля"><div style="width:${d.pct}%"></div></div></div>${d.nextStep >= 0 ? `<a class="btn btn-ghost btn-sm" href="#/app/profile" data-step="${d.nextStep + 1}">Продолжить: ${esc(STEPS[d.nextStep].t)}</a>` : '<span class="tag">Профиль заполнен</span>'}</div>
   <div class="ov-strip-row"><span>${ic('send', 'sm')} Telegram: ${d.tgTxt}</span><a class="link" href="#/app/telegram">${d.tgBtn}</a></div></div>`;
-const upRow = x => `<a class="list-row" href="#/app/change/${x.id}"><span class="name">${esc(x.title)}</span><span class="date"><span class="days-left">${countdown(x) || ''}</span>${fmtS(dayOff(x.eff))}</span></a>`;
+const MON_S = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+const upRow = x => { const d = dayOff(x.eff); return `<a class="list-row" href="#/app/change/${x.id}"><span class="leaf${x.eff <= 14 ? ' urgent' : ''}" aria-hidden="true"><i>${MON_S[d.getMonth()]}</i><b>${d.getDate()}</b></span><span class="name">${esc(x.title)}<span class="days-left">${countdown(x) || ''}</span><span class="sr-only"> ${fmtS(d)}</span></span></a>`; };
 
 function viewOverview() {
   const d = ovData(), att = attention().slice(0, 3), attList = att.length ? att : (d.top ? [d.top] : []), rest = d.fresh.filter(x => !attList.includes(x)).slice(0, 4);

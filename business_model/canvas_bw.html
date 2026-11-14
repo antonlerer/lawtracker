@@ -1,0 +1,98 @@
+<!doctype html><meta charset="utf-8">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:2600px;height:1700px;background:#F2F4F0;font-family:"DejaVu Sans","Golos Text",Arial,sans-serif;color:#16201B}
+.head{height:130px;background:#17352C;color:#F4F7F4;display:flex;align-items:center;justify-content:space-between;padding:0 50px}
+.head h1{margin:0;font:700 52px "PT Serif",Georgia,"DejaVu Serif",serif}
+.head h1 span{color:#D8AE72}
+.head p{margin:0;font-size:24px;color:#C7D2CB;text-align:right;line-height:1.35}
+.grid{display:grid;gap:14px;padding:18px 24px 24px;height:1570px;
+ grid-template-columns:repeat(5,1fr);grid-template-rows:1.18fr 1fr 0.62fr;
+ grid-template-areas:"kp ka vp cr cs" "kp kr vp ch cs" "cost cost cost rev rev"}
+.b{background:#fff;border:2px solid #DBDFD7;border-radius:18px;padding:20px 24px;overflow:hidden}
+.b h2{margin:0 0 10px;font:700 30px "PT Serif",Georgia,"DejaVu Serif",serif;color:#22574A;display:flex;align-items:center;gap:12px}
+.b h2 i{font-style:normal;background:#22574A;color:#fff;border-radius:9px;width:40px;height:40px;display:grid;place-items:center;font:700 24px "DejaVu Sans",sans-serif;flex:none}
+ul{margin:0;padding-left:28px;font-size:25px;line-height:1.34}
+li{margin-bottom:5px}
+.vp{background:#22574A;border-color:#22574A;color:#F4F7F4}.vp h2{color:#fff}.vp h2 i{background:#D8AE72;color:#17352C}
+.vp .quote{font:italic 29px/1.35 "PT Serif",Georgia,serif;color:#F2D9AC;margin:0 0 14px}
+.cost,.rev{background:#FBF6EC;border-color:#E5D6B8}.cost h2,.rev h2{color:#8A5A20}.cost h2 i,.rev h2 i{background:#8A5A20}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.note{font-size:20px;color:#4A554E;margin-top:8px}
+.kp{grid-area:kp}.ka{grid-area:ka}.kr{grid-area:kr}.vp{grid-area:vp}.cr{grid-area:cr}.ch{grid-area:ch}.cs{grid-area:cs}.cost{grid-area:cost}.rev{grid-area:rev}
+
+html,body{background:#fff !important;color:#000 !important}
+.head{background:#fff !important;color:#000 !important;border-bottom:4px solid #000}
+.head h1,.head h1 span{color:#000 !important}
+.head p{color:#000 !important}
+.b{background:#fff !important;border:3px solid #000 !important;border-radius:6px !important;color:#000 !important}
+.b h2{color:#000 !important}
+.b h2 i{background:#000 !important;color:#fff !important;border-radius:4px !important}
+.vp{background:#fff !important;border:5px solid #000 !important;color:#000 !important}
+.vp h2{color:#000 !important}.vp h2 i{background:#000 !important;color:#fff !important}
+.vp .quote{color:#000 !important}
+.cost,.rev{background:#fff !important;border-color:#000 !important}
+.cost h2,.rev h2{color:#000 !important}.cost h2 i,.rev h2 i{background:#000 !important}
+.note{color:#000 !important}
+.grid{background:#fff}
+@page{size:2600px 1700px;margin:0}</style>
+<div class="head"><h1>Law<span>Tracker</span> — модель бизнеса по Остервальдеру</h1><p>Платформа персонального мониторинга изменений законодательства для МСП<br>Версия: ноябрь 2026. Цены и расчёты предварительные</p></div>
+<div class="grid">
+<div class="b kp"><h2><i>8</i>Ключевые партнёры</h2><ul>
+<li>Официальный портал правовой информации (pravo.gov.ru): источник актов</li>
+<li>ИИ-провайдеры: GigaChat, YandexGPT, открытые модели в российском контуре</li>
+<li>Юрист-эксперт: разметка и проверка карточек</li>
+<li>Бухгалтерские и юридические фирмы: канал клиентов и тестовая аудитория</li>
+<li>Хостинг в РФ, почтовый сервис, Telegram</li>
+<li>Университет и акселератор: наставники, гранты, облачные ресурсы</li>
+<li>Платёжный сервис и эквайринг (после регистрации юрлица)</li></ul></div>
+<div class="b ka"><h2><i>7</i>Ключевые виды деятельности</h2><ul>
+<li>Сбор и разбор новых актов с ИИ</li>
+<li>Проверка значимых карточек юристом</li>
+<li>Подбор изменений по профилю компании и правилам применимости</li>
+<li>Рассылка: кабинет, e-mail, Telegram</li>
+<li>Развитие платформы и контроль качества (замер точности)</li>
+<li>Привлечение клиентов и партнёров, поддержка</li></ul></div>
+<div class="b kr"><h2><i>6</i>Ключевые ресурсы</h2><ul>
+<li>Платформа: профиль из 27 полей, правила применимости, ИИ-разбор с проверкой кодом</li>
+<li>Размеченная юристом выборка актов и проверенные карточки</li>
+<li>Команда из 5 человек, юрист-эксперт, наставник</li>
+<li>Облачная инфраструктура в РФ</li>
+<li>Бренд LawTracker; согласованные данные профилей компаний</li></ul></div>
+<div class="b vp"><h2><i>2</i>Ценностные предложения</h2>
+<p class="quote">«Законодательство меняется каждый день. Мы показываем, что именно изменилось для вашей компании и что нужно сделать».</p><ul>
+<li><b>Только своё:</b> лента по профилю, причина «почему это вам»</li>
+<li><b>Понятно:</b> суть простым языком за 30 секунд</li>
+<li><b>План действий:</b> шаги, ответственные, сроки, напоминания</li>
+<li><b>Можно проверить:</b> дословная цитата, ссылка на источник, уровень уверенности, проверка юристом</li>
+<li><b>Удобно:</b> кабинет, e-mail, Telegram с настройкой</li>
+<li><b>Доступно:</b> от 0 и 690 ₽ в месяц против ≈3 500 ₽ у справочных систем</li></ul></div>
+<div class="b cr"><h2><i>4</i>Отношения с клиентами</h2><ul>
+<li>Самообслуживание: бесплатный старт, онбординг по шагам</li>
+<li>Личный онбординг и интервью в бете</li>
+<li>Поддержка в кабинете и Telegram</li>
+<li>Обратная связь «полезно / не про нас» улучшает подбор</li>
+<li>Для партнёров: мультикабинет и персональная связь</li></ul></div>
+<div class="b ch"><h2><i>3</i>Каналы</h2><ul>
+<li>Сайт и лендинг беты, кабинет</li>
+<li>Telegram-бот и канал проекта</li>
+<li>Партнёры: бухгалтеры и юристы</li>
+<li>Профессиональные чаты, контент и поиск</li>
+<li>Вебинары, университет, акселератор</li></ul></div>
+<div class="b cs"><h2><i>1</i>Сегменты клиентов</h2><ul>
+<li><b>ИП, микро- и малый бизнес без юриста:</b> интернет-торговля, IT, персональные данные, трудовое право, реклама, строительство, медицина, производство</li>
+<li><b>Средний бизнес</b> с юристом, бухгалтером, HR или комплаенсом: сроки, команда, роли</li>
+<li><b>Бухгалтерские и юридические фирмы</b> с портфелем клиентов (партнёры и клиенты)</li>
+<li><b>Группы компаний</b> (перспектива)</li></ul>
+<p class="note">≈6 млн субъектов МСП в России (оценка)</p></div>
+<div class="b cost"><h2><i>9</i>Структура издержек</h2><div class="cols"><ul>
+<li><b>Бета (минимум):</b> хостинг ≈300 ₽ и рассылки ≈770 ₽ в месяц, ИИ на бесплатных токенах, без зарплат</li>
+<li><b>Разовые:</b> ≈100 тыс. ₽ (регистрация, юридические документы, товарный знак, брендинг, домен)</li></ul><ul>
+<li><b>С командой:</b> ≈598 тыс. ₽ в месяц (юрист, маркетолог, продукт, поддержка, реклама, хостинг, ИИ, взносы), разовые ≈350 тыс. ₽</li>
+<li><b>Переменные:</b> ИИ и хостинг ≈60 ₽ на пользователя, эквайринг 3 %, налог УСН 6 %</li></ul></div></div>
+<div class="b rev"><h2><i>5</i>Потоки доходов</h2><ul>
+<li><b>Подписка (SaaS, freemium):</b> бесплатный старт 0 ₽, «Базовый» 690 ₽, «Профессиональный» 1 690 ₽, «Корпоративный» от 4 900 ₽ в месяц</li>
+<li>Годовая оплата: скидка около 20 % (предполагается)</li>
+<li>Средний чек ≈1 090 ₽; маржа с платного клиента ≈750 ₽ в месяц</li>
+<li>Финансирование на старте: гранты и меры поддержки</li></ul></div>
+</div>

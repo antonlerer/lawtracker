@@ -186,3 +186,113 @@ def test_seed_is_idempotent_and_dates_are_relative(env):
         assert c.actions[0]["due"] == "2026-10-30"
         data = json.loads(open("seed/changes.json", encoding="utf-8").read())
         assert all(set(r) == {"when", "text"} for d in data for r in d["reasons"])
+
+
+# ---------- устойчивость загрузки (повторы, сбои, ошибки модели) ----------
+
+@pytest.fixture
+def no_sleep(monkeypatch):
+    import ingest.pravo as pravo
+    monkeypatch.setattr(pravo, "BACKOFF", 0)
+
+
+def test_http_retries_on_timeout_5xx_and_429(no_sleep):
+    from ingest.pravo import get_with_retry
+    calls = []
+
+    def handler(request):
+        calls.append(1)
+        if len(calls) == 1:
+            raise httpx.ConnectTimeout("медленно", request=request)
+        return httpx.Response(503) if len(calls) == 2 else (
+            httpx.Response(429) if len(calls) == 3 else httpx.Response(200, text="ok"))
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    assert get_with_retry(client, "https://x.test/", retries=4).text == "ok" and len(calls) == 4
+
+
+def test_http_does_not_retry_404(no_sleep):
+    from ingest.pravo import get_with_retry
+    calls = []
+    client = httpx.Client(transport=httpx.MockTransport(lambda r: calls.append(1) or httpx.Response(404)))
+    with pytest.raises(httpx.HTTPStatusError):
+        get_with_retry(client, "https://x.test/")
+    assert len(calls) == 1
+
+
+def test_http_gives_up_after_retries(no_sleep):
+    from ingest.pravo import get_with_retry
+    client = httpx.Client(transport=httpx.MockTransport(lambda r: httpx.Response(500)))
+    with pytest.raises(httpx.HTTPStatusError):
+        get_with_retry(client, "https://x.test/", retries=2)
+
+
+def test_ingest_survives_broken_model_and_one_bad_act(env, no_sleep):
+    class Boom:
+        def complete_json(self, *a, **k):
+            raise RuntimeError("модель недоступна")
+
+    def handler(request):
+        url = str(request.url)
+        if url.endswith("/api/Rss"):
+            return httpx.Response(200, text=RSS)
+        eo = request.url.params.get("eoNumber")
+        return httpx.Response(200, json=DOCS[eo]) if eo in DOCS else httpx.Response(404)
+    with env.app.state.session_factory() as db:
+        stats = run_ingest(db, env.settings, http=httpx.Client(transport=httpx.MockTransport(handler)), llm=Boom(),
+                           text_fetcher=lambda c, e: "текст " * 40)
+        assert stats["errors"] == 0 and stats["added"] == 1 and stats["fallback"] == 1   # модель упала — правила
+
+
+def test_ingest_counts_documents_that_fail_to_load(env, no_sleep):
+    def handler(request):
+        if str(request.url).endswith("/api/Rss"):
+            return httpx.Response(200, text=RSS)
+        return httpx.Response(500)
+    with env.app.state.session_factory() as db:
+        stats = run_ingest(db, env.settings, http=httpx.Client(transport=httpx.MockTransport(handler)))
+        assert stats["errors"] == 2 and stats["added"] == 0
+
+
+def test_ingest_rss_failure_raises_for_the_loop_to_log(env, no_sleep):
+    client = httpx.Client(transport=httpx.MockTransport(lambda r: httpx.Response(500)))
+    with env.app.state.session_factory() as db, pytest.raises(httpx.HTTPError):
+        run_ingest(db, env.settings, http=client)
+
+
+def test_gold_xlsx_template_roundtrip(tmp_path):
+    openpyxl = pytest.importorskip("openpyxl")
+    from ingest import gold_xlsx
+    from ingest.evaluate import load_gold
+    tpl = tmp_path / "t.xlsx"
+    gold_xlsx.make_template(str(tpl))
+    wb = openpyxl.load_workbook(tpl)
+    acts = wb["Акты"]
+    acts.delete_rows(2)
+    acts.append(["a1", "О персональных данных", "Федеральный закон", "1-ФЗ", "2026-09-10", "Статья 1. " + "текст " * 30,
+                 "да", "pd", "high", "2026-12-09", "нет", ""])
+    wb["Применимость"].delete_rows(2, 5)
+    wb["Применимость"].append(["a1", "P1", "да"])
+    wb["Применимость"].append(["a1", "P2", "нет"])
+    wb.save(tpl)
+    out = tmp_path / "g.jsonl"
+    assert gold_xlsx.convert(str(tpl), str(out)) == 1
+    item = load_gold(out)[0]
+    assert item["expected"] == {"relevant": True, "topic": "pd", "impact": "high", "effective_date": "2026-12-09",
+                                "is_draft": False}
+    assert item["profiles"][0]["profile"]["pd_customers"] is True and item["profiles"][1]["applies"] is False
+    assert item["profiles"][0]["profile"]["digital"] == ["CRM", "Облачные хранилища"]
+
+
+def test_gold_xlsx_reports_mistakes(tmp_path):
+    openpyxl = pytest.importorskip("openpyxl")
+    from ingest import gold_xlsx
+    tpl = tmp_path / "t.xlsx"
+    gold_xlsx.make_template(str(tpl))
+    wb = openpyxl.load_workbook(tpl)
+    wb["Акты"].delete_rows(2)
+    wb["Акты"].append(["a1", "Акт", "Закон", "1", "2026-09-10", "коротко", "да", "нет-такой", "huge", "", "нет", ""])
+    wb.save(tpl)
+    with pytest.raises(SystemExit) as e:
+        gold_xlsx.convert(str(tpl), str(tmp_path / "g.jsonl"))
+    msg = str(e.value)
+    assert "неизвестная тематика" in msg and "high, med или low" in msg and "не короче 80" in msg

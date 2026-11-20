@@ -704,6 +704,8 @@ const LICENSES = ['Медицинская деятельность', 'Образ
 const DIGITAL = ['Интернет-магазин', 'Маркетплейсы', 'CRM', 'Онлайн-оплата', 'Мобильное приложение', 'ИИ-сервисы', 'Облачные хранилища', 'E-mail и SMS-рассылки'];
 const SIZES = [['micro', 'Микро', 'до 15 человек'], ['small', 'Малое', '16–100 человек'], ['medium', 'Среднее', '101–250 человек'], ['large', 'Крупное', 'более 250']];
 const HEADCOUNTS = ['1–15', '16–100', '101–250', 'более 250'];
+const ROLE_RANK = { viewer: 0, member: 1, admin: 2, owner: 3 };
+const can = r => !LIVE || S.role == null || ROLE_RANK[S.role] >= ROLE_RANK[r];   // сервер проверяет права сам; здесь только скрываем лишнее
 const ROLES = { owner: 'Владелец', admin: 'Администратор', member: 'Участник', viewer: 'Просмотр' };
 const ROLE_DESC = { owner: 'Полный доступ, управление тарифом и удаление компании', admin: 'Профиль, уведомления, команда', member: 'Дайджесты, задачи, сохранённое', viewer: 'Только просмотр дайджестов' };
 const IMP = { high: ['Высокий уровень влияния', 'amber', 3], med: ['Средний уровень влияния', '', 2], low: ['Низкий уровень влияния', 'neutral', 1] };
@@ -826,6 +828,7 @@ const MATRIX = [
 const money = n => n.toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' ₽';
 
 /* =====================  STATE  ===================== */
+const OPENED = new Set();   // карточки, открытие которых уже отправлено в метрики
 let LIVE = false, META = null, BOOTING = true;   // LIVE: сайт открыт с сервера LawTracker и работает через /api
 const KEY = 'lawtracker.demo.v1';
 const emptyCompany = () => ({ name: '', inn: '', form: '', size: '', industry: '', activities: [], desc: '', regions: [], branches: '', foreignShare: false, entities: '1', headcount: '', remote: false, foreignStaff: false, licenses: [], pdCustomers: false, pdEmployees: false, pdExternal: false, pdCross: false, vedExport: false, vedImport: false, digital: [], contactName: '', contactEmail: '', contactRole: '', recipients: '', topics: [], saved: {}, skipped: {} });
@@ -964,7 +967,7 @@ const confirmBox = (title, body, label, cls, on) => modal({ title, body, actions
 /* =====================  PUBLIC LAYOUT  ===================== */
 const logo = (href = '#/') => `<a class="logo" href="${href}" aria-label="LawTracker — на главную"><span class="logo-mark" aria-hidden="true">§</span>LawTracker</a>`;
 const themeBtn = () => `<button class="btn btn-ghost icon-only" data-act="theme" aria-label="Переключить тему оформления" title="Сменить тему">${ic(document.documentElement.dataset.theme === 'dark' || (!S.theme && matchMedia('(prefers-color-scheme:dark)').matches) ? 'sun' : 'moon')}</button>`;
-const PUB_NAV = [['/#how', 'Как работает', 'how'], ['/#features', 'Возможности', 'features'], ['/pricing', 'Тарифы'], ['/about', 'О сервисе'], ['/faq', 'Вопросы'], ['/contacts', 'Контакты']];
+const PUB_NAV = [['/#how', 'Как работает', 'how'], ['/#features', 'Возможности', 'features'], ['/pricing', 'Тарифы'], ['/about', 'О сервисе'], ['/faq', 'Вопросы'], ['/beta', 'Бета'], ['/contacts', 'Контакты']];
 function pubNavLink([h, t, sc], cur) {
   return sc ? `<a href="#/" data-scroll="${sc}">${t}</a>` : `<a href="#${h}" ${cur === h ? 'aria-current="page"' : ''}>${t}</a>`;
 }
@@ -1154,6 +1157,29 @@ const viewAbout = () => pubShell(`<div class="wrap"><div class="page-hero"><p cl
   <h2>Как мы снижаем риски</h2><p>У каждого вывода есть ссылка на первоисточник. Важные изменения могут проходить проверку юриста, и об этом есть отметка в карточке. Мы не даём гарантий полного соблюдения законодательства — сервис помогает не пропустить важное и быстрее принять решение.</p></div>
   <div style="padding-bottom:70px"><a class="btn btn-primary" href="#/register">Создать аккаунт</a></div></div>`, '/about');
 
+function viewBeta(err = {}, v = {}) {
+  const fe = k => err[k] ? `aria-invalid="true" aria-describedby="e-${k}"` : '', em = k => `<div id="e-${k}">${fieldErr(err[k])}</div>`;
+  const sz = SIZES.map(x => `<option value="${esc(x[1])}" ${v.size === x[1] ? 'selected' : ''}>${esc(x[1] + ' — ' + x[2])}</option>`).join('');
+  const ind = INDUSTRIES.map(x => `<option ${v.industry === x ? 'selected' : ''}>${esc(x)}</option>`).join('');
+  return pubShell(`<div class="wrap"><div class="page-hero"><p class="eyebrow">Закрытая бета</p><h1>Участвуйте в бета-тестировании LawTracker</h1>
+    <p class="lead">Мы ищем 30–50 компаний, которым нужно следить за изменениями законодательства, но некогда читать всё подряд.</p></div>
+  <div class="sample-grid" style="padding-bottom:70px;align-items:start">
+    <form class="card" id="betaForm" novalidate>
+      <div class="field"><label for="b-company">Название компании или ИП <span class="req" aria-hidden="true">*</span></label><input type="text" id="b-company" name="company" autocomplete="organization" value="${esc(v.company || '')}" ${fe('company')}>${em('company')}</div>
+      <div class="field"><label for="b-person">Ваше имя</label><input type="text" id="b-person" name="person" autocomplete="name" value="${esc(v.person || '')}"></div>
+      <div class="field"><label for="b-role">Ваша роль</label><input type="text" id="b-role" name="role" placeholder="Например: руководитель, бухгалтер, юрист" value="${esc(v.role || '')}"></div>
+      <div class="field"><label for="b-size">Размер компании</label><select id="b-size" name="size"><option value="">Выберите</option>${sz}</select></div>
+      <div class="field"><label for="b-industry">Отрасль</label><select id="b-industry" name="industry"><option value="">Выберите</option>${ind}</select></div>
+      <div class="field"><label for="b-regions">Регионы работы</label><input type="text" id="b-regions" name="regions" placeholder="Например: Москва, Санкт-Петербург" value="${esc(v.regions || '')}"></div>
+      <div class="field"><label for="b-email">Рабочая почта <span class="req" aria-hidden="true">*</span></label><input type="email" id="b-email" name="email" autocomplete="email" value="${esc(v.email || '')}" ${fe('email')}>${em('email')}</div>
+      <div class="field"><label for="b-phone">Телефон или Telegram</label><input type="text" id="b-phone" name="phone" autocomplete="tel" value="${esc(v.phone || '')}"></div>
+      <div class="field" style="margin-bottom:18px"><label class="check" style="font-weight:400;font-size:.86rem;color:var(--ink-soft)"><input type="checkbox" name="consent" ${v.consent ? 'checked' : ''}><span>Согласен на обработку персональных данных в соответствии с <a class="link" href="#/privacy" target="_blank" rel="noopener">политикой конфиденциальности</a></span></label>${em('consent')}</div>
+      <button class="btn btn-primary" type="submit">Отправить заявку</button></form>
+    <div class="stack"><div class="card tight"><h3 style="font-size:1rem;margin-bottom:6px">Что вы получите</h3><p class="muted" style="font-size:.9rem">Три месяца бесплатно и без привязки карты: подбор изменений законодательства по профилю вашей компании, карточки с планом действий, уведомления на почту и в Telegram, влияние на развитие сервиса и льготные условия после беты.</p></div>
+    <div class="card tight"><h3 style="font-size:1rem;margin-bottom:6px">Что мы просим</h3><p class="muted" style="font-size:.9rem">Заполнить профиль компании, оценивать карточки («полезно» или «не про нас») и один раз рассказать о впечатлениях в коротком интервью.</p></div>
+    <div class="card tight"><h3 style="font-size:1rem;margin-bottom:6px">Как это работает</h3><p class="muted" style="font-size:.9rem">Мы рассмотрим заявку и пришлём код приглашения на почту. Сервис даёт информационные материалы и не заменяет юридическую консультацию.</p></div></div></div></div>`, '/beta');
+}
+
 function viewContacts() {
   return pubShell(`<div class="wrap"><div class="page-hero"><p class="eyebrow">Контакты</p><h1>Свяжитесь с командой</h1></div>
   <div class="sample-grid" style="padding-bottom:70px;align-items:start"><form class="card" id="contactForm" novalidate>
@@ -1195,6 +1221,7 @@ function viewRegister(err = {}, v = {}) {
     <div class="field"><label for="r-mail">Рабочая почта</label><input type="email" id="r-mail" name="email" autocomplete="email" placeholder="you@company.ru" value="${esc(v.email || '')}" ${err.email ? 'aria-invalid="true" aria-describedby="e-mail"' : ''}><div id="e-mail">${fieldErr(err.email)}</div></div>
     <div class="field"><label for="r-pass">Пароль</label><input type="password" id="r-pass" name="pass" autocomplete="new-password" placeholder="Минимум 8 символов" ${err.pass ? 'aria-invalid="true" aria-describedby="e-pass"' : 'aria-describedby="e-pass"'}>
       <div class="pw-meter" aria-hidden="true">${[0, 1, 2, 3].map(i => `<i class="${i < sc ? 'on' : ''}"></i>`).join('')}</div><div id="e-pass">${err.pass ? fieldErr(err.pass) : '<div class="note">Минимум 8 символов, буква и цифра</div>'}</div></div>
+    ${META && META.invite_only ? `<div class="field"><label for="r-invite">Код приглашения</label><input type="text" id="r-invite" name="invite" autocomplete="off" autocapitalize="characters" placeholder="LT-XXXXXXXX" value="${esc(v.invite || '')}" ${err.invite ? 'aria-invalid="true" aria-describedby="e-invite"' : ''}><div id="e-invite">${err.invite ? fieldErr(err.invite) : '<div class="note">Закрытая бета: регистрация по приглашению. Нет кода? <a class="link" href="#/beta">Оставьте заявку</a></div>'}</div></div>` : ''}
     <div class="field" style="margin-bottom:18px"><label class="check" style="font-weight:400;font-size:.86rem;color:var(--ink-soft)"><input type="checkbox" name="agree" ${v.agree ? 'checked' : ''}><span>Согласен с <a class="link" href="#/terms" target="_blank" rel="noopener">пользовательским соглашением</a> и <a class="link" href="#/privacy" target="_blank" rel="noopener">политикой конфиденциальности</a></span></label>${fieldErr(err.agree)}</div>
     <button class="btn btn-primary btn-block" type="submit">Создать аккаунт</button></form>
   <div class="divider">или</div>${oauthBtn}<p class="switch-note">Уже есть аккаунт? <a class="link" href="#/login">Войти</a></p>`);
@@ -1338,6 +1365,15 @@ function viewSaved() {
 }
 
 /* =====================  CHANGE DETAIL  ===================== */
+function feedbackBlock(c) {
+  const f = c.fb || {};
+  return `<section class="d-block" aria-labelledby="dfb"><h2 id="dfb">Помогла ли карточка? <span class="layer">Ваша оценка улучшает сервис</span></h2>
+    <div class="card-actions" style="flex-wrap:wrap;gap:8px">
+      <button class="icon-btn ${f.useful ? 'on' : ''}" data-act="fbuse" data-id="${c.id}" aria-pressed="${!!f.useful}">${ic('check', 'sm')}Полезно</button>
+      <button class="icon-btn ${f.not_relevant ? 'on' : ''}" data-act="fbnr" data-id="${c.id}" aria-pressed="${!!f.not_relevant}">${ic('flag', 'sm')}Не про нас</button></div>
+    <div role="group" aria-label="Оценка полезности от 1 до 5" style="display:flex;align-items:center;gap:6px;margin-top:12px;flex-wrap:wrap"><span class="muted" style="font-size:.88rem">Оценка:</span>
+      ${[1, 2, 3, 4, 5].map(n => `<button class="icon-btn ${f.rating === n ? 'on' : ''}" data-act="fbrate" data-id="${c.id}" data-n="${n}" aria-pressed="${f.rating === n}" aria-label="Оценка ${n} из 5" style="min-width:42px;justify-content:center">${n}</button>`).join('')}</div></section>`;
+}
 function viewChange(id) {
   const c = CH[id];
   if (!c) return appShell('digests', { title: 'Материал не найден', body: emptyState('search', 'Такого материала нет', 'Возможно, ссылка устарела.', '<a class="btn btn-primary" href="#/app/digests">К дайджестам</a>') });
@@ -1345,7 +1381,7 @@ function viewChange(id) {
   const used = [];
   const P = S.company; if (profileStarted()) { if (P.industry) used.push('Отрасль: ' + P.industry); if (P.headcount) used.push('Численность: ' + P.headcount); }
   const tl = c.draft ? '' : `<div class="timeline" aria-label="Хронология"><div class="on">Опубликовано<br>${fmtS(dayOff(c.pub))}</div><div class="on">Сегодня<br>${fmtS(TODAY)}</div><div class="${c.eff <= 0 ? 'on' : ''}">${c.eff <= 0 ? 'Вступило' : 'Вступает'}<br>${fmtS(dayOff(c.eff))}</div></div>`;
-  const acts = LIVE && c._locked ? `<div class="banner blue">${ic('info')}<div class="b-body"><strong>Рекомендации к действию — на тарифе «Профессиональный»</strong>Шаги, сроки и ответственные видны с этого тарифа. <a class="link" href="#/app/billing">Сменить тариф</a></div></div>` : c.actions.length ? `<div class="act-list">${c.actions.map((a, i) => { const st = actState(c, i); return `<div class="act ${st === 'done' ? 'done' : ''}"><input type="checkbox" class="chk" data-actcheck="${c.id}:${i}" ${st === 'done' ? 'checked' : ''} aria-label="Выполнено: ${esc(a[0])}" style="width:22px;height:22px;accent-color:var(--accent)"><div class="txt"><span class="k">Действие</span>${esc(a[0])}</div><div><span class="k">Рекомендуемый срок</span>${a[1] === null || a[1] === undefined ? 'срок не указан' : 'до ' + fmtS(dayOff(a[1]))}</div><div><span class="k">Возможный ответственный</span>${esc(a[2])}</div><div><span class="k">Статус</span><select data-actstatus="${c.id}:${i}" aria-label="Статус: ${esc(a[0])}">${[['todo', 'Не начато'], ['doing', 'В работе'], ['done', 'Выполнено']].map(([v, t]) => opt(v, t, st)).join('')}</select></div></div>`; }).join('')}</div><p class="note" style="margin-top:10px">Действия предположительные и подобраны автоматически. Ответственных и сроки можно скорректировать с юристом.</p>` : '<p class="muted">По этому материалу конкретных действий не требуется — достаточно следить за развитием событий.</p>';
+  const acts = LIVE && c._locked ? `<div class="banner blue">${ic('info')}<div class="b-body"><strong>Рекомендации к действию — на тарифе «Профессиональный»</strong>Шаги, сроки и ответственные видны с этого тарифа. <a class="link" href="#/app/billing">Сменить тариф</a></div></div>` : c.actions.length ? `<div class="act-list">${c.actions.map((a, i) => { const st = actState(c, i); return `<div class="act ${st === 'done' ? 'done' : ''}"><input type="checkbox" class="chk" data-actcheck="${c.id}:${i}" ${st === 'done' ? 'checked' : ''} ${can('member') ? '' : 'disabled'} aria-label="Выполнено: ${esc(a[0])}" style="width:22px;height:22px;accent-color:var(--accent)"><div class="txt"><span class="k">Действие</span>${esc(a[0])}</div><div><span class="k">Рекомендуемый срок</span>${a[1] === null || a[1] === undefined ? 'срок не указан' : 'до ' + fmtS(dayOff(a[1]))}</div><div><span class="k">Возможный ответственный</span>${esc(a[2])}</div><div><span class="k">Статус</span><select data-actstatus="${c.id}:${i}" ${can('member') ? '' : 'disabled'} aria-label="Статус: ${esc(a[0])}">${[['todo', 'Не начато'], ['doing', 'В работе'], ['done', 'Выполнено']].map(([v, t]) => opt(v, t, st)).join('')}</select></div></div>`; }).join('')}</div><p class="note" style="margin-top:10px">Действия предположительные и подобраны автоматически. Ответственных и сроки можно скорректировать с юристом.</p>` : '<p class="muted">По этому материалу конкретных действий не требуется — достаточно следить за развитием событий.</p>';
   const rel = c.related.map(x => CH[x]).filter(Boolean);
   return appShell('digests', {
     title: '', sub: '', body: `<article class="detail">
@@ -1379,6 +1415,7 @@ function viewChange(id) {
       <blockquote class="quote">${esc(c.quote)}</blockquote><p class="note">Фрагмент приведён для иллюстрации. Полный текст — на официальном ресурсе.</p>
       <div class="source-row" style="border-top:1px solid var(--line);margin-top:14px"><div><div class="name">${esc(c.doc)}</div><div class="ref">${esc(c.docRef)} · ${esc(c.agency)}</div></div><a class="btn btn-ghost btn-sm" href="https://publication.pravo.gov.ru/" target="_blank" rel="noopener">Открыть официальный источник ${ic('ext', 'sm')}<span class="sr-only"> (новая вкладка)</span></a></div></section>
 
+    ${LIVE ? feedbackBlock(c) : ''}
     <div class="conf" role="note">${ic('info')}<span>${DISCLAIMER}</span></div>
     <div class="card-actions" style="margin-top:18px"><button class="icon-btn danger" data-act="report" data-id="${c.id}">${ic('flag', 'sm')}Сообщить об ошибке</button></div>
     ${rel.length ? `<section style="margin-top:30px" aria-labelledby="d7"><div class="col-heading"><h2 id="d7">Связанные материалы</h2></div><div class="list-card">${rel.map(x => `<a class="list-row" href="#/app/change/${x.id}"><span class="name">${esc(x.title)}</span><span class="tag ${IMP[x.impact][1]}">${IMP_SHORT[x.impact]}</span></a>`).join('')}</div></section>` : ''}
@@ -1438,11 +1475,11 @@ function viewProfile() {
   return appShell('profile', {
     title: 'Профиль компании', sub: `${esc(companyName())}`, actions: `<div style="width:170px" class="hide-m"><div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--ink-soft);margin-bottom:4px"><span>Заполнено</span><b>${pct}%</b></div><div class="progress" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Заполненность профиля"><div style="width:${pct}%"></div></div></div><button class="btn btn-ghost btn-sm" data-act="draft">Сохранить черновик</button>`,
     body: `<div class="content-split"><nav class="steplist" aria-label="Шаги профиля">${STEPS.map((x, k) => `<button class="step-row ${stepDone(x) ? 'done' : ''}" data-step="${k + 1}" ${k === i ? 'aria-current="step"' : ''}><span class="step-marker">${stepDone(x) ? '✓' : k + 1}</span><span><span class="nm">${x.t}</span>${x.opt ? '<span class="op">Необязательно</span>' : ''}</span></button>`).join('')}</nav>
-    <div class="stack-lg"><form class="form-panel" id="profForm" novalidate><p class="eyebrow">Шаг ${i + 1} из ${STEPS.length}</p><h2>${s.t}</h2><p class="step-desc">${s.d}</p>
+    <div class="stack-lg"><form class="form-panel" id="profForm" novalidate><p class="eyebrow">Шаг ${i + 1} из ${STEPS.length}</p>${can('admin') ? '' : `<div class="banner blue" style="margin-bottom:16px">${ic('info')}<div class="b-body"><strong>Профиль только для просмотра</strong>Менять данные компании могут администратор и владелец.</div></div>`}<h2>${s.t}</h2><p class="step-desc">${s.d}</p>
       ${Object.keys(PErr).length ? `<div class="banner red" role="alert" style="margin-bottom:20px">${ic('alert')}<div class="b-body"><strong>Проверьте поля</strong>Заполните обязательные поля, отмеченные звёздочкой.</div></div>` : ''}
       ${stepForm(s.id)}
       <div class="banner" style="margin-top:6px">${ic('info')}<div class="b-body"><strong>Как это используется</strong>Ответы на этом шаге влияют на подбор изменений: ${s.inf}. Вы можете изменить их в любой момент.</div></div>
-      <div class="step-actions"><div class="l">${i > 0 ? '<button type="button" class="btn btn-ghost" data-act="pback">Назад</button>' : ''}${s.opt ? '<button type="button" class="btn-text" data-act="pskip">Пропустить вопрос</button>' : ''}</div><button class="btn btn-primary" type="submit">${i === STEPS.length - 1 ? 'Сохранить и завершить' : 'Сохранить и продолжить'}</button></div>
+      <div class="step-actions" ${can('admin') ? '' : 'hidden'}><div class="l">${i > 0 ? '<button type="button" class="btn btn-ghost" data-act="pback">Назад</button>' : ''}${s.opt ? '<button type="button" class="btn-text" data-act="pskip">Пропустить вопрос</button>' : ''}</div><button class="btn btn-primary" type="submit">${i === STEPS.length - 1 ? 'Сохранить и завершить' : 'Сохранить и продолжить'}</button></div>
       <p class="note" style="display:flex;gap:8px;align-items:center;margin-top:18px">${ic('lock', 'sm')}Эти данные видны только вашей команде в LawTracker.</p></form>
     <section class="card" aria-labelledby="dacc"><h2 id="dacc" style="font-size:1.1rem;margin-bottom:6px">Данные и доступ</h2><p class="muted" style="font-size:.9rem;margin-bottom:8px">Мы используем сведения профиля только для подбора изменений. Вы решаете, кто в команде их видит.</p>
       ${LIVE ? '' : `<div class="tog-row"><div><div class="t" id="t-share">Показывать профиль участникам и наблюдателям</div><div class="s">Если выключено, профиль видят только владелец и администраторы</div></div><label class="switch"><input type="checkbox" id="shareProfile" aria-labelledby="t-share" ${shared ? 'checked' : ''}><span class="track"></span></label></div>`}
@@ -1501,12 +1538,12 @@ function viewTelegram() {
 /* =====================  TEAM  ===================== */
 function viewTeam() {
   if (!S.team.length) S.team = [{ id: 'me', name: S.user.name, email: S.user.email, role: 'owner', status: 'active' }];
-  return appShell('team', { title: 'Команда и доступы', sub: 'Кто из сотрудников работает с профилем и материалами', actions: `<button class="btn btn-primary btn-sm" data-act="invite">${ic('plus', 'sm')}Пригласить</button>`, body: `<div class="stack-lg">
+  return appShell('team', { title: 'Команда и доступы', sub: 'Кто из сотрудников работает с профилем и материалами', actions: can('admin') ? `<button class="btn btn-primary btn-sm" data-act="invite">${ic('plus', 'sm')}Пригласить</button>` : '', body: `<div class="stack-lg">${can('admin') ? '' : `<div class="banner blue">${ic('info')}<div class="b-body"><strong>Управление командой — у администратора</strong>Приглашать участников и менять роли может администратор или владелец компании.</div></div>`}
     <div class="table-wrap"><table class="tbl"><caption class="sr-only">Участники команды</caption><thead><tr><th scope="col">Участник</th><th scope="col">Роль</th><th scope="col">Статус</th><th scope="col"><span class="sr-only">Действия</span></th></tr></thead><tbody>
     ${S.team.map(m => `<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="avatar" style="width:34px;height:34px;font-size:.78rem">${esc(initials(m.name || m.email))}</span><div><div style="font-weight:600">${esc(m.name || m.email)}${m.id === 'me' ? ' <span class="faint" style="font-weight:400">(вы)</span>' : ''}</div><div class="muted" style="font-size:.84rem">${esc(m.email)}</div></div></div></td>
-    <td>${m.role === 'owner' ? '<span class="tag">Владелец</span>' : `<select class="fs" data-role="${m.id}" aria-label="Роль: ${esc(m.email)}" style="min-height:40px">${['admin', 'member', 'viewer'].map(r => opt(r, ROLES[r], m.role)).join('')}</select>`}</td>
+    <td>${m.role === 'owner' || !can('admin') ? `<span class="tag">${ROLES[m.role]}</span>` : `<select class="fs" data-role="${m.id}" aria-label="Роль: ${esc(m.email)}" style="min-height:40px">${['admin', 'member', 'viewer'].map(r => opt(r, ROLES[r], m.role)).join('')}</select>`}</td>
     <td>${m.status === 'active' ? `<span class="tag">${ic('check')}Активен</span>` : `<span class="tag amber">${ic('clock')}Приглашение отправлено</span>`}</td>
-    <td style="text-align:right;white-space:nowrap">${m.status === 'pending' ? `<button class="btn btn-ghost btn-sm" data-resend="${m.id}">Отправить снова</button> ` : ''}${m.role !== 'owner' ? `<button class="btn btn-danger-ghost btn-sm" data-remove="${m.id}" aria-label="Удалить: ${esc(m.email)}">${ic('trash', 'sm')}Удалить</button>` : ''}</td></tr>`).join('')}</tbody></table></div>
+    <td style="text-align:right;white-space:nowrap">${!can('admin') ? '' : m.status === 'pending' ? `<button class="btn btn-ghost btn-sm" data-resend="${m.id}">Отправить снова</button> ` : ''}${can('admin') && m.role !== 'owner' ? `<button class="btn btn-danger-ghost btn-sm" data-remove="${m.id}" aria-label="Удалить: ${esc(m.email)}">${ic('trash', 'sm')}Удалить</button>` : ''}</td></tr>`).join('')}</tbody></table></div>
     <section class="card" aria-labelledby="rl"><h2 id="rl" style="font-size:1.1rem;margin-bottom:12px">Роли и доступы</h2><div class="table-wrap" style="border:0"><table class="tbl"><thead><tr><th scope="col">Роль</th><th scope="col">Что может</th></tr></thead><tbody>${Object.entries(ROLES).map(([k, t]) => `<tr><th scope="row" style="font-weight:600;text-align:left">${t}</th><td class="muted">${ROLE_DESC[k]}</td></tr>`).join('')}</tbody></table></div></section>
     <div class="banner blue">${ic('info')}<div class="b-body"><strong>Тариф «${esc(PLAN(S.plan).name)}»</strong>${PLAN(S.plan).users === null ? 'Число участников не ограничено.' : `Участников: ${S.team.length} из ${PLAN(S.plan).users}.`} <a class="link" href="#/app/billing">Сменить тариф</a></div></div></div>` });
 }
@@ -1530,6 +1567,7 @@ function viewAccount() {
     <section class="card" aria-labelledby="fnt"><h2 id="fnt" style="font-size:1.1rem;margin-bottom:12px">Шрифт</h2><div class="radio-cards" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">${Object.entries(FONTS).map(([k, f]) => `<label class="radio-card"><input type="radio" name="font" value="${k}" ${S.font === k ? 'checked' : ''}><span>${f[2]}<small>${f[0]}</small></span></label>`).join('')}</div></section>
     <section class="card"><h2 style="font-size:1.1rem;margin-bottom:12px">Язык интерфейса</h2><label class="field" style="margin:0"><span class="sr-only">Язык</span><select class="input" style="max-width:280px"><option>Русский</option><option disabled>English — скоро</option></select></label></section>
     <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-ghost" data-act="logout">Выйти из аккаунта</button></div>
+    ${LIVE ? `<section class="card" aria-labelledby="yd"><h2 id="yd" style="font-size:1.1rem;margin-bottom:8px">Ваши данные</h2><p class="muted" style="font-size:.92rem;margin-bottom:14px">Можно скачать всё, что сервис хранит о вас и вашей компании, или сменить адрес почты.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-ghost" data-act="exportdata">Скачать мои данные (JSON)</button><button class="btn btn-ghost" data-act="chemail">Сменить e-mail</button></div></section>` : ''}
     <section class="danger-zone" aria-labelledby="dz"><h2 id="dz" style="font-size:1.1rem;margin-bottom:6px">Удаление аккаунта</h2><p style="font-size:.92rem;margin-bottom:14px">Профиль компании, настройки и сохранённые материалы будут удалены без возможности восстановления.</p><button class="btn btn-danger" data-act="delacc">Удалить аккаунт</button></section></div>` });
 }
 function viewSupport() {
@@ -1589,7 +1627,7 @@ function viewOverview() {
 /* =====================  ROUTER  ===================== */
 const root = $('#root');
 let curPath = null, pendingScroll = null, demoOpen = false, viewErr = {}, viewVals = {}, forgotSent = false;
-const TITLES = { '/reset': 'Новый пароль', '/': 'Мониторинг изменений законодательства для бизнеса', '/faq': 'Вопросы и ответы', '/pricing': 'Тарифы', '/about': 'О сервисе', '/contacts': 'Контакты', '/privacy': 'Политика конфиденциальности', '/terms': 'Пользовательское соглашение', '/login': 'Вход', '/register': 'Регистрация', '/forgot': 'Восстановление пароля', '/onboarding': 'Настройка аккаунта', '/app': 'Обзор', '/app/digests': 'Дайджесты', '/app/saved': 'Сохранённое', '/app/profile': 'Профиль компании', '/app/notifications': 'Настройки уведомлений', '/app/telegram': 'Подключение Telegram', '/app/team': 'Команда и доступы', '/app/billing': 'Тариф и оплата', '/app/plan': 'Персональный план', '/app/account': 'Настройки аккаунта', '/app/support': 'Поддержка' };
+const TITLES = { '/reset': 'Новый пароль', '/': 'Мониторинг изменений законодательства для бизнеса', '/faq': 'Вопросы и ответы', '/pricing': 'Тарифы', '/about': 'О сервисе', '/contacts': 'Контакты', '/beta': 'Закрытая бета', '/privacy': 'Политика конфиденциальности', '/terms': 'Пользовательское соглашение', '/login': 'Вход', '/register': 'Регистрация', '/forgot': 'Восстановление пароля', '/onboarding': 'Настройка аккаунта', '/app': 'Обзор', '/app/digests': 'Дайджесты', '/app/saved': 'Сохранённое', '/app/profile': 'Профиль компании', '/app/notifications': 'Настройки уведомлений', '/app/telegram': 'Подключение Telegram', '/app/team': 'Команда и доступы', '/app/billing': 'Тариф и оплата', '/app/plan': 'Персональный план', '/app/account': 'Настройки аккаунта', '/app/support': 'Поддержка' };
 const getPath = () => (location.hash.replace(/^#/, '') || '/').split('?')[0];
 const go = p => { location.hash = '#' + p; };
 
@@ -1602,11 +1640,12 @@ function resolve(path) {
   if (['/login', '/register'].includes(path) && S.user) return { redirect: S.onboarded ? '/app' : '/onboarding' };
   if (path === '/onboarding') { if (!S.user) return { redirect: '/register' }; if (S.onboarded) return { redirect: '/app' }; }
   const T = {
-    '/': viewHome, '/faq': viewFaq, '/pricing': viewPricing, '/about': viewAbout, '/contacts': viewContacts, '/privacy': () => viewLegal('privacy'), '/terms': () => viewLegal('terms'),
+    '/': viewHome, '/faq': viewFaq, '/pricing': viewPricing, '/about': viewAbout, '/contacts': viewContacts, '/beta': () => viewBeta(viewErr, viewVals), '/privacy': () => viewLegal('privacy'), '/terms': () => viewLegal('terms'),
     '/reset': viewReset, '/login': () => viewLogin(viewErr, viewVals), '/register': () => viewRegister(viewErr, viewVals), '/forgot': () => viewForgot(forgotSent), '/onboarding': viewOnboarding,
     '/app': viewOverview, '/app/digests': viewDigests, '/app/saved': viewSaved, '/app/profile': viewProfile, '/app/notifications': viewNotifications, '/app/telegram': viewTelegram, '/app/team': viewTeam, '/app/billing': viewBilling, '/app/plan': viewPlan, '/app/account': viewAccount, '/app/support': viewSupport
   };
   if (T[path]) return { html: T[path](), title: TITLES[path] };
+  if ((m = path.match(/^\/app\/change\/([\w-]+)$/)) && LIVE && CH[m[1]] && !OPENED.has(m[1])) { OPENED.add(m[1]); api('POST', '/events', { kind: 'change_open', ref: m[1] }); }
   if ((m = path.match(/^\/app\/change\/([\w-]+)$/))) return { html: viewChange(m[1]), title: CH[m[1]] ? CH[m[1]].title : 'Материал не найден' };
   return { html: pubShell(`<div class="wrap"><div class="empty" style="margin:60px 0">${ic('search')}<h3>Страница не найдена</h3><p>Возможно, ссылка устарела или адрес введён неточно.</p><a class="btn btn-primary" href="#/">На главную</a></div></div>`), title: 'Страница не найдена' };
 }
@@ -1619,7 +1658,7 @@ function render({ keep = false } = {}) {
   if (changed) {
     $$('.overlay').forEach(o => { if (o._dismiss) o.remove(); }); modalStack = modalStack.filter(f => f._d === false);
     if (path !== '/app/notifications') { ND = null; NDirty = false; }
-    PErr = {}; if (!['/login', '/register'].includes(path)) { viewErr = {}; viewVals = {}; } if (path !== '/forgot') forgotSent = false;
+    PErr = {}; if (!['/login', '/register', '/beta'].includes(path)) { viewErr = {}; viewVals = {}; } if (path !== '/forgot') forgotSent = false;
   }
   if (r.html === null) { go('/register'); return; }
   root.innerHTML = r.html;
@@ -1772,7 +1811,7 @@ function changeFromApi(d) {
   const pub = dayDiff(d.published_at);
   return { id: d.id, topic: d.topic, impact: d.impact, pub, eff: d.effective_at ? dayDiff(d.effective_at) : null, draft: d.is_draft, agency: d.agency, doc: d.doc, docRef: 'Опубликован ' + fmtD(dayOff(pub)), conf: d.confidence, reviewed: d.reviewed,
     title: d.title, summary: d.summary, what: d.what || '', who: d.who || '', comment: d.comment || '', quote: d.quote || '', reasons: [], _reasons: d.reasons || [], _personal: !!d.personal, _locked: !!d.actions_locked, sourceUrl: d.source_url || '',
-    actions: (d.actions || []).map(a => [a.title, a.due_in_days, a.responsible]), related: (d.related || []).map(r => r.id) };
+    actions: (d.actions || []).map(a => [a.title, a.due_in_days, a.responsible]), related: (d.related || []).map(r => r.id), fb: d.feedback || null };
 }
 const notifFromApi = d => ({ cabinet: d.settings.cabinet, email: d.settings.email, emailFreq: d.settings.email_freq, tg: d.settings.tg, topics: d.settings.topics, minImpact: d.settings.min_impact, days: d.settings.days, time: d.settings.time, pause: d.settings.pause, pauseUntil: d.settings.pause_until || '' });
 const notifToApi = n => ({ cabinet: n.cabinet, email: n.email, email_freq: n.emailFreq, tg: n.tg, topics: n.topics, min_impact: n.minImpact, days: n.days, time: n.time, pause: n.pause, pause_until: n.pauseUntil || null });
@@ -1843,7 +1882,43 @@ async function finishOnboardingLive() {
   if (!r.ok) { failToast(r); return; }
   S.company.topics = topics; S.onboarded = true; await loadChanges(); toast('Аккаунт создан. Добро пожаловать в LawTracker!'); go('/app');
 }
+async function sendFeedback(id, body) {
+  const c = CH[id]; if (!c) return; const prev = c.fb; c.fb = Object.assign({}, prev || {}, body);
+  if (body.useful) c.fb.not_relevant = false; if (body.not_relevant) c.fb.useful = false; render({ keep: true });
+  const r = await api('PUT', `/changes/${encodeURIComponent(id)}/feedback`, body);
+  if (!r.ok) { c.fb = prev; render({ keep: true }); return failToast(r); }
+  c.fb = r.data; render({ keep: true }); toast('Спасибо, оценка сохранена');
+}
 Object.assign(ACT, {
+  async exportdata() {
+    try {
+      const r = await fetch('/api/account/export', { credentials: 'same-origin', headers: { 'X-Requested-With': 'lawtracker' } });
+      if (!r.ok) throw new Error();
+      const a = document.createElement('a'); a.href = URL.createObjectURL(await r.blob()); a.download = 'lawtracker-export.json'; document.body.appendChild(a); a.click(); a.remove();
+      toast('Файл со всеми вашими данными скачан');
+    } catch (e) { toast('Не удалось выгрузить данные', 'err'); }
+  },
+  chemail() {
+    modal({ title: 'Смена e-mail', body: `<p class="muted" style="font-size:.92rem;margin-bottom:12px">Код подтверждения придёт на новый адрес. Пока вы его не введёте, действует старый.</p><div class="field"><label for="ce-m">Новая почта</label><input type="email" id="ce-m" autocomplete="off"><div id="ce-me"></div></div><div class="field" style="margin:0"><label for="ce-p">Текущий пароль</label><input type="password" id="ce-p" autocomplete="current-password"><div id="ce-pe"></div></div>`,
+      actions: [{ label: 'Отмена' }, { label: 'Отправить код', cls: 'btn-primary', on: ov => {
+        const m = $('#ce-m', ov).value.trim(), pw = $('#ce-p', ov).value;
+        if (!validEmail(m)) { $('#ce-me', ov).innerHTML = fieldErr('Введите корректный адрес почты'); return false; }
+        if (!pw) { $('#ce-pe', ov).innerHTML = fieldErr('Введите пароль'); return false; }
+        api('POST', '/account/email', { new_email: m, password: pw }).then(r => {
+          if (!r.ok) { const fl = (r.err && r.err.fields) || {}; toast(fl.new_email || fl.password || (r.err && r.err.message) || 'Не удалось отправить код', 'err'); return; }
+          modal({ title: 'Введите код из письма', body: `<p class="muted" style="font-size:.92rem;margin-bottom:12px">Мы отправили 6-значный код на ${esc(m)}.${r.data.dev_code ? ' <b>Демо-код: ' + esc(r.data.dev_code) + '</b>' : ''}</p><div class="field" style="margin:0"><label for="ce-c">Код</label><input type="text" id="ce-c" inputmode="numeric" maxlength="6" autocomplete="one-time-code"><div id="ce-ce"></div></div>`,
+            actions: [{ label: 'Отмена' }, { label: 'Подтвердить', cls: 'btn-primary', on: ov2 => {
+              api('POST', '/account/email/confirm', { code: $('#ce-c', ov2).value.trim() }).then(c => {
+                if (!c.ok) { toast((c.err && c.err.message) || 'Неверный код', 'err'); return; }
+                S.user.email = c.data.user.email; toast('Адрес почты изменён'); render({ keep: true });
+              }); } }] });
+        }); } }] });
+  }
+});
+Object.assign(ACT, {
+  fbuse(t) { const c = CH[t.dataset.id]; sendFeedback(t.dataset.id, { useful: !(c && c.fb && c.fb.useful) }); },
+  fbnr(t) { const c = CH[t.dataset.id]; sendFeedback(t.dataset.id, { not_relevant: !(c && c.fb && c.fb.not_relevant) }); },
+  fbrate(t) { sendFeedback(t.dataset.id, { rating: +t.dataset.n }); },
   save(t) { if (!LIVE) return ACT0.save(t); toggleFlag('save', t); },
   read(t) { if (!LIVE) return ACT0.read(t); toggleFlag('read', t); },
   report(t) {
@@ -1902,6 +1977,7 @@ Object.assign(ACT, {
   },
   chooseplan(t) {
     if (!LIVE) return ACT0.chooseplan(t);
+    if (!can('owner')) return toast('Менять тариф может только владелец компании', 'err');
     const p = PLAN(t.dataset.id);
     if (p.id === 'corp') return ACT0.chooseplan(t);
     const demo = META.demo_mode;
@@ -1918,11 +1994,12 @@ Object.assign(ACT, {
 /* ---- формы ---- */
 const LIVE_FORMS = {
   async regForm(f, val) {
-    const v = { name: val('name'), email: val('email'), agree: f.elements.agree.checked }, pass = f.elements.pass.value, err = {};
+    const v = { name: val('name'), email: val('email'), agree: f.elements.agree.checked, invite: f.elements.invite ? f.elements.invite.value.trim() : '' }, pass = f.elements.pass.value, err = {};
     if (v.name.length < 2) err.name = 'Введите имя'; if (!validEmail(v.email)) err.email = 'Проверьте адрес почты'; if (pass.length < 8 || !/[a-zа-я]/i.test(pass) || !/\d/.test(pass)) err.pass = 'Минимум 8 символов, буква и цифра'; if (!v.agree) err.agree = 'Необходимо принять условия';
+    if (META && META.invite_only && !v.invite) err.invite = 'Введите код приглашения';
     if (Object.keys(err).length) { viewErr = err; viewVals = { ...v, pass }; render({ keep: true }); focusInvalid(); return; }
-    const r = await api('POST', '/auth/register', { name: v.name, email: v.email, password: pass, consent: v.agree });
-    if (!r.ok) { const fl = (r.err && r.err.fields) || {}; viewErr = { email: r.err && r.err.code === 'email_taken' ? r.err.message : fl.email, pass: fl.password, agree: fl.consent }; if (!Object.values(viewErr).some(Boolean)) failToast(r); viewVals = { ...v, pass }; render({ keep: true }); focusInvalid(); return; }
+    const r = await api('POST', '/auth/register', { name: v.name, email: v.email, password: pass, consent: v.agree, invite_code: v.invite });
+    if (!r.ok) { const fl = (r.err && r.err.fields) || {}; viewErr = { email: r.err && r.err.code === 'email_taken' ? r.err.message : fl.email, pass: fl.password, agree: fl.consent, invite: fl.invite_code }; if (!Object.values(viewErr).some(Boolean)) failToast(r); viewVals = { ...v, pass }; render({ keep: true }); focusInvalid(); return; }
     resetLiveState(); S.user = { name: r.data.user.name, email: r.data.user.email, phone: '', verified: false };
     OB.step = 1; OB.mode = 'create'; OB.err = {}; OB.devCode = r.data.dev_code || ''; OB.tmp = { form: 'ООО', name: '', size: '', industry: '', topics: [] }; viewErr = {}; viewVals = {}; go('/onboarding');
   },
@@ -1939,6 +2016,14 @@ const LIVE_FORMS = {
     const pass = f.elements.pass.value; if (pass.length < 8 || !/[a-zа-я]/i.test(pass) || !/\d/.test(pass)) { viewErr = { pass: 'Минимум 8 символов, буква и цифра' }; render({ keep: true }); focusInvalid(); return; }
     const r = await api('POST', '/auth/reset', { token: val('token'), password: pass }); if (!r.ok) return failToast(r);
     viewErr = {}; toast('Пароль изменён. Войдите с новым паролем'); go('/login');
+  },
+  async betaForm(f, val) {
+    const v = { company: val('company'), person: val('person'), role: val('role'), size: val('size'), industry: val('industry'), regions: val('regions'), email: val('email'), phone: val('phone'), consent: f.elements.consent.checked }, err = {};
+    if (v.company.length < 2) err.company = 'Укажите компанию'; if (!validEmail(v.email)) err.email = 'Проверьте адрес почты'; if (!v.consent) err.consent = 'Нужно согласие на обработку данных';
+    if (Object.keys(err).length) { viewErr = err; viewVals = v; render({ keep: true }); focusInvalid(); return; }
+    const r = await api('POST', '/beta/apply', v);
+    if (!r.ok) { const fl = (r.err && r.err.fields) || {}; if (fl.email || fl.consent) { viewErr = { email: fl.email, consent: fl.consent }; viewVals = v; render({ keep: true }); focusInvalid(); return; } return failToast(r); }
+    viewErr = {}; viewVals = {}; modal({ title: 'Заявка отправлена', body: '<p>Спасибо! Мы рассмотрим заявку и пришлём код приглашения на указанную почту.</p>', actions: [{ label: 'Закрыть' }] }); render({ keep: true });
   },
   async contactForm(f, val) {
     if (val('name').length < 2 || !validEmail(val('email')) || val('msg').length < 5) { toast('Заполните имя, почту и сообщение', 'err'); return; }
@@ -2163,6 +2248,7 @@ document.addEventListener('submit', e => {
     S.user = S.user && S.user.email === v.email ? S.user : { name: S.user?.name || nm, email: v.email }; persist(); viewErr = {}; go(S.onboarded ? '/app' : '/onboarding'); return;
   }
   if (id === 'forgotForm') { if (!validEmail(val('email'))) { toast('Проверьте адрес почты', 'err'); return; } forgotSent = true; render(); return; }
+  if (id === 'betaForm') { toast('Демо-режим: заявка не отправлена. Откройте сайт с сервера LawTracker', 'err'); return; }
   if (id === 'contactForm') { if (val('name').length < 2 || !validEmail(val('email')) || val('msg').length < 5) { toast('Заполните имя, почту и сообщение', 'err'); return; } f.reset(); toast('Сообщение отправлено. Мы скоро ответим'); return; }
   if (id === 'obVerify') { const code = $$('[data-code]').map(x => x.value).join(''); if (code.length < 6) { OB.err = { code: 'Введите все 6 цифр' }; render({ keep: true }); $('#code-0').focus(); return; } OB.err = {}; OB.step = 2; render(); return; }
   if (id === 'obCompany') { OB.tmp.name = $('#ob-name').value.trim(); OB.tmp.form = $('#ob-form').value; if (!OB.tmp.name) { OB.err = { name: 'Укажите название компании' }; render({ keep: true }); focusInvalid(); return; } OB.err = {}; S.company.name = OB.tmp.name; S.company.form = OB.tmp.form; persist(); OB.step = 3; render(); return; }

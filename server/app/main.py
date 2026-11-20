@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import date
 from pathlib import Path
 from typing import Callable
@@ -7,11 +8,12 @@ from typing import Callable
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 
+from . import alerts
 from .config import Settings, get_settings
 from .db import Base, make_engine, make_session_factory
 from .errors import install_error_handlers
 from .mailer import ConsoleMailer, Mailer, SmtpMailer
-from .routers import account, auth, changes, company, misc, notifications
+from .routers import account, admin, auth, beta, changes, company, misc, notifications
 from .telegram import BotApiSender, Sender
 
 UNSAFE = {"POST", "PUT", "PATCH", "DELETE"}
@@ -23,7 +25,8 @@ def create_app(settings: Settings | None = None, *, mailer: Mailer | None = None
     app = FastAPI(title="LawTracker API", version="1.0.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
     engine = make_engine(settings.database_url)
     from . import models  # noqa: F401  (регистрирует таблицы)
-    Base.metadata.create_all(engine)
+    if settings.auto_create_tables:
+        Base.metadata.create_all(engine)
     app.state.settings = settings
     app.state.engine = engine
     app.state.session_factory = make_session_factory(engine)
@@ -50,13 +53,24 @@ def create_app(settings: Settings | None = None, *, mailer: Mailer | None = None
                     or request.headers.get("x-admin-token")):
                 return JSONResponse({"error": {"code": "csrf", "message": "Недопустимый тип запроса", "fields": {}}},
                                     status_code=403)
-        response = await call_next(request)
+        try:
+            response = await call_next(request)
+        except Exception:  # необработанная ошибка: в лог, алерт в Telegram, ответ без деталей
+            logging.getLogger("lawtracker").exception("Необработанная ошибка %s %s", request.method, path)
+            alerts.notify_error(settings, request.app.state.telegram, f"{request.method} {path}")
+            response = JSONResponse({"error": {"code": "server_error", "message": "Внутренняя ошибка сервера",
+                                               "fields": {}}}, status_code=500)
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+        if settings.cookie_secure:
+            response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
         response.headers.setdefault("Referrer-Policy", "same-origin")
         response.headers.setdefault("Cache-Control", "no-store")
         return response
 
-    for r in (auth.router, account.router, company.router, changes.router, notifications.router, misc.router):
+    for r in (auth.router, account.router, company.router, changes.router, notifications.router, misc.router,
+              beta.router, admin.router, admin.page_router):
         app.include_router(r)
 
     site = Path(settings.site_file) if settings.site_file else Path(__file__).resolve().parents[2] / "index.html"

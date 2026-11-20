@@ -9,11 +9,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .. import catalog as C
+from ..analytics import track
 from ..changes import build_ctx, get_change, list_changes, overview, serialize, set_action, set_flag
 from ..config import Settings
 from ..deps import Ctx, current_ctx, get_db, get_settings, need
-from ..models import Change, TelegramLink
+from ..models import Change, Feedback, TelegramLink
 from ..telegram import effective_status
+from .beta import fb_public
 
 router = APIRouter(prefix="/api", tags=["changes"])
 
@@ -48,10 +50,19 @@ def get_changes(request: Request, q: str = Query("", max_length=200),
                 ctx: Ctx = Depends(current_ctx), db: Session = Depends(get_db),
                 settings: Settings = Depends(get_settings)):
     v = vctx(request, ctx, db, settings)
+    if page == 1:
+        track(db, ctx.user.id, ctx.company.id if ctx.company else None, "feed_open", dedupe_minutes=10)
     if topic and topic not in C.TOPICS:
         topic = "__none__"  # неизвестная тематика — пустой результат, а не ошибка
-    return list_changes(db, v, q=q, period=period, topic=topic, impact=impact, status=status, sort=sort,
-                        personal=personal, page=page, per_page=per_page, detail=detail)
+    out = list_changes(db, v, q=q, period=period, topic=topic, impact=impact, status=status, sort=sort,
+                       personal=personal, page=page, per_page=per_page, detail=detail)
+    if detail and out["items"]:       # собственные оценки пользователя для кнопок «полезно / не про нас»
+        ids = [i["id"] for i in out["items"]]
+        mine = {f.change_id: f for f in db.scalars(select(Feedback).where(Feedback.user_id == ctx.user.id,
+                                                                          Feedback.change_id.in_(ids)))}
+        for i in out["items"]:
+            i["feedback"] = fb_public(mine.get(i["id"]))
+    return out
 
 
 @router.get("/changes/{change_id}")
@@ -59,12 +70,16 @@ def get_change_detail(change_id: str, request: Request, ctx: Ctx = Depends(curre
                       settings: Settings = Depends(get_settings)):
     v = vctx(request, ctx, db, settings)
     ch = get_change(db, v, change_id)
+    track(db, ctx.user.id, ctx.company.id if ctx.company else None, "change_open", change_id, dedupe_minutes=30)
     related = {}
     for rid in ch.related or []:
         r = db.scalar(select(Change).where(Change.id == rid, Change.status == "published"))
         if r:
             related[rid] = r
-    return serialize(ch, v, detail=True, related=related)
+    out = serialize(ch, v, detail=True, related=related)
+    out["feedback"] = fb_public(db.scalar(select(Feedback).where(Feedback.user_id == ctx.user.id,
+                                                                 Feedback.change_id == change_id)))
+    return out
 
 
 class ReadBody(BaseModel):
@@ -90,6 +105,8 @@ def mark_saved(change_id: str, request: Request, body: SaveBody = SaveBody(), ct
                db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
     v = vctx(request, ctx, db, settings)
     st = set_flag(db, v, change_id, saved=body.saved)
+    if body.saved:
+        track(db, ctx.user.id, ctx.company.id if ctx.company else None, "saved", change_id)
     return {"id": change_id, "is_saved": st.saved}
 
 
@@ -103,6 +120,7 @@ def put_action(change_id: str, idx: int, body: ActionBody, request: Request, ctx
                db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
     v = vctx(request, ctx, db, settings)
     set_action(db, v, change_id, idx, body.state, ctx.user.id)
+    track(db, ctx.user.id, ctx.company.id, "action", f"{change_id}#{idx}:{body.state}")
     return {"change_id": change_id, "index": idx, "state": body.state}
 
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 from datetime import date
 from types import SimpleNamespace
@@ -78,13 +79,21 @@ class Api:
 
 @pytest.fixture
 def env():
-    settings = Settings(database_url="sqlite://", cookie_secure=False, admin_token="admin-secret",
+    url = os.getenv("TEST_DATABASE_URL") or "sqlite://"      # в CI — PostgreSQL
+    if not url.startswith("sqlite"):
+        from app.db import Base, make_engine
+        from app import models  # noqa: F401
+        eng = make_engine(url)
+        Base.metadata.drop_all(eng)
+        eng.dispose()
+    settings = Settings(database_url=url, cookie_secure=False, admin_token="admin-secret",
                         telegram_webhook_secret="hook-secret", base_url="https://lt.example")
     mailer, tg = ConsoleMailer(), FakeSender()
     app = create_app(settings, mailer=mailer, telegram=tg, today=lambda: TODAY)
     with app.state.session_factory() as db:
         load_demo_changes(db, TODAY)
-    return SimpleNamespace(app=app, mailer=mailer, tg=tg, settings=settings, api=Api(app, mailer, tg))
+    yield SimpleNamespace(app=app, mailer=mailer, tg=tg, settings=settings, api=Api(app, mailer, tg))
+    app.state.engine.dispose()
 
 
 @pytest.fixture

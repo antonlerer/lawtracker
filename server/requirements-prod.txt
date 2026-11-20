@@ -1,0 +1,2 @@
+-r requirements.txt
+alembic==1.14.0

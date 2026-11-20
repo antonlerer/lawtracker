@@ -8,6 +8,9 @@ import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 
+import logging
+import time
+
 import httpx
 
 BASE_URL = "http://publication.pravo.gov.ru"
@@ -48,18 +51,40 @@ def parse_document(eo_number: str, payload: dict) -> RawAct | None:
         document_url=f"{BASE_URL}/document/{eo_number}")
 
 
+BACKOFF = 2.0     # секунд; пауза растёт вдвое с каждой попыткой (в тестах обнуляется)
+log = logging.getLogger("lawtracker.ingest")
+
+
+def get_with_retry(client: httpx.Client, url: str, *, params: dict | None = None, timeout: float = 30,
+                   retries: int = 3) -> httpx.Response:
+    """GET с повторами при сетевых ошибках, таймаутах, 429 и 5xx. Остальные 4xx повторять бессмысленно."""
+    last: Exception | None = None
+    for attempt in range(retries):
+        try:
+            r = client.get(url, params=params, timeout=timeout)
+            if r.status_code == 429 or r.status_code >= 500:
+                raise httpx.HTTPStatusError(f"HTTP {r.status_code}", request=r.request, response=r)
+            r.raise_for_status()
+            return r
+        except httpx.HTTPStatusError as exc:
+            last = exc
+            if exc.response.status_code < 500 and exc.response.status_code != 429:
+                break
+        except httpx.HTTPError as exc:
+            last = exc
+        if attempt + 1 < retries:
+            time.sleep(BACKOFF * (2 ** attempt))
+    log.warning("не удалось получить %s: %s", url, last)
+    raise last  # type: ignore[misc]
+
+
 def fetch_rss(client: httpx.Client) -> str:
-    r = client.get(RSS_URL, timeout=30)
-    r.raise_for_status()
-    return r.text
+    return get_with_retry(client, RSS_URL).text
 
 
 def fetch_document(client: httpx.Client, eo_number: str, retries: int = 3) -> RawAct | None:
-    for _ in range(retries):
-        try:
-            r = client.get(DOCUMENT_URL, params={"eoNumber": eo_number}, timeout=30)
-            r.raise_for_status()
-            return parse_document(eo_number, r.json())
-        except (httpx.HTTPError, ValueError):
-            continue
-    return None
+    try:
+        return parse_document(eo_number, get_with_retry(client, DOCUMENT_URL, params={"eoNumber": eo_number},
+                                                        retries=retries).json())
+    except (httpx.HTTPError, ValueError):
+        return None

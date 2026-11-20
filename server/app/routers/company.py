@@ -9,6 +9,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from .. import catalog as C
+from ..analytics import track
 from ..config import Settings
 from ..deps import Ctx, current_ctx, get_db, get_settings, need
 from ..errors import ApiError
@@ -116,6 +117,7 @@ def save_step(step: str, body: StepBody, ctx: Ctx = Depends(need("admin")), db: 
     skipped.pop(step, None)
     c.steps_skipped = skipped
     db.commit()
+    track(db, ctx.user.id, c.id, "profile_step", step)
     return company_payload(ctx, settings)
 
 

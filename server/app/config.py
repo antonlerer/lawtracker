@@ -40,10 +40,23 @@ class Settings:
     gigachat_scope: str = field(default_factory=lambda: os.getenv("GIGACHAT_SCOPE", "GIGACHAT_API_PERS"))
     gigachat_model: str = field(default_factory=lambda: os.getenv("GIGACHAT_MODEL", "GigaChat-2"))
     gigachat_verify_ssl: bool = field(default_factory=lambda: _bool("GIGACHAT_VERIFY_SSL", True))
+    # Файл с корневым сертификатом НУЦ Минцифры (нужен для GigaChat, если системное хранилище его не знает)
+    gigachat_ca_bundle: str = field(default_factory=lambda: os.getenv("GIGACHAT_CA_BUNDLE", ""))
     # Любая OpenAI-совместимая модель (YandexGPT через шлюз, Qwen/Llama на своём сервере через vLLM или Ollama)
     llm_base_url: str = field(default_factory=lambda: os.getenv("LLM_BASE_URL", ""))
     llm_api_key: str = field(default_factory=lambda: os.getenv("LLM_API_KEY", ""))
     llm_model: str = field(default_factory=lambda: os.getenv("LLM_MODEL", ""))
+    support_email: str = field(default_factory=lambda: os.getenv("SUPPORT_EMAIL", "support@example.org"))
+    # Окружение: production включает строгие проверки и запрещает демо-команды
+    app_env: str = field(default_factory=lambda: os.getenv("APP_ENV", "development"))
+    # Закрытая бета: регистрация только по коду приглашения (или приглашению в компанию)
+    beta_invite_only: bool = field(default_factory=lambda: _bool("BETA_INVITE_ONLY", False))
+    # Версия текстов политики и соглашения, на которую пользователь даёт согласие
+    terms_version: str = field(default_factory=lambda: os.getenv("TERMS_VERSION", "2026-11-draft"))
+    # Алерты о необработанных ошибках в Telegram (используется BOT_TOKEN)
+    alert_chat_id: str = field(default_factory=lambda: os.getenv("ALERT_TELEGRAM_CHAT_ID", ""))
+    # Создавать таблицы при старте (в разработке и тестах). В продакшене — false, схему ведёт Alembic.
+    auto_create_tables: bool = field(default_factory=lambda: _bool("AUTO_CREATE_TABLES", True))
     # Сколько независимых проходов делает анализ акта (2+ — сверка ответов, надёжнее, но дороже)
     analysis_passes: int = field(default_factory=lambda: int(os.getenv("ANALYSIS_PASSES", "2")))
 

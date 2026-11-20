@@ -32,9 +32,9 @@ def pdf_to_text(data: bytes, max_pages: int = 80) -> str | None:
 
 
 def fetch_text(client: httpx.Client, eo_number: str) -> str | None:
+    from .pravo import get_with_retry
     try:
-        r = client.get(f"{BASE_URL}/File/Pdf", params={"eoNumber": eo_number}, timeout=60)
-        r.raise_for_status()
+        r = get_with_retry(client, f"{BASE_URL}/File/Pdf", params={"eoNumber": eo_number}, timeout=60)
     except httpx.HTTPError:
         return None
     return pdf_to_text(r.content)

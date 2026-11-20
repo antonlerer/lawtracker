@@ -89,14 +89,19 @@ def _due(prefs: NotifSettings, local_now: datetime, now_utc: datetime, last_sent
 def _line(item: dict) -> str:
     left = item["days_left"]
     tail = f" — осталось {left} дн." if left is not None and left > 0 else ""
-    return f"• {item['title']} ({C.IMPACT_NAMES[item['impact']].lower()} уровень влияния){tail}"
+    mark = "проверено юристом" if item.get("reviewed") else "не проверено юристом"
+    return f"• {item['title']} ({C.IMPACT_NAMES[item['impact']].lower()} уровень влияния, {mark}){tail}"
 
 
-def render_message(items: list[dict], base_url: str, urgent: bool) -> tuple[str, str]:
+def render_message(items: list[dict], base_url: str, urgent: bool, support_email: str = "") -> tuple[str, str]:
     head = "Срочное изменение для вашей компании" if urgent else "Дайджест LawTracker"
     body = [f"{head}: {len(items)} {'изменение' if len(items) == 1 else 'изменений'}", ""]
     body += [_line(i) for i in items]
-    body += ["", f"Открыть кабинет: {base_url}/#/app"]
+    body += ["", f"Открыть кабинет: {base_url}/#/app",
+             f"Отключить или изменить уведомления: {base_url}/#/app/notifications"]
+    body += ["", C.DISCLAIMER]
+    if support_email:
+        body.append(f"Вопросы и обратная связь: {support_email}")
     return head, "\n".join(body)
 
 
@@ -153,7 +158,7 @@ def dispatch(db: Session, settings: Settings, mailer: Mailer, tg: Sender, now: d
             batch, kind = (cands, "digest") if _due(prefs, local_now, now_utc, last_digest) else (urgent, "urgent")
             if not batch:
                 continue
-            subject, text = render_message(batch, settings.base_url, kind == "urgent")
+            subject, text = render_message(batch, settings.base_url, kind == "urgent", settings.support_email)
             ok = False
             if channel == "email":
                 to = [(company.profile or {}).get("contact_email") or user.email]

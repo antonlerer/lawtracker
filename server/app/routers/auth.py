@@ -10,7 +10,8 @@ from sqlalchemy.orm import Session
 from ..config import Settings
 from ..deps import (Auth, clear_attempts, client_ip, current_auth, get_db, get_settings, record_attempt, throttle)
 from ..errors import ApiError
-from ..models import AuthSession, User, utcnow
+from ..analytics import track
+from ..models import AuthSession, BetaInvite, ConsentRecord, Member, User, utcnow
 from ..security import (hash_password, hash_token, new_token, normalize_email, numeric_code, password_problem,
                         valid_email, verify_password)
 
@@ -24,6 +25,7 @@ class Register(BaseModel):
     email: str
     password: str
     consent: bool
+    invite_code: str = Field("", max_length=40)
 
 
 class Login(BaseModel):
@@ -66,6 +68,22 @@ def dev_code(request: Request, code: str, settings: Settings) -> dict:
     return {}
 
 
+def check_invite(db: Session, settings: Settings, email: str, code: str) -> BetaInvite | None:
+    """Закрытая бета: нужен свободный код приглашения (если он привязан к e-mail — этот e-mail)
+    либо приглашение в компанию на этот адрес. Возвращает использованный код (или None)."""
+    if not settings.beta_invite_only:
+        return None
+    code = (code or "").strip().upper()
+    if code:
+        inv = db.scalar(select(BetaInvite).where(BetaInvite.code == code))
+        if inv and inv.used_at is None and (not inv.email or inv.email == email):
+            return inv
+    elif db.scalar(select(Member).where(Member.email == email, Member.status == "pending")):
+        return None
+    raise ApiError(403, "invite_required", "Регистрация идёт по приглашению. Введите код или оставьте заявку",
+                   {"invite_code": "Неверный или уже использованный код"})
+
+
 @router.post("/register", status_code=201)
 def register(body: Register, request: Request, response: Response, db: Session = Depends(get_db),
              settings: Settings = Depends(get_settings)):
@@ -81,13 +99,20 @@ def register(body: Register, request: Request, response: Response, db: Session =
         raise ApiError(422, "validation_error", "Проверьте введённые данные", fields)
     throttle(db, client_ip(request), "register", 20, 60)
     record_attempt(db, client_ip(request), "register")
+    invite = check_invite(db, settings, email, body.invite_code)
     if db.scalar(select(User).where(User.email == email)):
         # Не раскрываем, что адрес занят, лишь для формы: это же стандартное поведение демо («уже зарегистрирован»).
         raise ApiError(409, "email_taken", "Этот e-mail уже зарегистрирован", {"email": "Уже зарегистрирован"})
     user = User(email=email, name=" ".join(body.name.split()), password_hash=hash_password(body.password),
-                consent_at=utcnow())
+                consent_at=utcnow(), consent_version=settings.terms_version)
     db.add(user)
+    db.flush()
+    for doc in ("privacy", "terms"):
+        db.add(ConsentRecord(user_id=user.id, doc=doc, version=settings.terms_version, ip=client_ip(request)))
+    if invite is not None:
+        invite.used_by, invite.used_at = user.id, utcnow()
     db.commit()
+    track(db, user.id, None, "signup")
     code = send_code(request, db, user)
     open_session(db, request, response, user, settings)
     return {"user": user_public(user), **dev_code(request, code, settings)}

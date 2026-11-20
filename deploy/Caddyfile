@@ -1,0 +1,22 @@
+{$DOMAIN} {
+	encode gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy same-origin
+		-Server
+	}
+	# Закрытые служебные пути: страница администратора и методы /api/admin доступны только по токену (его проверяет приложение),
+	# но наружу их лучше не выставлять вообще. Раскомментируйте и укажите свой IP, чтобы пускать только с него:
+	# @admin path /admin /api/admin/*
+	# handle @admin {
+	#     @notmine not remote_ip 203.0.113.10
+	#     respond @notmine 404
+	#     reverse_proxy app:8000
+	# }
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy app:8000
+}

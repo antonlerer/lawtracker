@@ -51,7 +51,9 @@ def meta(request: Request, settings: Settings = Depends(get_settings)):
     """Справочники для форм: профиль, фильтры, роли. Публичный метод (по нему сайт определяет, что сервер доступен)."""
     clock = getattr(request.app.state, "today", None)
     return {"today": (clock() if clock else date.today()).isoformat(), "demo_mode": settings.demo_mode,
-            "enforce_plan_limits": settings.enforce_plan_limits,"topics": C.TOPICS, "industries": C.INDUSTRIES, "activities": C.ACTIVITIES, "regions": C.REGIONS,
+            "enforce_plan_limits": settings.enforce_plan_limits,
+            "invite_only": settings.beta_invite_only, "terms_version": settings.terms_version,
+            "disclaimer": C.DISCLAIMER, "topics": C.TOPICS, "industries": C.INDUSTRIES, "activities": C.ACTIVITIES, "regions": C.REGIONS,
             "licenses": C.LICENSES, "digital": C.DIGITAL, "forms": C.FORMS, "sizes": C.SIZE_NAMES,
             "headcounts": C.HEADCOUNTS, "roles": C.ROLES, "steps": C.STEPS,
             "impact": C.IMPACT_NAMES}

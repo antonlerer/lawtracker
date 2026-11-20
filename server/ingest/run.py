@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import logging
+
 import httpx
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.config import Settings
@@ -12,6 +15,9 @@ from .enrich import enrich
 from .llm import LLM, make_llm
 from .pravo import fetch_document, fetch_rss, parse_rss
 from .text import fetch_text
+
+
+log = logging.getLogger("lawtracker.ingest")
 
 
 def run_ingest(db: Session, settings: Settings, *, http: httpx.Client | None = None, llm: LLM | None = None,
@@ -31,26 +37,48 @@ def run_ingest(db: Session, settings: Settings, *, http: httpx.Client | None = N
         if eo in known:
             continue
         stats["new"] += 1
-        raw = fetch_document(http, eo)
-        if raw is None:
+        try:
+            outcome = _process(db, http, analyzer, text_fetcher, eo)
+        except Exception:  # сбой одного акта (сеть, модель, БД) не останавливает проход
+            db.rollback()
+            log.exception("ingest: акт %s не обработан", eo)
             stats["errors"] += 1
             continue
-        fields = None
-        if analyzer:
+        for k in outcome:
+            stats[k] += 1
+    db.commit()
+    log.info("ingest: %s", stats)
+    return stats
+
+
+def _process(db: Session, http, analyzer, text_fetcher, eo: str) -> list[str]:
+    raw = fetch_document(http, eo)
+    if raw is None:
+        return ["errors"]
+    done: list[str] = []
+    fields = None
+    if analyzer:
+        try:
             result = analyzer.analyze(raw, text_fetcher(http, eo))
+        except Exception:  # модель недоступна или ответила мусором — продолжаем без неё
+            log.exception("ingest: разбор акта %s не удался, используются правила", eo)
+            result = None
+        if result is not None:
             if result.relevant is False:
-                stats["skipped"] += 1
-                continue
+                return ["skipped"]
             if result.fields:
                 fields = result.fields
-                stats["analyzed"] += 1
+                done.append("analyzed")
+    if fields is None:
+        fields = enrich(raw, None)
         if fields is None:
-            fields = enrich(raw, None)
-            if fields is None:
-                stats["skipped"] += 1
-                continue
-            stats["fallback"] += 1
-        db.add(Change(id=f"pravo-{eo}", **fields))
-        stats["added"] += 1
+            return ["skipped"]
+        done.append("fallback")
+    try:
+        with db.begin_nested():
+            db.add(Change(id=f"pravo-{eo}", **fields))
+    except IntegrityError:   # параллельный проход уже добавил этот акт
+        return ["skipped"]
     db.commit()
-    return stats
+    return done + ["added"]
+

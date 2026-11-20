@@ -22,10 +22,11 @@ class GigaChatLLM:
     CHAT = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
 
     def __init__(self, auth_key: str, scope: str, model: str, verify_ssl: bool = True,
-                 client: httpx.Client | None = None) -> None:
+                 client: httpx.Client | None = None, ca_bundle: str = "") -> None:
         self.name = f"gigachat:{model}"
         self.auth_key, self.scope, self.model = auth_key, scope, model
-        self.http = client or httpx.Client(verify=verify_ssl, timeout=90)
+        # ca_bundle — путь к файлу сертификатов; проверка TLS при этом остаётся включённой
+        self.http = client or httpx.Client(verify=(ca_bundle or verify_ssl), timeout=90)
         self._token, self._exp = "", 0.0
 
     def _access_token(self) -> str:
@@ -73,7 +74,7 @@ def make_llm(settings: Settings) -> LLM | None:
     """Выбирает модель по настройкам; None — модель не настроена (остаётся разбор по правилам)."""
     if settings.gigachat_auth_key:
         return GigaChatLLM(settings.gigachat_auth_key, settings.gigachat_scope, settings.gigachat_model,
-                           settings.gigachat_verify_ssl)
+                           settings.gigachat_verify_ssl, ca_bundle=settings.gigachat_ca_bundle)
     if settings.llm_base_url and settings.llm_model:
         return OpenAICompatibleLLM(settings.llm_base_url, settings.llm_api_key, settings.llm_model)
     return None

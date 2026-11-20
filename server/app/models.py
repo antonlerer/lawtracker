@@ -26,6 +26,10 @@ class User(Base):
     reset_token_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     reset_expires: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     consent_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    consent_version: Mapped[str] = mapped_column(String(40), default="")
+    pending_email: Mapped[str | None] = mapped_column(String(254), nullable=True)
+    pending_email_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    pending_email_expires: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
     sessions = relationship("AuthSession", cascade="all, delete-orphan", back_populates="user")
@@ -195,4 +199,70 @@ class Waitlist(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     feature: Mapped[str] = mapped_column(String(40))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class ConsentRecord(Base):
+    """Журнал согласий: какую версию какого документа принял пользователь и когда."""
+    __tablename__ = "consent_records"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    doc: Mapped[str] = mapped_column(String(20), default="privacy")     # privacy | terms
+    version: Mapped[str] = mapped_column(String(40))
+    ip: Mapped[str] = mapped_column(String(64), default="")
+    accepted_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class Feedback(Base):
+    """Обратная связь по карточке: «полезно», «не про нас», оценка 1–5."""
+    __tablename__ = "feedback"
+    __table_args__ = (UniqueConstraint("user_id", "change_id", name="uq_feedback"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    company_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
+    change_id: Mapped[str] = mapped_column(ForeignKey("changes.id", ondelete="CASCADE"), index=True)
+    rating: Mapped[int | None] = mapped_column(Integer, nullable=True)           # 1..5
+    useful: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    not_relevant: Mapped[bool] = mapped_column(Boolean, default=False)
+    comment: Mapped[str] = mapped_column(Text, default="")
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class Event(Base):
+    """События активности для метрик беты (без персональных данных в полях)."""
+    __tablename__ = "events"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
+    company_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
+    kind: Mapped[str] = mapped_column(String(30), index=True)
+    ref: Mapped[str] = mapped_column(String(80), default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+
+
+class BetaInvite(Base):
+    """Код приглашения в закрытую бету (можно привязать к e-mail)."""
+    __tablename__ = "beta_invites"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    code: Mapped[str] = mapped_column(String(20), unique=True, index=True)
+    email: Mapped[str] = mapped_column(String(254), default="")
+    note: Mapped[str] = mapped_column(String(200), default="")
+    used_by: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class BetaApplication(Base):
+    """Заявка компании на участие в бете (форма на лендинге)."""
+    __tablename__ = "beta_applications"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    company: Mapped[str] = mapped_column(String(200))
+    person: Mapped[str] = mapped_column(String(200), default="")
+    role: Mapped[str] = mapped_column(String(100), default="")
+    size: Mapped[str] = mapped_column(String(40), default="")
+    industry: Mapped[str] = mapped_column(String(100), default="")
+    regions: Mapped[str] = mapped_column(String(300), default="")
+    email: Mapped[str] = mapped_column(String(254))
+    phone: Mapped[str] = mapped_column(String(40), default="")
+    consent_version: Mapped[str] = mapped_column(String(40), default="")
+    status: Mapped[str] = mapped_column(String(10), default="new")      # new | invited | declined
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)

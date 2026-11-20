@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>LawTracker — администратор</title>
+<style>
+:root{--bg:#faf9f6;--card:#fff;--ink:#1d1b26;--mute:#6b6877;--line:#e3e0d8;--acc:#5b3df5;--ok:#1a7f4b;--bad:#b3261e}
+@media(prefers-color-scheme:dark){:root{--bg:#16151b;--card:#1f1e26;--ink:#ece9f5;--mute:#a09cb0;--line:#34323f;--acc:#8d78ff;--ok:#5fd394;--bad:#ff8a80}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--card)}
+header h1{font-size:1.1rem;margin:0 auto 0 0}
+main{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer}
+button.on,button.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+button.ok{border-color:var(--ok);color:var(--ok)}button.bad{border-color:var(--bad);color:var(--bad)}
+input,select,textarea{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+textarea{min-height:90px;font-family:ui-monospace,Menlo,monospace;font-size:.88rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.mute{color:var(--mute);font-size:.9rem}.tag{display:inline-block;padding:1px 8px;border-radius:99px;border:1px solid var(--line);font-size:.8rem;margin-right:4px}
+table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+label{display:block;margin:10px 0 4px;font-size:.85rem;color:var(--mute)}
+.quote{border-left:3px solid var(--acc);padding:4px 12px;margin:8px 0;color:var(--mute)}
+#msg{position:fixed;bottom:16px;right:16px;max-width:360px;background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:10px;display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>LawTracker · администратор</h1>
+  <input id="tok" type="password" placeholder="X-Admin-Token" style="width:260px" autocomplete="off">
+  <button id="go" class="pri">Войти</button>
+</header>
+<main>
+  <nav id="tabs"></nav>
+  <div id="view"><p class="mute">Введите токен администратора (переменная ADMIN_TOKEN сервера). Токен хранится только в этой вкладке браузера.</p></div>
+</main>
+<div id="msg"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let TOKEN=''; try{TOKEN=sessionStorage.getItem('lt_admin')||''}catch(e){}
+const toast=t=>{const m=$('#msg');m.textContent=t;m.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>m.style.display='none',3500)};
+async function api(path,opt={}){
+  const r=await fetch('/api/admin'+path,{...opt,headers:{'X-Admin-Token':TOKEN,'Content-Type':'application/json',...(opt.headers||{})},body:opt.body?JSON.stringify(opt.body):undefined});
+  if(r.status===404) throw new Error('Неверный токен или методы администратора отключены');
+  const ct=r.headers.get('content-type')||''; const d=ct.includes('json')?await r.json():await r.text();
+  if(!r.ok) throw new Error((d.error&&(Object.values(d.error.fields||{}).join('; ')||d.error.message))||('Ошибка '+r.status));
+  return d;
+}
+const TABS={queue:'Очередь проверки',apps:'Заявки',invites:'Приглашения',metrics:'Метрики',feedback:'Обратная связь',support:'Обращения'};
+let cur='queue';
+function tabs(){$('#tabs').innerHTML=Object.entries(TABS).map(([k,v])=>`<button data-k="${k}" class="${k===cur?'on':''}">${v}</button>`).join('')}
+$('#tabs').onclick=e=>{const k=e.target.dataset.k;if(k){cur=k;show()}};
+$('#go').onclick=()=>{TOKEN=$('#tok').value.trim();try{sessionStorage.setItem('lt_admin',TOKEN)}catch(e){}show()};
+async function show(){tabs();const v=$('#view');v.innerHTML='<p class="mute">Загрузка…</p>';
+  try{await VIEWS[cur](v)}catch(e){v.innerHTML=`<div class="card"><b>${esc(e.message)}</b></div>`}}
+
+const VIEWS={
+async queue(v){
+  const f=window.qf||'no';
+  const d=await api('/changes?reviewed='+f);
+  v.innerHTML=`<div class="row" style="margin-bottom:12px"><span class="mute">Показать:</span>
+    ${[['no','непроверенные'],['yes','проверенные'],['all','все']].map(([k,t])=>`<button data-f="${k}" class="${k===f?'on':''}">${t}</button>`).join('')}
+    <span class="mute">Найдено: ${d.changes.length}</span></div><div id="list"></div><div id="edit"></div>`;
+  v.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{window.qf=b.dataset.f;show()});
+  $('#list').innerHTML=d.changes.map(c=>`<div class="card"><div class="row"><b style="flex:1">${esc(c.title)}</b>
+    <span class="tag">${esc(c.topic)}</span><span class="tag">${esc(c.impact)}</span><span class="tag">уверенность: ${esc(c.confidence)}</span>
+    <span class="tag">${c.reviewed?'проверено':'не проверено'}</span><span class="tag">${c.status==='hidden'?'скрыто':'опубликовано'}</span>
+    <button data-open="${esc(c.id)}">Открыть</button></div><div class="mute">${esc(c.doc)} · ${esc(c.published_at)} · ${esc(c.id)}</div></div>`).join('')||'<p class="mute">Пусто.</p>';
+  $('#list').onclick=e=>{const id=e.target.dataset.open;if(id)openChange(id)};
+},
+async apps(v){
+  const d=await api('/applications');
+  v.innerHTML=`<div class="card"><table><tr><th>Дата</th><th>Компания</th><th>Контакт</th><th>Профиль</th><th>Статус</th><th></th></tr>${d.applications.map(a=>`<tr>
+   <td>${esc(a.created_at.slice(0,10))}</td><td><b>${esc(a.company)}</b></td><td>${esc(a.person)}<br>${esc(a.role)}<br>${esc(a.email)} ${esc(a.phone)}</td>
+   <td>${esc(a.size)} · ${esc(a.industry)}<br>${esc(a.regions)}</td><td>${esc(a.status)}</td>
+   <td><button class="ok" data-a="${a.id}" data-s="invited">Пригласить и отправить код</button> <button class="bad" data-a="${a.id}" data-s="declined">Отказать</button></td></tr>`).join('')}</table></div>`;
+  v.onclick=async e=>{const id=e.target.dataset.a;if(!id)return;
+    try{const r=await api('/applications/'+id,{method:'PATCH',body:{status:e.target.dataset.s,send_invite:e.target.dataset.s==='invited'}});toast(r.code?('Код '+r.code+' отправлен'):'Готово');show()}catch(x){toast(x.message)}};
+},
+async invites(v){
+  const d=await api('/invites');
+  v.innerHTML=`<div class="card"><div class="row"><input id="cnt" type="number" min="1" max="100" value="5" style="width:90px"><input id="em" placeholder="e-mail (необязательно, тогда 1 код)" style="flex:1;min-width:220px"><button class="pri" id="mk">Создать коды</button></div><pre id="new" class="mute"></pre></div>
+  <div class="card"><table><tr><th>Код</th><th>E-mail</th><th>Использован</th></tr>${d.invites.map(i=>`<tr><td><code>${esc(i.code)}</code></td><td>${esc(i.email)}</td><td>${i.used?esc(i.used_at.slice(0,10)):'—'}</td></tr>`).join('')}</table></div>`;
+  $('#mk').onclick=async()=>{try{const r=await api('/invites',{method:'POST',body:{count:+$('#cnt').value||1,email:$('#em').value.trim()}});$('#new').textContent=r.codes.join('\n');toast('Коды созданы')}catch(x){toast(x.message)}};
+},
+async metrics(v){
+  const d=await api('/metrics?weeks=12');
+  v.innerHTML=`<div class="card"><table><tr><th>Неделя</th><th>Регистр.</th><th>Всего</th><th>Активные польз.</th><th>Активные компании</th><th>Открыли ленту</th><th>Открытий карточек</th><th>Отметок действий</th><th>Оценка</th><th>«Не про нас»</th></tr>
+  ${d.weeks.map(w=>`<tr><td>${esc(w.week)}</td><td>${w.signups}</td><td>${w.registered_total}</td><td>${w.active_users}</td><td>${w.active_companies}</td><td>${Math.round(w.feed_open_share*100)}%</td><td>${w.change_opens}</td><td>${w.actions_marked}</td><td>${w.avg_rating??'—'}</td><td>${w.not_relevant_share==null?'—':Math.round(w.not_relevant_share*100)+'%'}</td></tr>`).join('')}</table></div>
+  <p class="mute">Цели беты: ≥ 30 активных компаний на 4-й неделе; оценка не ниже 4; нерелевантных менее 20 %.</p>`;
+},
+async feedback(v){
+  const d=await api('/feedback');
+  v.innerHTML=`<div class="card"><b>Всего ответов: ${d.total}</b><div class="mute">Средняя оценка: ${d.avg_rating??'—'} (цель ≥ ${d.targets.avg_rating_min}) · «не про нас»: ${d.not_relevant_share==null?'—':Math.round(d.not_relevant_share*100)+'%'} (цель < ${d.targets.not_relevant_share_max*100}%) · «полезно»: ${d.useful_share==null?'—':Math.round(d.useful_share*100)+'%'}</div>
+  <p><button id="dl">Скачать CSV</button></p></div>
+  <div class="card"><table><tr><th>Карточка</th><th>Ответов</th><th>Оценка</th><th>Полезно</th><th>Не про нас</th></tr>${d.changes.map(c=>`<tr><td>${esc(c.change_id)}</td><td>${c.votes}</td><td>${c.avg_rating??'—'}</td><td>${c.useful}</td><td>${c.not_relevant}</td></tr>`).join('')}</table></div>`;
+  $('#dl').onclick=async()=>{const t=await api('/feedback.csv');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download='feedback.csv';a.click()};
+},
+async support(v){
+  const d=await api('/support');
+  v.innerHTML=`<div class="card"><table><tr><th>№</th><th>E-mail</th><th>Тема</th><th>Сообщение</th><th>Статус</th></tr>${d.tickets.map(t=>`<tr><td>${t.id}</td><td>${esc(t.email)}</td><td>${esc(t.topic)}</td><td>${esc(t.message)}</td><td>${esc(t.status)}</td></tr>`).join('')}</table></div>`;
+}};
+
+async function openChange(id){
+  const c=await api('/changes/'+encodeURIComponent(id));
+  const j=x=>JSON.stringify(x,null,2);
+  $('#edit').innerHTML=`<div class="card" style="border-color:var(--acc)"><h3 style="margin-top:0">${esc(c.title)}</h3>
+   <div class="mute">${esc(c.doc)} · ${esc(c.agency)} · <a href="${esc(c.source_url)}" target="_blank" rel="noopener noreferrer">источник</a></div>
+   <label>Цитата из акта (проверьте, что она есть в тексте)</label><div class="quote">${esc(c.quote)||'—'}</div>
+   <label>Заголовок</label><input id="f_title" value="${esc(c.title)}">
+   <label>Коротко (summary)</label><textarea id="f_summary">${esc(c.summary)}</textarea>
+   <label>Что изменилось</label><textarea id="f_what">${esc(c.what)}</textarea>
+   <label>Кого касается</label><textarea id="f_who">${esc(c.who)}</textarea>
+   <label>Комментарий</label><textarea id="f_comment">${esc(c.comment)}</textarea>
+   <div class="row"><div style="flex:1;min-width:130px"><label>Тематика</label><input id="f_topic" value="${esc(c.topic)}"></div>
+    <div style="flex:1;min-width:130px"><label>Влияние (high/med/low)</label><select id="f_impact">${['high','med','low'].map(x=>`<option ${x===c.impact?'selected':''}>${x}</option>`).join('')}</select></div>
+    <div style="flex:1;min-width:130px"><label>Уверенность</label><select id="f_conf">${['high','mid','low'].map(x=>`<option ${x===c.confidence?'selected':''}>${x}</option>`).join('')}</select></div>
+    <div style="flex:1;min-width:150px"><label>Вступает в силу</label><input id="f_eff" placeholder="ГГГГ-ММ-ДД" value="${esc(c.effective_at||'')}"></div></div>
+   <label>Правила применимости (requires, JSON)</label><textarea id="f_req">${esc(j(c.requires))}</textarea>
+   <label>Причины показа (reasons, JSON)</label><textarea id="f_rea">${esc(j(c.reasons))}</textarea>
+   <label>Действия (actions, JSON)</label><textarea id="f_act">${esc(j(c.actions))}</textarea>
+   <p class="mute">Число действий лучше не менять после публикации: отметки клиентов привязаны к номеру действия.</p>
+   <div class="row"><button class="ok" data-do="pub">Сохранить и опубликовать как проверенное</button><button data-do="save">Сохранить без отметки «проверено»</button><button class="bad" data-do="hide">Скрыть</button></div></div>`;
+  $('#edit').scrollIntoView({behavior:'smooth'});
+  $('#edit').onclick=async e=>{const a=e.target.dataset.do;if(!a)return;
+    try{
+      const body={title:$('#f_title').value,summary:$('#f_summary').value,what:$('#f_what').value,who:$('#f_who').value,comment:$('#f_comment').value,
+        topic:$('#f_topic').value,impact:$('#f_impact').value,confidence:$('#f_conf').value,effective_at:$('#f_eff').value.trim()||null,
+        requires:JSON.parse($('#f_req').value),reasons:JSON.parse($('#f_rea').value),actions:JSON.parse($('#f_act').value)};
+      if(a==='pub'){body.reviewed=true;body.status='published'} if(a==='hide'){body.status='hidden'}
+      await api('/changes/'+encodeURIComponent(id),{method:'PATCH',body});toast('Сохранено');show();
+    }catch(x){toast(x.message)}};
+}
+if(TOKEN){$('#tok').value=TOKEN;show()}else tabs();
+</script>
+</body>
+</html>

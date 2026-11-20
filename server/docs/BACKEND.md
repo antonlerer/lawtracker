@@ -35,7 +35,7 @@ server/
     routers/           auth, account, company, changes, notifications, misc
   ingest/              загрузка и ИИ-разбор актов (см. раздел 9)
   seed/                демо-данные (changes.json, load.py)
-  tests/               137 тестов pytest
+  tests/               171 тест pytest (SQLite и PostgreSQL)
   e2e/live_site.js     сквозной сценарий в браузере (Playwright)
   eval/                эталонная выборка для замера качества ИИ-разбора
 ```
@@ -212,7 +212,9 @@ contact_name, contact_email, contact_role, recipients[]`. Допустимые �
 | Изменения | `GET overview`, `GET changes`, `GET changes/{id}`, `POST changes/{id}/read`, `POST changes/{id}/save`, `PUT changes/{id}/actions/{idx}`, `GET saved` |
 | Уведомления | `GET/PUT notifications`, `GET telegram`, `POST telegram/connect`, `DELETE telegram`, `POST telegram/test`, `POST telegram/webhook/{secret}` |
 | Прочее | `GET healthz`, `GET meta` (справочники и «сегодня»), `GET plans`, `POST/GET support`, `POST contact`, `POST plan/waitlist`, `PUT demo/plan` (только DEMO_MODE) |
-| Служебные (`X-Admin-Token`) | `PUT admin/changes/{id}` (создать/обновить изменение), `POST admin/changes/{id}/analyze`, `PUT admin/companies/{id}/plan`, `GET admin/support` |
+| Бета | `PUT/GET changes/{id}/feedback` (полезно, «не про нас», оценка 1–5), `POST beta/apply` (заявка компании, без входа), `POST events` (открытие карточки) |
+| Аккаунт (добавлено) | `GET account/export` (все данные пользователя JSON), `POST account/email`, `POST account/email/confirm` (смена e-mail с кодом на новый адрес) |
+| Служебные (`X-Admin-Token`) | `PUT admin/changes/{id}` (создать/обновить изменение), `POST admin/changes/{id}/analyze`, `PUT admin/companies/{id}/plan`, `GET admin/support`; очередь проверки: `GET admin/changes?reviewed=no|yes|all`, `GET/PATCH admin/changes/{id}` (опубликовать, скрыть, «проверено», правка текста и правил); `POST/GET admin/invites`; `GET admin/applications`, `PATCH admin/applications/{id}`; `GET admin/metrics`, `metrics.csv`, `feedback`, `feedback.csv`; страница `/admin` |
 
 Регистрация: пароль ≥ 8 символов, буква и цифра; подтверждение e-mail 6-значным кодом (хранится хеш, ограничено число попыток);
 в `DEMO_MODE` код возвращается в ответе как `dev_code`. Сессия создаётся при входе; смена пароля и сброс закрывают прочие сессии
@@ -285,25 +287,31 @@ Telegram: клиент получает код `LT-XXXX` (срок действ�
 - Троттлинг входа, кодов и сброса; одинаковые ответы для существующего и несуществующего e-mail там, где это важно.
 - Строгие Pydantic-схемы (`extra="forbid"`), валидация правил до выполнения, никакого `eval`.
 - Изоляция данных компаний: все запросы идут через `Ctx` с `company_id` из членства, а не из параметров запроса.
+- Заголовки `X-Frame-Options: DENY`, `Permissions-Policy`, HSTS при `COOKIE_SECURE=true`; необработанные ошибки не раскрывают деталей и отправляют алерт в Telegram (`ALERT_TELEGRAM_CHAT_ID`).
+- Закрытая бета: регистрация по одноразовому коду (`BETA_INVITE_ONLY`); журнал согласий с версией документа (`consent_records`); выгрузка и удаление данных.
+- Страница `/admin` данных не содержит; все её запросы идут с `X-Admin-Token`, ответ без токена — 404.
 
 ## 13. Тесты
 
-`pytest` (137 тестов, SQLite в памяти, `tests/conftest.py` даёт `env`, `owner`, `Api`; «сегодня» зафиксировано константой `TODAY`).
+`pytest` (171 тест; по умолчанию SQLite в памяти, с `TEST_DATABASE_URL=postgresql+psycopg2://...` те же тесты идут на PostgreSQL: проверено на PostgreSQL 16; `tests/conftest.py` даёт `env`, `owner`, `Api`; «сегодня» зафиксировано константой `TODAY`).
 Покрытие: правила и безопасность, регистрация и компании, ленты и фильтры, действия, уведомления и расписание, Telegram (подставной клиент),
 команда и роли, тарифы, загрузка актов, ИИ-разбор (подставная модель: проверка цитат, сроков, чисел, проходов, формата, оценки).
-Сквозной тест в браузере: `BASE_URL=http://localhost:8000 node e2e/live_site.js` (26 шагов; нужен сервер в `DEMO_MODE` и `TELEGRAM_WEBHOOK_SECRET=hooksecret`).
+Сквозные тесты в браузере: `BASE_URL=http://localhost:8000 node e2e/live_site.js` (26 шагов; нужен сервер в `DEMO_MODE` и `TELEGRAM_WEBHOOK_SECRET=hooksecret`) и `e2e/beta_site.js` (заявка, регистрация по коду, обратная связь, метрики, выгрузка данных, смена e-mail, роли, мобильная версия; сервер с `DEMO_MODE=true BETA_INVITE_ONLY=true` и `ADMIN_TOKEN`).
+Замер скорости: `python eval/loadtest.py` (411 карточек, 50 пользователей: все страницы быстрее 0,1 с на PostgreSQL).
 
 ## 14. Что не сделано и что проверять перед продакшеном
 
 Не проверялось в среде разработки: реальные pravo.gov.ru, GigaChat и другие модели (качество промпта на живых актах не измерено),
-извлечение кириллицы из PDF портала, SMTP, Bot API Telegram, PostgreSQL (ожидается из-за SQLAlchemy, но тесты идут на SQLite).
+извлечение кириллицы из PDF портала, SMTP, Bot API Telegram, запуск через Docker (в среде нет Docker-демона). PostgreSQL проверен: тесты и миграции проходят.
 
 Обязательный список доработок:
-1. Миграции (Alembic) вместо `create_all`.
-2. Docker/развёртывание, обратный прокси с HTTPS, лимиты запросов на уровне прокси, резервные копии, мониторинг и логи.
-3. Размещение БД в РФ и согласие на обработку персональных данных (152-ФЗ).
+Сделано в коде: Alembic, Docker (`docker-compose.yml`, `deploy/`), Caddy с HTTPS, скрипты копий и мониторинга, CI. Пошаговая инструкция по остальному: `dev/REMAINING_STEPS.md`.
+
+1. Размещение сервера и БД в РФ, домен, SMTP, Telegram-бот, ключ ИИ (инструкция в `dev/REMAINING_STEPS.md`).
+2. Лимиты запросов на уровне прокси (при необходимости).
+3. Тексты политики и согласия на обработку персональных данных (152-ФЗ) от юриста.
 4. Настоящая оплата (сейчас заявки обрабатываются вручную).
 5. Замер качества ИИ-разбора на 50–100 реальных актах и юридическая проверка карточек (`reviewed`) перед показом клиентам.
-6. Не реализовано: смена e-mail, переключатель «показывать профиль команде», скрытие кнопок по ролям на фронтенде (сервер роли проверяет).
+6. Не реализовано: переключатель «показывать профиль команде» (неясно назначение), клики из писем в метриках.
 7. Старый путь `enrich(raw, llm)` (только по названию) оставлен рядом с новым разбором как запасной; при желании его можно упростить.
 8. Полнотекстовый поиск при росте каталога (сейчас поиск в Python).

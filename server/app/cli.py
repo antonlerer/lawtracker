@@ -14,7 +14,8 @@ from .telegram import BotApiSender
 def _factory(settings):
     from . import models  # noqa: F401
     engine = make_engine(settings.database_url)
-    Base.metadata.create_all(engine)
+    if settings.auto_create_tables:
+        Base.metadata.create_all(engine)
     return make_session_factory(engine)
 
 
@@ -26,7 +27,17 @@ def main() -> None:
     sub.add_parser("demo", help="создать демо-пользователя с заполненным профилем (demo@example.org)")
     n = sub.add_parser("notify", help="рассылка дайджестов")
     n.add_argument("--loop", type=int, default=0, help="повторять каждые N секунд (0 — один проход)")
-    sub.add_parser("ingest", help="забрать новые акты с pravo.gov.ru")
+    ig = sub.add_parser("ingest", help="забрать новые акты с pravo.gov.ru")
+    ig.add_argument("--loop", type=int, default=0, help="повторять каждые N секунд (0 — один проход)")
+    sub.add_parser("check-config", help="проверить боевую конфигурацию (код возврата 1, если есть ошибки)")
+    sub.add_parser("purge-demo", help="удалить демо-изменения и демо-пользователя из боевой базы")
+    rp = sub.add_parser("report", help="недельный отчёт беты: активность и обратная связь")
+    rp.add_argument("--weeks", type=int, default=8)
+    rp.add_argument("--json", action="store_true")
+    inv = sub.add_parser("invite", help="создать коды приглашения в закрытую бету")
+    inv.add_argument("--count", type=int, default=1)
+    inv.add_argument("--email", default="")
+    sub.add_parser("create-tables", help="создать таблицы без Alembic (только для разработки)")
     an = sub.add_parser("analyze", help="ИИ-разбор акта из текстового файла (проверка промпта и модели)")
     an.add_argument("--file", required=True, help="файл с текстом акта (UTF-8)")
     an.add_argument("--title", required=True)
@@ -38,6 +49,16 @@ def main() -> None:
     ev.add_argument("--json", action="store_true", help="вывести полный отчёт в JSON")
     args = ap.parse_args()
     settings = get_settings()
+    if args.cmd == "check-config":
+        from .prod import config_problems
+        problems = config_problems(settings)
+        for level, msg in problems:
+            print(f"{level}: {msg}")
+        errors = sum(1 for lv, _ in problems if lv == "ERROR")
+        print(f"Итого: ошибок {errors}, предупреждений {len(problems) - errors}")
+        raise SystemExit(1 if errors else 0)
+    if args.cmd in ("seed", "demo") and settings.app_env == "production":
+        raise SystemExit("В APP_ENV=production демо-данные не загружаются. Очистить: python -m app.cli purge-demo")
     factory = _factory(settings)
 
     if args.cmd == "seed":
@@ -82,8 +103,47 @@ def main() -> None:
             time.sleep(args.loop)
     elif args.cmd == "ingest":
         from ingest.run import run_ingest
+        while True:
+            try:
+                with factory() as db:
+                    print(run_ingest(db, settings), flush=True)
+            except Exception:  # сбой одного прохода не должен останавливать службу
+                logging.getLogger("lawtracker").exception("ingest: проход завершился ошибкой")
+                if not args.loop:
+                    raise
+            if not args.loop:
+                break
+            time.sleep(args.loop)
+    elif args.cmd == "purge-demo":
+        from .prod import purge_demo
         with factory() as db:
-            print(run_ingest(db, settings))
+            print(purge_demo(db))
+    elif args.cmd == "report":
+        from .analytics import feedback_report, weekly_report
+        with factory() as db:
+            rep = {"weekly": weekly_report(db, args.weeks)["weeks"], "feedback": feedback_report(db)}
+        if args.json:
+            print(json.dumps(rep, ensure_ascii=False, indent=2))
+        else:
+            print("Неделя      рег.  активных  комп.  лента   оценка  «не про нас»")
+            for w in rep["weekly"]:
+                print(f"{w['week']}  {w['signups']:>4}  {w['active_users']:>8}  {w['active_companies']:>5}  "
+                      f"{w['feed_open_share']:>5.0%}  {str(w['avg_rating'] or '—'):>6}  "
+                      f"{'—' if w['not_relevant_share'] is None else format(w['not_relevant_share'], '.0%'):>10}")
+            fb = rep["feedback"]
+            print(f"\nОбратная связь: ответов {fb['total']}, средняя оценка {fb['avg_rating']}, "
+                  f"«не про нас» {fb['not_relevant_share']} (цели: оценка ≥ 4, нерелевантных < 20 %)")
+    elif args.cmd == "invite":
+        from .models import BetaInvite
+        from .routers.admin import new_invite_code
+        with factory() as db:
+            codes = [BetaInvite(code=new_invite_code(), email=args.email.strip().lower())
+                     for _ in range(1 if args.email else args.count)]
+            db.add_all(codes)
+            db.commit()
+            print("\n".join(c.code for c in codes))
+    elif args.cmd == "create-tables":
+        print("Таблицы созданы")
 
 
 if __name__ == "__main__":
